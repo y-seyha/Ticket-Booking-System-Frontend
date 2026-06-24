@@ -71,9 +71,9 @@ export default function HeroCarousel({
 
   return (
     <section
-      className={`relative overflow-hidden pt-24 md:pt-28 lg:pt-32 pb-4 sm:pb-6 bg-black ${className}`}
+      className={`relative overflow-hidden pt-16 md:pt-20 lg:pt-24 pb-4 sm:pb-6 bg-black ${className}`}
     >
-      {/*  BACKGROUND BLUR  */}
+      {/* BACKGROUND BLUR  */}
       {showBlurBackground && (
         <div className="absolute inset-0 z-0 pointer-events-none select-none overflow-hidden">
           <AnimatePresence mode="popLayout">
@@ -98,8 +98,8 @@ export default function HeroCarousel({
         </div>
       )}
 
-      {/*  CAROUSEL  */}
-      <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 pt-12 sm:pt-16 md:pt-20 pb-4">
+      {/* Carousel Container */}
+      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 md:px-8 lg:px-12 pt-12 sm:pt-16 md:pt-20 pb-4">
         <div className="relative group/carousel">
           <div className="relative overflow-hidden rounded-2xl sm:rounded-3xl shadow-[0_8px_32px_rgba(0,0,0,0.6)]">
             {/* Arrows */}
@@ -156,14 +156,14 @@ export default function HeroCarousel({
                     className="flex-[0_0_100%] w-full transform-gpu"
                   >
                     <Link
-                      href={`/${item.id}`}
+                      href={`/banners/${item.id}`}
                       className="block relative overflow-hidden border border-white/5 h-[240px] sm:h-[360px] md:h-[460px] lg:h-[520px]"
                     >
                       <Image
                         src={item.src}
                         alt={item.title}
                         fill
-                        sizes="(max-w-640px) 100vw, (max-w-1152px) 90vw, 1152px"
+                        sizes="(max-w-480px) 100vw, (max-w-768px) 100vw, (max-w-1200px) 100vw, 1200px"
                         priority
                         className="object-cover select-none transition-transform duration-500 hover:scale-[1.02]"
                       />

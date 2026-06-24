@@ -106,20 +106,20 @@ const Navbar = ({
 
   return (
     <>
-      <nav className="fixed inset-x-0 top-0 z-[9999]  text-white backdrop-blur-xl border-b border-white/10 py-4">
-        {/*  TOP BAR  */}
-        <div className="hidden md:grid grid-cols-3 items-center max-w-7xl mx-auto px-4 md:px-23 lg:px-25 py-4">
+      <nav className="fixed inset-x-0 top-0 z-[9999] text-white bg-zinc-950/70 backdrop-blur-xl border-b border-white/10 py-1 md:py-2 transition-colors duration-300">
+        {/* TOP BAR  */}
+        <div className="hidden md:grid grid-cols-3 items-center max-w-7xl mx-auto px-4 md:px-23 lg:px-25 py-2">
           {/* LEFT */}
           <div className="flex justify-start">
             {showSearch && (
               <div className="relative group w-[260px]">
                 <input
                   placeholder="Search Movies..."
-                  className="w-full bg-white/5 text-base px-5 py-2 rounded-full border border-white/10 outline-none
-                transition-all duration-250
-                hover:border-white/40 focus:border-white
-                hover:shadow-[0_0_10px_rgba(255,255,255,0.12)]
-                focus:shadow-[0_0_14px_rgba(255,255,255,0.20)]"
+                  className="w-full bg-white/5 text-base px-5 py-1.5 rounded-full border border-white/10 outline-none
+          transition-all duration-250
+          hover:border-white/40 focus:border-white
+          hover:shadow-[0_0_10px_rgba(255,255,255,0.12)]
+          focus:shadow-[0_0_14px_rgba(255,255,255,0.20)]"
                 />
                 <Search className="absolute right-5 top-2.5 w-4 h-4 text-zinc-400 group-focus:text-white transition-colors" />
               </div>
@@ -134,13 +134,13 @@ const Navbar = ({
                   <img
                     src={logoUrl}
                     onError={() => setLogoFailed(true)}
-                    className="h-8 md:h-10 object-contain"
+                    className="h-7 md:h-9 object-contain"
                     alt="Logo"
                   />
                 ) : (
                   <div className="text-center font-bold leading-tight">
                     LEGEND
-                    <div className="text-[10px] tracking-[0.3em]">CINEMA</div>
+                    <div className="text-[9px] tracking-[0.3em]">CINEMA</div>
                   </div>
                 )}
               </Link>
@@ -152,7 +152,7 @@ const Navbar = ({
             {(showTicket || showJoinNow) && (
               <div className="hidden md:flex items-center gap-3">
                 {showTicket && (
-                  <button className="hidden lg:flex items-center gap-2 px-3 md:px-4 py-2 rounded-full bg-white/5 border border-white/10 text-sm border-white/10 hover:border-white/30 transition cursor-pointer">
+                  <button className="hidden lg:flex items-center gap-2 px-3 md:px-4 py-1.5 rounded-full bg-white/5 border border-white/10 text-sm hover:border-white/30 transition cursor-pointer">
                     <Ticket className="w-4 h-4" />
                     <span className="hidden md:inline">Ticket</span>
                   </button>
@@ -163,7 +163,7 @@ const Navbar = ({
                     {!user ? (
                       <button
                         onClick={() => router.push("/auth/login")}
-                        className="flex items-center gap-2 px-3 md:px-4 py-2 rounded-full bg-white/10 border border-white/10 text-sm whitespace-nowrap hover:border-white/30 transition"
+                        className="flex items-center gap-2 px-3 md:px-4 py-1.5 rounded-full bg-white/10 border border-white/10 text-sm whitespace-nowrap hover:border-white/30 transition"
                       >
                         <User className="w-4 h-4" />
                         <span>Join Now</span>
@@ -171,7 +171,7 @@ const Navbar = ({
                     ) : (
                       <button
                         onClick={() => router.push("/profile")}
-                        className="flex items-center gap-2 px-3 md:px-4 py-2 rounded-full bg-white/10 border border-white/10 text-sm whitespace-nowrap hover:border-white/30 transition"
+                        className="flex items-center gap-2 px-3 md:px-4 py-1.5 rounded-full bg-white/10 border border-white/10 text-sm whitespace-nowrap hover:border-white/30 transition"
                       >
                         <User className="w-4 h-4 text-red-400" />
                         <span>Profile</span>
@@ -187,20 +187,20 @@ const Navbar = ({
               <div className="relative">
                 <button
                   onClick={() => setOpenNotif(!openNotif)}
-                  className="p-3 rounded-full bg-white/5 border border-white/10 hover:border-white/30 transition cursor-pointer"
+                  className="p-2.5 rounded-full bg-white/5 border border-white/10 hover:border-white/30 transition cursor-pointer"
                 >
-                  <Bell className="w-5 h-5" />
+                  <Bell className="w-4 h-4" />
                 </button>
 
                 {openNotif && (
-                  <div className="absolute right-0 mt-3 w-72 bg-black/90 border border-white/10 rounded-xl overflow-hidden shadow-xl z-[120]">
-                    <div className="px-4 py-2 text-xs text-zinc-400 border-b border-white/10">
+                  <div className="absolute right-0 mt-2 w-72 bg-black/95 border border-white/10 rounded-xl overflow-hidden shadow-xl z-[120]">
+                    <div className="px-4 py-1.5 text-xs text-zinc-400 border-b border-white/10">
                       Notifications
                     </div>
                     {notifications.map((n, i) => (
                       <div
                         key={i}
-                        className="px-4 py-3 text-sm hover:bg-white/10"
+                        className="px-4 py-2.5 text-sm hover:bg-white/10"
                       >
                         {n}
                       </div>
@@ -212,12 +212,12 @@ const Navbar = ({
 
             {/* LANGUAGE */}
             {showLanguage && (
-              <div className="relative ">
+              <div className="relative">
                 <button
                   onClick={() => setOpenLang(!openLang)}
                   className="flex items-center gap-2 cursor-pointer"
                 >
-                  <span className="w-6 h-6 flex items-center justify-center">
+                  <span className="w-5 h-5 flex items-center justify-center">
                     <language.Flag />
                   </span>
 
@@ -233,7 +233,7 @@ const Navbar = ({
                 </button>
 
                 {openLang && (
-                  <div className="absolute right-0 mt-3 w-44 bg-black/95 border border-white/10 rounded-xl overflow-hidden shadow-2xl z-50">
+                  <div className="absolute right-0 mt-2 w-44 bg-black/95 border border-white/10 rounded-xl overflow-hidden shadow-2xl z-50">
                     {languages.map((lang) => {
                       const FlagIcon = lang.Flag;
 
@@ -265,91 +265,89 @@ const Navbar = ({
           </div>
         </div>
 
-        {/*  BOTTOM NAV  */}
+        {/* BOTTOM NAV  */}
         {showBottomNav && (
-          <>
-            {" "}
-            <div className="hidden md:block border-t border-gray-50/10 mt-4">
-              <div className="max-w-7xl mx-auto px-6 px-23 h-12 flex items-center justify-between">
-                {/* NAV LEFT */}
-                <div className="flex gap-10 text-sm md:text-base px-2">
-                  <button
-                    onClick={() => setActiveNav("home")}
-                    className="flex items-center gap-2 group"
-                  >
-                    <Home className={navIcon("home")} />
-                    <span className={navText("home")}>Home</span>
-                  </button>
+          <div className="hidden md:block border-t border-white/5 mt-1">
+            <div className="max-w-7xl mx-auto px-6 px-23 h-10 flex items-center justify-between">
+              {/* NAV LEFT */}
+              <div className="flex gap-10 text-sm md:text-base px-2">
+                <button
+                  onClick={() => setActiveNav("home")}
+                  className="flex items-center gap-2 group"
+                >
+                  <Home className={navIcon("home")} />
+                  <span className={navText("home")}>Home</span>
+                </button>
 
-                  <button
-                    onClick={() => setActiveNav("cinemas")}
-                    className="flex items-center gap-2 group"
-                  >
-                    <MapPin className={navIcon("cinemas")} />
-                    <span className={navText("cinemas")}>Cinemas</span>
-                  </button>
+                <button
+                  onClick={() => setActiveNav("cinemas")}
+                  className="flex items-center gap-2 group"
+                >
+                  <MapPin className={navIcon("cinemas")} />
+                  <span className={navText("cinemas")}>Cinemas</span>
+                </button>
 
-                  <button
-                    onClick={() => setActiveNav("offers")}
-                    className="flex items-center gap-2 group"
-                  >
-                    <Tag className={navIcon("offers")} />
-                    <span className={navText("offers")}>Offers</span>
-                  </button>
+                <button
+                  onClick={() => setActiveNav("offers")}
+                  className="flex items-center gap-2 group"
+                >
+                  <Tag className={navIcon("offers")} />
+                  <span className={navText("offers")}>Offers</span>
+                </button>
 
-                  <button
-                    onClick={() => setActiveNav("fb")}
-                    className="flex items-center gap-2 group"
-                  >
-                    <UtensilsCrossed className={navIcon("fb")} />
-                    <span className={navText("fb")}>F&B</span>
-                  </button>
-                </div>
-
-                {/* CINEMA DROPDOWN */}
-                {showCinemaDropdown && (
-                  <div className="relative">
-                    <button
-                      onClick={() => setOpenCinema(!openCinema)}
-                      className="flex items-center gap-2 px-3 py-2 rounded-full"
-                    >
-                      <MapPin className="w-4 h-4 text-red-500" />
-                      <span>All Cinemas</span>
-                      <ChevronDown
-                        className={`w-4 h-4 ${openCinema ? "rotate-180" : ""}`}
-                      />
-                    </button>
-
-                    {openCinema && (
-                      <div className="absolute right-0 mt-3 w-80 bg-black/90 border border-white/10 rounded-xl shadow-xl overflow-hidden">
-                        <div className="px-4 py-3 border-b border-white/10 text-sm font-semibold">
-                          Cinema Locations
-                        </div>
-
-                        {cinemas.map((c) => (
-                          <button
-                            key={c.id}
-                            className="w-full flex items-center gap-3 px-4 py-3 hover:bg-white/10"
-                          >
-                            <img
-                              src={c.image}
-                              className="w-12 h-12 rounded-md"
-                            />
-                            <div>
-                              <div className="text-sm">{c.name}</div>
-                              <div className="text-xs text-zinc-400">
-                                {c.location}
-                              </div>
-                            </div>
-                          </button>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                )}
+                <button
+                  onClick={() => setActiveNav("fb")}
+                  className="flex items-center gap-2 group"
+                >
+                  <UtensilsCrossed className={navIcon("fb")} />
+                  <span className={navText("fb")}>F&B</span>
+                </button>
               </div>
+
+              {/* CINEMA DROPDOWN */}
+              {showCinemaDropdown && (
+                <div className="relative">
+                  <button
+                    onClick={() => setOpenCinema(!openCinema)}
+                    className="flex items-center gap-2 px-3 py-1 rounded-full"
+                  >
+                    <MapPin className="w-4 h-4 text-red-500" />
+                    <span>All Cinemas</span>
+                    <ChevronDown
+                      className={`w-4 h-4 ${openCinema ? "rotate-180" : ""}`}
+                    />
+                  </button>
+
+                  {openCinema && (
+                    <div className="absolute right-0 mt-2 w-80 bg-black/95 border border-white/10 rounded-xl shadow-xl overflow-hidden">
+                      <div className="px-4 py-1.5 border-b border-white/10 text-sm font-semibold">
+                        Cinema Locations
+                      </div>
+
+                      {cinemas.map((c) => (
+                        <button
+                          key={c.id}
+                          className="w-full flex items-center gap-3 px-4 py-2 hover:bg-white/10"
+                        >
+                          <img
+                            src={c.image}
+                            className="w-10 h-10 rounded-md"
+                            alt={c.name}
+                          />
+                          <div className="text-left">
+                            <div className="text-sm">{c.name}</div>
+                            <div className="text-xs text-zinc-400">
+                              {c.location}
+                            </div>
+                          </div>
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
-          </>
+          </div>
         )}
       </nav>
 

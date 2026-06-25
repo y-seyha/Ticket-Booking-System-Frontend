@@ -10,16 +10,15 @@ import {
   MapPin,
   Home,
   Tag,
-  UtensilsCrossed,
 } from "lucide-react";
 import Link from "next/link";
 import { GB, KH } from "country-flag-icons/react/3x2";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import { LuPopcorn } from "react-icons/lu";
 import { CiSquareMore } from "react-icons/ci";
 import { useAuthStore } from "@/features/auth/auth.store";
 
-type NavKey = "home" | "cinemas" | "offers" | "fb" | "tickets" | "more" | "f&b";
+type NavKey = "home" | "cinemas" | "promotions" | "fb" | "tickets" | "more";
 
 type Language = {
   code: string;
@@ -65,6 +64,7 @@ const Navbar = ({
   logoUrl = "/cinema-logo.png",
 }: NavbarProps) => {
   const router = useRouter();
+  const pathname = usePathname();
   const user = useAuthStore((s) => s.user);
   const hydrated = useAuthStore((s) => s.hydrated);
   const [language, setLanguage] = useState(languages[0]);
@@ -72,7 +72,18 @@ const Navbar = ({
   const [openNotif, setOpenNotif] = useState(false);
   const [openCinema, setOpenCinema] = useState(false);
   const [logoFailed, setLogoFailed] = useState(false);
-  const [activeNav, setActiveNav] = useState<NavKey>("home");
+
+  // Dynamically determine the active key based on the URL path
+  const getActiveKey = (): NavKey => {
+    if (pathname === "/") return "home";
+    if (pathname.startsWith("/cinemas")) return "cinemas";
+    if (pathname.startsWith("/promotions")) return "promotions";
+    if (pathname.startsWith("/food-and-drinks")) return "fb";
+    if (pathname.startsWith("/more")) return "more";
+    return "home";
+  };
+
+  const activeNav = getActiveKey();
 
   const notifications = [
     "🎬 New movie released",
@@ -100,9 +111,9 @@ const Navbar = ({
         : "text-zinc-400 group-hover:text-white cursor-pointer"
     }`;
 
-  if (!hydrated) {
-    return <div className="h-16" />; // or skeleton
-  }
+  // if (!hydrated) {
+  //   return <div className="h-16" />;
+  // }
 
   return (
     <>
@@ -116,10 +127,10 @@ const Navbar = ({
                 <input
                   placeholder="Search Movies..."
                   className="w-full bg-white/5 text-base px-5 py-1.5 rounded-full border border-white/10 outline-none
-          transition-all duration-250
-          hover:border-white/40 focus:border-white
-          hover:shadow-[0_0_10px_rgba(255,255,255,0.12)]
-          focus:shadow-[0_0_14px_rgba(255,255,255,0.20)]"
+                  transition-all duration-250
+                  hover:border-white/40 focus:border-white
+                  hover:shadow-[0_0_10px_rgba(255,255,255,0.12)]
+                  focus:shadow-[0_0_14px_rgba(255,255,255,0.20)]"
                 />
                 <Search className="absolute right-5 top-2.5 w-4 h-4 text-zinc-400 group-focus:text-white transition-colors" />
               </div>
@@ -160,7 +171,10 @@ const Navbar = ({
 
                 {showJoinNow && (
                   <>
-                    {!user ? (
+                    {!hydrated ? (
+                      // Skeleton while Zustand is hydrating
+                      <div className="w-24 h-9 rounded-full bg-white/10 animate-pulse" />
+                    ) : !user ? (
                       <button
                         onClick={() => router.push("/auth/login")}
                         className="flex items-center gap-2 px-3 md:px-4 py-1.5 rounded-full bg-white/10 border border-white/10 text-sm whitespace-nowrap hover:border-white/30 transition"
@@ -271,37 +285,31 @@ const Navbar = ({
             <div className="max-w-7xl mx-auto px-6 px-23 h-10 flex items-center justify-between">
               {/* NAV LEFT */}
               <div className="flex gap-10 text-sm md:text-base px-2">
-                <button
-                  onClick={() => setActiveNav("home")}
-                  className="flex items-center gap-2 group"
-                >
+                <Link href="/" className="flex items-center gap-2 group">
                   <Home className={navIcon("home")} />
                   <span className={navText("home")}>Home</span>
-                </button>
+                </Link>
 
-                <button
-                  onClick={() => setActiveNav("cinemas")}
-                  className="flex items-center gap-2 group"
-                >
+                <Link href="/cinemas" className="flex items-center gap-2 group">
                   <MapPin className={navIcon("cinemas")} />
                   <span className={navText("cinemas")}>Cinemas</span>
-                </button>
+                </Link>
 
-                <button
-                  onClick={() => setActiveNav("offers")}
+                <Link
+                  href="/promotions"
                   className="flex items-center gap-2 group"
                 >
-                  <Tag className={navIcon("offers")} />
-                  <span className={navText("offers")}>Offers</span>
-                </button>
+                  <Tag className={navIcon("promotions")} />
+                  <span className={navText("promotions")}>Offers</span>
+                </Link>
 
-                <button
-                  onClick={() => setActiveNav("fb")}
+                <Link
+                  href="/food-and-drinks"
                   className="flex items-center gap-2 group"
                 >
-                  <UtensilsCrossed className={navIcon("fb")} />
+                  <LuPopcorn className={navIcon("fb")} />
                   <span className={navText("fb")}>F&B</span>
-                </button>
+                </Link>
               </div>
 
               {/* CINEMA DROPDOWN */}
@@ -309,7 +317,7 @@ const Navbar = ({
                 <div className="relative">
                   <button
                     onClick={() => setOpenCinema(!openCinema)}
-                    className="flex items-center gap-2 px-3 py-1 rounded-full"
+                    className="flex items-center gap-2 px-3 py-1 rounded-full cursor-pointer"
                   >
                     <MapPin className="w-4 h-4 text-red-500" />
                     <span>All Cinemas</span>
@@ -327,15 +335,15 @@ const Navbar = ({
                       {cinemas.map((c) => (
                         <button
                           key={c.id}
-                          className="w-full flex items-center gap-3 px-4 py-2 hover:bg-white/10"
+                          className="w-full flex items-center gap-3 px-4 py-2 hover:bg-white/10 text-left"
                         >
                           <img
                             src={c.image}
                             className="w-10 h-10 rounded-md"
                             alt={c.name}
                           />
-                          <div className="text-left">
-                            <div className="text-sm">{c.name}</div>
+                          <div>
+                            <div className="text-sm text-white">{c.name}</div>
                             <div className="text-xs text-zinc-400">
                               {c.location}
                             </div>
@@ -351,9 +359,9 @@ const Navbar = ({
         )}
       </nav>
 
-      {/*  MOBILE TOP BAR  */}
+      {/* MOBILE TOP BAR  */}
       <nav className="md:hidden fixed top-0 left-0 right-0 z-[9999] text-white backdrop-blur-xl border-b border-white/10">
-        {/*  TOP  */}
+        {/* TOP  */}
         <div className="h-16 px-4 flex items-center justify-between relative">
           {/* LEFT */}
           <div className="flex items-center gap-2">
@@ -381,6 +389,7 @@ const Navbar = ({
                   src={logoUrl}
                   onError={() => setLogoFailed(true)}
                   className="h-8 object-contain"
+                  alt="Logo"
                 />
               ) : (
                 <div className="font-bold text-sm">LEGEND</div>
@@ -390,7 +399,6 @@ const Navbar = ({
 
           {/* RIGHT */}
           <div className="flex items-center gap-1 relative">
-            {/* LANGUAGE */}
             {showLanguage && (
               <div className="relative">
                 <button
@@ -400,9 +408,7 @@ const Navbar = ({
                   <span className="w-5 h-5 flex items-center justify-center">
                     <language.Flag />
                   </span>
-
                   <span className="text-xs uppercase">{language.code}</span>
-
                   <ChevronDown
                     className={`w-4 h-4 opacity-70 transition-transform duration-300 ${
                       openLang ? "rotate-180" : ""
@@ -433,9 +439,7 @@ const Navbar = ({
                         <span className="w-5 h-4 flex items-center justify-center">
                           <FlagIcon />
                         </span>
-
                         <span>{lang.label}</span>
-
                         <span className="ml-auto text-xs opacity-50 uppercase">
                           {lang.code}
                         </span>
@@ -446,7 +450,6 @@ const Navbar = ({
               </div>
             )}
 
-            {/* SEARCH */}
             {showSearch && (
               <button className="w-10 h-10 flex items-center justify-center">
                 <Search className="w-5 h-5" />
@@ -455,38 +458,33 @@ const Navbar = ({
           </div>
         </div>
 
-        {/*  CINEMA ROW  */}
+        {/* CINEMA ROW  */}
         {showCinemaDropdown && (
-          <>
-            <div className="h-12 px-5 flex items-center justify-between border-t border-white/10 bg-black/50 backdrop-blur-xl">
-              {/* LEFT - SELECTED LOCATION */}
-              <button
-                onClick={() => setOpenCinema(!openCinema)}
-                className="flex items-center gap-3"
-              >
-                <MapPin className="w-4 h-4 text-red-500" />
+          <div className="h-12 px-5 flex items-center justify-between border-t border-white/10 bg-black/50 backdrop-blur-xl">
+            <button
+              onClick={() => setOpenCinema(!openCinema)}
+              className="flex items-center gap-3"
+            >
+              <MapPin className="w-4 h-4 text-red-500" />
+              <span className="text-[15px] font-semibold tracking-wide text-white">
+                All Cinemas
+              </span>
+            </button>
 
-                <span className="text-[15px] font-semibold tracking-wide text-white">
-                  All Cinemas
-                </span>
-              </button>
-
-              {/* RIGHT */}
-              <button
-                onClick={() => setOpenCinema(!openCinema)}
-                className="flex items-center justify-center w-9 h-9 rounded-md "
-              >
-                <ChevronDown
-                  className={`w-5 h-5 text-white transition-transform duration-300 ${
-                    openCinema ? "rotate-180" : ""
-                  }`}
-                />
-              </button>
-            </div>
-          </>
+            <button
+              onClick={() => setOpenCinema(!openCinema)}
+              className="flex items-center justify-center w-9 h-9 rounded-md "
+            >
+              <ChevronDown
+                className={`w-5 h-5 text-white transition-transform duration-300 ${
+                  openCinema ? "rotate-180" : ""
+                }`}
+              />
+            </button>
+          </div>
         )}
 
-        {/*  CINEMA DROPDOWN  */}
+        {/* CINEMA DROPDOWN  */}
         <div
           className={`absolute top-28 left-0 right-0 mx-4 px-2 bg-black/95 backdrop-blur-xl border border-white/10 rounded-xl shadow-xl overflow-hidden transition-all duration-300 ease-out ${
             openCinema
@@ -498,14 +496,14 @@ const Navbar = ({
             {cinemas.map((c) => (
               <button
                 key={c.id}
-                className="w-full flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-white/10 transition"
+                className="w-full flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-white/10 transition text-left"
               >
                 <img
                   src={c.image}
                   className="w-10 h-10 rounded-md object-cover"
+                  alt={c.name}
                 />
-
-                <div className="text-left">
+                <div>
                   <div className="text-sm text-white">{c.name}</div>
                   <div className="text-xs text-zinc-400">{c.location}</div>
                 </div>
@@ -515,41 +513,38 @@ const Navbar = ({
         </div>
       </nav>
 
-      {/*  MOBILE FOOTER NAV  */}
+      {/* MOBILE FOOTER NAV  */}
       {showMobileBottomNav && (
         <div className="md:hidden fixed bottom-0 left-0 right-0 z-[9999] bg-black/30 backdrop-blur-xl">
           <div className="grid grid-cols-5 h-16">
             {/* HOME */}
-            <button
-              onClick={() => setActiveNav("home")}
+            <Link
+              href="/"
               className="flex flex-col items-center justify-center gap-1"
             >
               <div
                 className={`relative w-10 h-10 flex items-center justify-center rounded-2xl
-          transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] transform-gpu
-          ${
-            activeNav === "home"
-              ? "scale-110 -translate-y-[1px] text-white"
-              : "scale-100 text-zinc-300"
-          }`}
+                transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] transform-gpu
+                ${
+                  activeNav === "home"
+                    ? "scale-110 -translate-y-[1px] text-white"
+                    : "scale-100 text-zinc-300"
+                }`}
               >
-                {/* background layer */}
                 <div
                   className={`absolute inset-0 rounded-2xl transition-all duration-500
-            ${
-              activeNav === "home"
-                ? "bg-red-500 opacity-100"
-                : "bg-white/5 opacity-0"
-            }`}
+                  ${
+                    activeNav === "home"
+                      ? "bg-red-500 opacity-100"
+                      : "bg-white/5 opacity-0"
+                  }`}
                 />
-
                 <Home
                   className={`w-5 h-5 relative z-10 transition-all duration-300 ${
                     activeNav === "home" ? "scale-110" : "scale-100"
                   }`}
                 />
               </div>
-
               <span
                 className={`text-[11px] transition-all duration-300 ${
                   activeNav === "home" ? "text-white" : "text-zinc-400"
@@ -557,69 +552,65 @@ const Navbar = ({
               >
                 Home
               </span>
-            </button>
+            </Link>
 
             {/* OFFERS */}
-            <button
-              onClick={() => setActiveNav("offers")}
+            <Link
+              href="/promotions"
               className="flex flex-col items-center justify-center gap-1"
             >
               <div
                 className={`relative w-10 h-10 flex items-center justify-center rounded-2xl
-          transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] transform-gpu
-          ${
-            activeNav === "offers"
-              ? "scale-110 -translate-y-[1px] text-white"
-              : "scale-100 text-zinc-300"
-          }`}
+                transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] transform-gpu
+                ${
+                  activeNav === "promotions"
+                    ? "scale-110 -translate-y-[1px] text-white"
+                    : "scale-100 text-zinc-300"
+                }`}
               >
                 <div
                   className={`absolute inset-0 rounded-2xl transition-all duration-500
-            ${
-              activeNav === "offers"
-                ? "bg-red-500 opacity-100"
-                : "bg-white/5 opacity-0"
-            }`}
+                  ${
+                    activeNav === "promotions"
+                      ? "bg-red-500 opacity-100"
+                      : "bg-white/5 opacity-0"
+                  }`}
                 />
-
                 <Tag className="w-5 h-5 relative z-10" />
               </div>
-
               <span
                 className={`text-[11px] transition-all duration-300 ${
-                  activeNav === "offers" ? "text-white" : "text-zinc-400"
+                  activeNav === "promotions" ? "text-white" : "text-zinc-400"
                 }`}
               >
                 Offers
               </span>
-            </button>
+            </Link>
 
             {/* CINEMAS */}
-            <button
-              onClick={() => setActiveNav("cinemas")}
+            <Link
+              href="/cinemas"
               className="flex flex-col items-center justify-center gap-1"
             >
               <div
                 className={`relative w-10 h-10 flex items-center justify-center rounded-2xl
-          transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] transform-gpu
-          ${
-            activeNav === "cinemas"
-              ? "scale-110 -translate-y-[1px] text-white"
-              : "scale-100 text-zinc-300"
-          }`}
+                transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] transform-gpu
+                ${
+                  activeNav === "cinemas"
+                    ? "scale-110 -translate-y-[1px] text-white"
+                    : "scale-100 text-zinc-300"
+                }`}
               >
                 <div
                   className={`absolute inset-0 rounded-2xl transition-all duration-500
-            ${
-              activeNav === "cinemas"
-                ? "bg-red-500 opacity-100"
-                : "bg-white/5 opacity-0"
-            }`}
+                  ${
+                    activeNav === "cinemas"
+                      ? "bg-red-500 opacity-100"
+                      : "bg-white/5 opacity-0"
+                  }`}
                 />
-
                 <MapPin className="w-5 h-5 relative z-10" />
               </div>
-
               <span
                 className={`text-[11px] transition-all duration-300 ${
                   activeNav === "cinemas" ? "text-white" : "text-zinc-400"
@@ -627,34 +618,32 @@ const Navbar = ({
               >
                 Cinemas
               </span>
-            </button>
+            </Link>
 
             {/* F&B */}
-            <button
-              onClick={() => setActiveNav("fb")}
+            <Link
+              href="/food-and-drinks"
               className="flex flex-col items-center justify-center gap-1"
             >
               <div
                 className={`relative w-10 h-10 flex items-center justify-center rounded-2xl
-          transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] transform-gpu
-          ${
-            activeNav === "fb"
-              ? "scale-110 -translate-y-[1px] text-white"
-              : "scale-100 text-zinc-300"
-          }`}
+                transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] transform-gpu
+                ${
+                  activeNav === "fb"
+                    ? "scale-110 -translate-y-[1px] text-white"
+                    : "scale-100 text-zinc-300"
+                }`}
               >
                 <div
                   className={`absolute inset-0 rounded-2xl transition-all duration-500
-            ${
-              activeNav === "fb"
-                ? "bg-red-500 opacity-100"
-                : "bg-white/5 opacity-0"
-            }`}
+                  ${
+                    activeNav === "fb"
+                      ? "bg-red-500 opacity-100"
+                      : "bg-white/5 opacity-0"
+                  }`}
                 />
-
                 <LuPopcorn className="w-5 h-5 relative z-10" />
               </div>
-
               <span
                 className={`text-[11px] transition-all duration-300 ${
                   activeNav === "fb" ? "text-white" : "text-zinc-400"
@@ -662,34 +651,32 @@ const Navbar = ({
               >
                 F&B
               </span>
-            </button>
+            </Link>
 
             {/* MORE */}
-            <button
-              onClick={() => setActiveNav("more")}
+            <Link
+              href="/more"
               className="flex flex-col items-center justify-center gap-1"
             >
               <div
                 className={`relative w-10 h-10 flex items-center justify-center rounded-2xl
-          transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] transform-gpu
-          ${
-            activeNav === "more"
-              ? "scale-110 -translate-y-[1px] text-white"
-              : "scale-100 text-zinc-300"
-          }`}
+                transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] transform-gpu
+                ${
+                  activeNav === "more"
+                    ? "scale-110 -translate-y-[1px] text-white"
+                    : "scale-100 text-zinc-300"
+                }`}
               >
                 <div
                   className={`absolute inset-0 rounded-2xl transition-all duration-500
-            ${
-              activeNav === "more"
-                ? "bg-red-500 opacity-100"
-                : "bg-white/5 opacity-0"
-            }`}
+                  ${
+                    activeNav === "more"
+                      ? "bg-red-500 opacity-100"
+                      : "bg-white/5 opacity-0"
+                  }`}
                 />
-
                 <CiSquareMore className="w-5 h-5 relative z-10" />
               </div>
-
               <span
                 className={`text-[11px] transition-all duration-300 ${
                   activeNav === "more" ? "text-white" : "text-zinc-400"
@@ -697,7 +684,7 @@ const Navbar = ({
               >
                 More
               </span>
-            </button>
+            </Link>
           </div>
         </div>
       )}

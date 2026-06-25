@@ -24,7 +24,6 @@ export default function Home() {
     <div className="min-h-screen bg-black flex flex-col text-white select-none relative overflow-x-hidden">
       <div className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none z-0 mix-blend-screen select-none">
         <div className="w-[800px] md:w-[1300px] h-[600px] md:h-[700px] bg-red-700/20 rounded-full blur-[140px]" />
-
         <div className="absolute inset-0 m-auto w-[400px] md:w-[700px] h-[300px] md:h-[350px] bg-red-600/35 rounded-full blur-[90px]" />
       </div>
       <Navbar />
@@ -38,7 +37,7 @@ export default function Home() {
         />
 
         {/* Unified Layout Containment Grid */}
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8 lg:px-12 mt-6 md:mt-10">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 md:px-8 lg:px-12 mt-6 md:mt-10">
           <MovieFilterTabs
             currentMode={currentMode}
             onChangeMode={setCurrentMode}

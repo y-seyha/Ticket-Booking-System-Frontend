@@ -99,7 +99,7 @@ export default function HeroCarousel({
       )}
 
       {/* Carousel Container */}
-      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 md:px-8 lg:px-12 pt-12 sm:pt-16 md:pt-20 pb-4">
+      <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 md:px-8 lg:px-12 pt-12 sm:pt-16 md:pt-20 pb-4">
         <div className="relative group/carousel">
           <div className="relative overflow-hidden rounded-2xl sm:rounded-3xl shadow-[0_8px_32px_rgba(0,0,0,0.6)]">
             {/* Arrows */}
@@ -157,7 +157,7 @@ export default function HeroCarousel({
                   >
                     <Link
                       href={`/banners/${item.id}`}
-                      className="block relative overflow-hidden border border-white/5 h-[240px] sm:h-[360px] md:h-[460px] lg:h-[520px]"
+                      className="block relative overflow-hidden border border-white/5 h-[220px] sm:h-[320px] md:h-[420px] lg:h-[480px]"
                     >
                       <Image
                         src={item.src}

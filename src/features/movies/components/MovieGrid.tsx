@@ -22,7 +22,7 @@ export default function MovieGrid({ movies }: MovieGridProps) {
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-4 gap-y-8 mt-6">
         {movies.map((movie) => (
           <Link
-            href={`/${movie.id}`}
+            href={`/movies/${movie.id}`}
             key={movie.id}
             className="group flex flex-col w-full max-w-[190px] sm:max-w-[220px] md:max-w-[240px] lg:max-w-[260px] mx-auto min-w-0 tracking-tight cursor-pointer"
           >

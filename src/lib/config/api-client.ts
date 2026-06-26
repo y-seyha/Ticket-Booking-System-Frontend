@@ -19,7 +19,6 @@ let apiClient: AxiosInstance | null = null;
 let isRefreshing = false;
 let failedQueue: QueueItem[] = [];
 
-
 const processQueue = (error: unknown): void => {
   failedQueue.forEach((p) => {
     if (error) {
@@ -31,7 +30,6 @@ const processQueue = (error: unknown): void => {
 
   failedQueue = [];
 };
-
 
 export function getApiClient(): AxiosInstance {
   if (apiClient) return apiClient;
@@ -54,7 +52,6 @@ export function getApiClient(): AxiosInstance {
     (response) => response,
     async (error: unknown) => {
       const axiosError = error as AxiosError;
-
       const originalRequest = axiosError.config as AppAxiosRequestConfig;
 
       // No response (network error, timeout, etc.)
@@ -71,6 +68,10 @@ export function getApiClient(): AxiosInstance {
 
       // Prevent infinite refresh loop
       if (originalRequest.url?.includes("/auth/refresh")) {
+        return Promise.reject(error);
+      }
+
+      if (originalRequest.url?.includes("/auth/2fa/verify")) {
         return Promise.reject(error);
       }
 

@@ -177,7 +177,7 @@ const Navbar = ({
                     ) : !user ? (
                       <button
                         onClick={() => router.push("/auth/login")}
-                        className="flex items-center gap-2 px-3 md:px-4 py-1.5 rounded-full bg-white/10 border border-white/10 text-sm whitespace-nowrap hover:border-white/30 transition"
+                        className="flex items-center gap-2 px-3 md:px-4 py-1.5 rounded-full bg-white/10 border border-white/10 text-sm whitespace-nowrap hover:border-white/30 transition cursor-pointer"
                       >
                         <User className="w-4 h-4" />
                         <span>Join Now</span>
@@ -185,7 +185,7 @@ const Navbar = ({
                     ) : (
                       <button
                         onClick={() => router.push("/profile")}
-                        className="flex items-center gap-2 px-3 md:px-4 py-1.5 rounded-full bg-white/10 border border-white/10 text-sm whitespace-nowrap hover:border-white/30 transition"
+                        className="flex items-center gap-2 px-3 md:px-4 py-1.5 rounded-full bg-white/10 border border-white/10 text-sm whitespace-nowrap hover:border-white/30 transition cursor-pointer"
                       >
                         <User className="w-4 h-4 text-red-400" />
                         <span>Profile</span>

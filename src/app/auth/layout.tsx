@@ -22,10 +22,36 @@ export default function AuthLayout({
 
   const isLogin = pathname === "/auth/login";
 
+  const isSuccessPage =
+    pathname === "/auth/oauth-success" ||
+    pathname === "/auth/login/success" ||
+    pathname === "/auth/success";
+
+  const isVerifyState =
+    pathname === "/auth/register/success" || pathname === "/auth/verify-email";
+
+  const isVerifyRequest = pathname === "/auth/verify-request";
+
+  const isForgotPassword = pathname === "/auth/forgot-password";
+  const isResetPassword = pathname === "/auth/reset-password";
+
+  const isVerify2FA = pathname === "/auth/verify-2fa";
+
+  const isSetup2FA = pathname === "/auth/setup-2fa";
+
   const breadcrumbMap: Record<string, string[]> = {
     "/auth/login": ["Home", "Login"],
     "/auth/register": ["Home", "Register"],
+    "/auth/forgot-password": ["Home", "Forgot Password"],
+    "/auth/reset-password": ["Home", "Reset Password"],
+    "/auth/verify-request": ["Home", "Verify Request"],
+    "/auth/verify-email": ["Home", "Verifying Email"],
+    "/auth/success": ["Home", "Success"],
+    "/auth/verify-2fa": ["Home", "Two-Factor Verification"],
+    "/auth/setup-2fa": ["Home", "Two-Factor Configuration"], // Added to breadcrumbs
   };
+
+  const showBreadcrumb = Object.keys(breadcrumbMap).includes(pathname);
 
   return (
     <div className="relative min-h-screen w-full flex items-center justify-center bg-[#0d1117] text-white p-4 overflow-hidden">
@@ -53,36 +79,38 @@ export default function AuthLayout({
       {/* Content */}
       <div className="relative z-10 w-full max-w-5xl flex flex-col lg:mt-10 md:mt-10">
         {/* Breadcrumb */}
-        <div className="mb-4 self-start text-sm text-zinc-400">
-          <Breadcrumb>
-            <BreadcrumbList className="text-lg gap-2">
-              {breadcrumbMap[pathname]?.map((item, index, arr) => {
-                const isLast = index === arr.length - 1;
+        {showBreadcrumb && (
+          <div className="mb-4 self-start text-sm text-zinc-400">
+            <Breadcrumb>
+              <BreadcrumbList className="text-lg gap-2">
+                {breadcrumbMap[pathname]?.map((item, index, arr) => {
+                  const isLast = index === arr.length - 1;
 
-                return (
-                  <React.Fragment key={item}>
-                    <BreadcrumbItem>
-                      {isLast ? (
-                        <BreadcrumbPage className="text-white">
-                          {item}
-                        </BreadcrumbPage>
-                      ) : (
-                        <BreadcrumbLink
-                          href="/"
-                          className="text-zinc-400 hover:text-white transition-colors"
-                        >
-                          {item}
-                        </BreadcrumbLink>
-                      )}
-                    </BreadcrumbItem>
+                  return (
+                    <React.Fragment key={item}>
+                      <BreadcrumbItem>
+                        {isLast ? (
+                          <BreadcrumbPage className="text-white">
+                            {item}
+                          </BreadcrumbPage>
+                        ) : (
+                          <BreadcrumbLink
+                            href="/"
+                            className="text-zinc-400 hover:text-white transition-colors"
+                          >
+                            {item}
+                          </BreadcrumbLink>
+                        )}
+                      </BreadcrumbItem>
 
-                    {!isLast && <BreadcrumbSeparator />}
-                  </React.Fragment>
-                );
-              })}
-            </BreadcrumbList>
-          </Breadcrumb>
-        </div>
+                      {!isLast && <BreadcrumbSeparator />}
+                    </React.Fragment>
+                  );
+                })}
+              </BreadcrumbList>
+            </Breadcrumb>
+          </div>
+        )}
 
         {/* Card */}
         <div className="w-full grid md:grid-cols-2 bg-[#161b22]/80 backdrop-blur-xl rounded-2xl border border-white/10 overflow-hidden shadow-2xl">
@@ -97,35 +125,99 @@ export default function AuthLayout({
 
           {/* RIGHT SIDE */}
           <div className="p-8 md:p-12 flex flex-col min-h-[650px]">
-            {/* ROUTE TABS */}
+            {/* ROUTE TABS OR REDIRECTING HEADER */}
             <div className="flex gap-10 mb-10 text-3xl font-semibold">
-              <button
-                onClick={() => router.push("/auth/login")}
-                className={`relative pb-2 transition-colors duration-200 ${
-                  isLogin ? "text-white" : "text-gray-500 hover:text-gray-300"
-                }`}
-              >
-                Log In
-                <span
-                  className={`absolute left-0 -bottom-1 h-[3px] w-full bg-red-500 rounded-full transition-transform origin-left duration-300 ${
-                    isLogin ? "scale-x-100" : "scale-x-0"
-                  }`}
-                />
-              </button>
+              {isSuccessPage && (
+                <span className="text-white relative pb-2">
+                  Success
+                  <span className="absolute left-0 -bottom-1 h-[3px] w-full bg-red-500 rounded-full" />
+                </span>
+              )}
 
-              <button
-                onClick={() => router.push("/auth/register")}
-                className={`relative pb-2 transition-colors duration-200 ${
-                  !isLogin ? "text-white" : "text-gray-500 hover:text-gray-300"
-                }`}
-              >
-                Sign Up
-                <span
-                  className={`absolute left-0 -bottom-1 h-[3px] w-full bg-red-500 rounded-full transition-transform origin-left duration-300 ${
-                    !isLogin ? "scale-x-100" : "scale-x-0"
-                  }`}
-                />
-              </button>
+              {isVerifyState && (
+                <span className="text-white relative pb-2">
+                  Verifying Account
+                  <span className="absolute left-0 -bottom-1 h-[3px] w-full bg-red-500 rounded-full" />
+                </span>
+              )}
+
+              {isVerifyRequest && (
+                <span className="text-white relative pb-2">
+                  Check Email
+                  <span className="absolute left-0 -bottom-1 h-[3px] w-full bg-red-500 rounded-full" />
+                </span>
+              )}
+
+              {isForgotPassword && (
+                <span className="text-white relative pb-2">
+                  Forgot Password
+                  <span className="absolute left-0 -bottom-1 h-[3px] w-full bg-red-500 rounded-full" />
+                </span>
+              )}
+
+              {isResetPassword && (
+                <span className="text-white relative pb-2">
+                  Reset Password
+                  <span className="absolute left-0 -bottom-1 h-[3px] w-full bg-red-500 rounded-full" />
+                </span>
+              )}
+
+              {isVerify2FA && (
+                <span className="text-white relative pb-2">
+                  2FA Verification
+                  <span className="absolute left-0 -bottom-1 h-[3px] w-full bg-red-500 rounded-full" />
+                </span>
+              )}
+
+              {/* Added explicit header tracker text for setup screen */}
+              {isSetup2FA && (
+                <span className="text-white relative pb-2">
+                  2FA Security Setup
+                  <span className="absolute left-0 -bottom-1 h-[3px] w-full bg-red-500 rounded-full" />
+                </span>
+              )}
+
+              {!isSuccessPage &&
+                !isVerifyState &&
+                !isVerifyRequest &&
+                !isForgotPassword &&
+                !isResetPassword &&
+                !isVerify2FA &&
+                !isSetup2FA && ( // Exclude setup path here so login/register tabs are hidden
+                  <>
+                    <button
+                      onClick={() => router.push("/auth/login")}
+                      className={`relative pb-2 transition-colors duration-200 ${
+                        isLogin
+                          ? "text-white"
+                          : "text-gray-500 hover:text-gray-300"
+                      }`}
+                    >
+                      Log In
+                      <span
+                        className={`absolute left-0 -bottom-1 h-[3px] w-full bg-red-500 rounded-full transition-transform origin-left duration-300 ${
+                          isLogin ? "scale-x-100" : "scale-x-0"
+                        }`}
+                      />
+                    </button>
+
+                    <button
+                      onClick={() => router.push("/auth/register")}
+                      className={`relative pb-2 transition-colors duration-200 ${
+                        !isLogin
+                          ? "text-white"
+                          : "text-gray-500 hover:text-gray-300"
+                      }`}
+                    >
+                      Sign Up
+                      <span
+                        className={`absolute left-0 -bottom-1 h-[3px] w-full bg-red-500 rounded-full transition-transform origin-left duration-300 ${
+                          !isLogin ? "scale-x-100" : "scale-x-0"
+                        }`}
+                      />
+                    </button>
+                  </>
+                )}
             </div>
 
             {/* PAGE SLOT (SMOOTH FADE) */}

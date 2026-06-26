@@ -8,12 +8,13 @@ import { toast } from "sonner";
 const DURATION = 2000;
 const INTERVAL_TIME = 20;
 
-export default function OAuthSuccessPage() {
+export default function LoginSuccessPage() {
   const router = useRouter();
   const [progress, setProgress] = useState(0);
 
   useEffect(() => {
     toast.dismiss();
+
     const toastTimer = setTimeout(() => {
       toast.success("Successfully signed in!");
     }, 100);
@@ -27,6 +28,7 @@ export default function OAuthSuccessPage() {
         return p + increment;
       });
     }, INTERVAL_TIME);
+
     const timer = setTimeout(() => {
       router.replace("/");
     }, DURATION);
@@ -51,11 +53,11 @@ export default function OAuthSuccessPage() {
           Welcome Back!
         </h1>
         <p className="text-sm text-gray-400">
-          You have successfully signed in via social login.
+          You have successfully logged into your account.
         </p>
       </div>
 
-      {/* Loading Bar  */}
+      {/* Loading Bar */}
       <div className="w-full max-w-sm pt-4 space-y-3">
         <div className="h-3 w-full bg-white/5 border border-white/10 rounded-full overflow-hidden p-[2px]">
           <div

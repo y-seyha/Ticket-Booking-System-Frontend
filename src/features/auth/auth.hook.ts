@@ -13,6 +13,7 @@ import {
   RegisterRequest,
 } from "./auth.types";
 import { ApiErrorResponse } from "@/types/api-error";
+import axios from "axios";
 
 type ApiErrorLike = {
   response?: {
@@ -44,19 +45,43 @@ export function useAuth() {
         return res;
       }
 
-      setUser(res.user); // backend already sets cookies
-
-      toast.success("Login successful");
-      router.push("/");
+      setUser(res.user);
+      router.push("/auth/login/success");
 
       return res;
-    } catch (err) {
-      toast.error(getErrorMessage(err));
+    } catch (err: unknown) {
+      if (axios.isAxiosError(err)) {
+        const status = err.response?.status;
+        const message = err.response?.data?.message;
+
+        if (
+          typeof err.response?.data === "string" &&
+          err.response.data.startsWith("Cannot")
+        ) {
+          toast.error("Authentication service is temporarily unavailable.");
+          throw err;
+        }
+
+        if (
+          status === 429 ||
+          message?.toLowerCase().includes("too many") ||
+          message?.toLowerCase().includes("rate")
+        ) {
+          toast.error("Too many login attempts. Please try again later.");
+          throw err;
+        }
+
+        if (status === 401 || status === 400) {
+          toast.error("Invalid email or password.");
+          throw err;
+        }
+      }
+
+      toast.error("Unable to login. Please try again later.");
       throw err;
     }
   };
 
-  // ✅ REGISTER
   const register = async (data: RegisterRequest) => {
     try {
       const res = await authApi.register(data);
@@ -71,18 +96,16 @@ export function useAuth() {
     }
   };
 
-  // ✅ LOGOUT
   const logout = async () => {
     try {
       await authApi.logout(); // clears httpOnly cookies
     } finally {
       clearAuth();
       toast.success("Logged out");
-      router.push("/login");
+      router.push("/auth/login");
     }
   };
 
-  // ✅ 2FA
   const verify2FA = async (data: Verify2FARequest) => {
     try {
       const res = await authApi.verify2FA(data);
@@ -98,7 +121,6 @@ export function useAuth() {
     }
   };
 
-  // optional flows
   const forgotPassword = async (data: ForgotPasswordRequest) => {
     const res = await authApi.forgotPassword(data);
     toast.success("Reset email sent");

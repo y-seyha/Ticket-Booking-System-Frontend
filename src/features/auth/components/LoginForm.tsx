@@ -130,7 +130,7 @@ export default function LoginForm({
               <button
                 type="button"
                 onClick={onForgotPassword}
-                className="text-xs text-gray-400 hover:text-white transition"
+                className="text-xs text-gray-400 hover:text-white transition cursor-pointer"
               >
                 Forgot Password?
               </button>
@@ -178,7 +178,7 @@ export default function LoginForm({
   );
 }
 
-/* ================= OAUTH BUTTON ================= */
+
 function OAuthButton({
   icon,
   label,

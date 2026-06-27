@@ -73,14 +73,13 @@ const Navbar = ({
   const [openCinema, setOpenCinema] = useState(false);
   const [logoFailed, setLogoFailed] = useState(false);
 
-  // Dynamically determine the active key based on the URL path
-  const getActiveKey = (): NavKey => {
+  const getActiveKey = (): NavKey | null => {
     if (pathname === "/") return "home";
     if (pathname.startsWith("/cinemas")) return "cinemas";
     if (pathname.startsWith("/promotions")) return "promotions";
     if (pathname.startsWith("/food-and-drinks")) return "fb";
     if (pathname.startsWith("/more")) return "more";
-    return "home";
+    return null; 
   };
 
   const activeNav = getActiveKey();
@@ -110,10 +109,6 @@ const Navbar = ({
         ? "text-red-500 cursor-pointer"
         : "text-zinc-400 group-hover:text-white cursor-pointer"
     }`;
-
-  // if (!hydrated) {
-  //   return <div className="h-16" />;
-  // }
 
   return (
     <>
@@ -172,7 +167,6 @@ const Navbar = ({
                 {showJoinNow && (
                   <>
                     {!hydrated ? (
-                      // Skeleton while Zustand is hydrating
                       <div className="w-24 h-9 rounded-full bg-white/10 animate-pulse" />
                     ) : !user ? (
                       <button
@@ -361,9 +355,7 @@ const Navbar = ({
 
       {/* MOBILE TOP BAR  */}
       <nav className="md:hidden fixed top-0 left-0 right-0 z-[9999] text-white backdrop-blur-xl border-b border-white/10">
-        {/* TOP  */}
         <div className="h-16 px-4 flex items-center justify-between relative">
-          {/* LEFT */}
           <div className="flex items-center gap-2">
             {showTicket && (
               <button className="w-10 h-10 flex items-center justify-center rounded-full bg-white/5 border border-white/10 hover:bg-white/10 transition">
@@ -381,7 +373,6 @@ const Navbar = ({
             )}
           </div>
 
-          {/* CENTER  */}
           <div className="absolute left-1/2 -translate-x-1/2">
             <Link href="/" className="cursor-pointer">
               {!logoFailed ? (
@@ -397,7 +388,6 @@ const Navbar = ({
             </Link>
           </div>
 
-          {/* RIGHT */}
           <div className="flex items-center gap-1 relative">
             {showLanguage && (
               <div className="relative">
@@ -416,7 +406,6 @@ const Navbar = ({
                   />
                 </button>
 
-                {/* LANGUAGE DROPDOWN */}
                 <div
                   className={`absolute right-0 mt-2 w-44 bg-black/95 backdrop-blur-xl border border-white/10 rounded-xl shadow-xl z-50 origin-top transition-all duration-200 ease-out ${
                     openLang
@@ -458,7 +447,6 @@ const Navbar = ({
           </div>
         </div>
 
-        {/* CINEMA ROW  */}
         {showCinemaDropdown && (
           <div className="h-12 px-5 flex items-center justify-between border-t border-white/10 bg-black/50 backdrop-blur-xl">
             <button
@@ -484,7 +472,6 @@ const Navbar = ({
           </div>
         )}
 
-        {/* CINEMA DROPDOWN  */}
         <div
           className={`absolute top-28 left-0 right-0 mx-4 px-2 bg-black/95 backdrop-blur-xl border border-white/10 rounded-xl shadow-xl overflow-hidden transition-all duration-300 ease-out ${
             openCinema

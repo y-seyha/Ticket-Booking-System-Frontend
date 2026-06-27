@@ -89,7 +89,7 @@ export default function HeroCarousel({
                 src={carouselImg[activeIndex].src}
                 alt=""
                 fill
-                priority
+                priority={activeIndex === 0}
                 className="object-cover scale-110 blur-[20px] sm:blur-[80px]"
               />
             </motion.div>
@@ -150,7 +150,7 @@ export default function HeroCarousel({
               className="cursor-grab active:cursor-grabbing will-change-transform"
             >
               <div className="flex">
-                {carouselImg.map((item) => (
+                {carouselImg.map((item, index) => (
                   <div
                     key={item.id}
                     className="flex-[0_0_100%] w-full transform-gpu"
@@ -164,7 +164,7 @@ export default function HeroCarousel({
                         alt={item.title}
                         fill
                         sizes="(max-w-480px) 100vw, (max-w-768px) 100vw, (max-w-1200px) 100vw, 1200px"
-                        priority
+                        priority={index === 0}
                         className="object-cover select-none transition-transform duration-500 hover:scale-[1.02]"
                       />
                     </Link>

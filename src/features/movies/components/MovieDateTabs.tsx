@@ -6,6 +6,7 @@ interface DateTabItem {
   day: string;
   date: string;
   month: string;
+  isoDate: string;
 }
 
 interface MovieDateTabsProps {
@@ -57,7 +58,7 @@ export default function MovieDateTabs({
       onMouseMove={handleMouseMove}
       className="w-full overflow-x-auto py-4 md:py-6 flex flex-row flex-nowrap gap-3 scrollbar-none snap-x snap-mandatory touch-pan-x cursor-grab active:cursor-grabbing select-none"
     >
-      {dateTabs.map((tab) => {
+      {dateTabs?.map((tab) => {
         const isSelected = selectedDate === tab.date;
         return (
           <button

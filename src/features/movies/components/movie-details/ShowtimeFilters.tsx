@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
-import { dateTabs } from "@/features/movies/data/movieListings";
 import MovieDateTabs from "../MovieDateTabs";
 
 interface ShowtimeFiltersProps {
@@ -9,19 +8,17 @@ interface ShowtimeFiltersProps {
   setSelectedDate: (date: string) => void;
   selectedLocationFilter: string;
   setSelectedLocationFilter: (loc: string) => void;
+  locations: string[];
+  dateTabs: { day: string; date: string; month: string; isoDate: string }[];
 }
-
-const LOCATIONS_LIST = [
-  "All Locations",
-  "Legend 271 Mega Mall",
-  "Legend Eden Garden",
-];
 
 export default function ShowtimeFilters({
   selectedDate,
   setSelectedDate,
   selectedLocationFilter,
   setSelectedLocationFilter,
+  locations,
+  dateTabs,
 }: ShowtimeFiltersProps) {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
@@ -59,7 +56,7 @@ export default function ShowtimeFilters({
               className="absolute left-0 right-0 mt-2 bg-zinc-950 border border-zinc-800 rounded-xl overflow-hidden shadow-2xl z-50"
             >
               <div className="p-1.5 space-y-0.5">
-                {LOCATIONS_LIST.map((loc) => (
+                {locations.map((loc) => (
                   <button
                     key={loc}
                     onClick={() => {
@@ -81,7 +78,6 @@ export default function ShowtimeFilters({
         </AnimatePresence>
       </div>
 
-      {/* Timeline Row  */}
       <div className="bg-zinc-950/40 p-2.5 rounded-2xl backdrop-blur-sm texwhite overflow-x-auto patches-scroll">
         <MovieDateTabs
           dateTabs={dateTabs}

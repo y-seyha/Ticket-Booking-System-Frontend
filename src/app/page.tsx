@@ -49,8 +49,27 @@ export default function Home() {
     return tabs;
   }, []);
 
+  const monthTabs = useMemo(() => {
+    const months = [];
+    const now = new Date();
+    for (let i = 0; i < 7; i++) {
+      const d = new Date(now.getFullYear(), now.getMonth() + i, 1);
+      months.push({
+        id: `${d.getFullYear()}-${d.getMonth()}`,
+        label: d
+          .toLocaleDateString("en-US", { month: "short", year: "numeric" })
+          .toUpperCase(),
+        value: `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`,
+      });
+    }
+    return months;
+  }, []);
+
   const [selectedDate, setSelectedDate] = useState<string>(
     generatedDateTabs[0]?.isoDate || new Date().toISOString(),
+  );
+  const [selectedMonth, setSelectedMonth] = useState<string>(
+    monthTabs[0]?.value || "",
   );
 
   const formattedDmyLabel = useMemo(() => {
@@ -101,10 +120,10 @@ export default function Home() {
     }
 
     fetchActiveListings();
-  }, [currentMode, selectedDate]);
+  }, [currentMode, selectedDate, selectedMonth]);
 
-  const activeDayLabel =
-    generatedDateTabs.find((t) => t.isoDate === selectedDate)?.date || "";
+  // const activeDayLabel =
+  //   generatedDateTabs.find((t) => t.isoDate === selectedDate)?.date || "";
 
   const fadeVariants = {
     initial: { opacity: 0, y: 10 },
@@ -141,11 +160,15 @@ export default function Home() {
           />
 
           <MovieDateTabs
+            mode={currentMode}
             dateTabs={generatedDateTabs}
-            selectedDate={activeDayLabel}
-            onSelectDate={(dayStr) => {
-              const match = generatedDateTabs.find((t) => t.date === dayStr);
-              if (match) setSelectedDate(match.isoDate);
+            monthTabs={monthTabs}
+            selectedDate={
+              currentMode === "showing" ? selectedDate : selectedMonth
+            }
+            onSelectDate={(val) => {
+              if (currentMode === "showing") setSelectedDate(val);
+              else setSelectedMonth(val);
             }}
           />
 

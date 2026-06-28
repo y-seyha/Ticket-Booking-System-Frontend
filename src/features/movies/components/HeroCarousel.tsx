@@ -150,26 +150,43 @@ export default function HeroCarousel({
               className="cursor-grab active:cursor-grabbing will-change-transform"
             >
               <div className="flex">
-                {carouselImg.map((item, index) => (
-                  <div
-                    key={item.id}
-                    className="flex-[0_0_100%] w-full transform-gpu"
-                  >
-                    <Link
-                      href={`/banners/${item.id}`}
-                      className="block relative overflow-hidden border border-white/5 h-[220px] sm:h-[320px] md:h-[420px] lg:h-[480px]"
+                {carouselImg.map((item, index) => {
+                  const isClickable = item.isClickable ?? true;
+
+                  return (
+                    <div
+                      key={item.id}
+                      className="flex-[0_0_100%] w-full transform-gpu"
                     >
-                      <Image
-                        src={item.src}
-                        alt={item.title}
-                        fill
-                        sizes="(max-w-480px) 100vw, (max-w-768px) 100vw, (max-w-1200px) 100vw, 1200px"
-                        priority={index === 0}
-                        className="object-cover select-none transition-transform duration-500 hover:scale-[1.02]"
-                      />
-                    </Link>
-                  </div>
-                ))}
+                      {isClickable ? (
+                        <Link
+                          href={item.linkUrl ?? `/banners/${item.id}`}
+                          className="block relative overflow-hidden border border-white/5 h-[220px] sm:h-[320px] md:h-[420px] lg:h-[480px]"
+                        >
+                          <Image
+                            src={item.src}
+                            alt={item.title}
+                            fill
+                            sizes="(max-width: 480px) 100vw, (max-width: 768px) 100vw, (max-width: 1200px) 100vw, 1200px"
+                            priority={index === 0}
+                            className="object-cover select-none transition-transform duration-500 hover:scale-[1.02]"
+                          />
+                        </Link>
+                      ) : (
+                        <div className="block relative overflow-hidden border border-white/5 h-[220px] sm:h-[320px] md:h-[420px] lg:h-[480px]">
+                          <Image
+                            src={item.src}
+                            alt={item.title}
+                            fill
+                            sizes="(max-width: 480px) 100vw, (max-width: 768px) 100vw, (max-width: 1200px) 100vw, 1200px"
+                            priority={index === 0}
+                            className="object-cover select-none"
+                          />
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
               </div>
             </div>
 

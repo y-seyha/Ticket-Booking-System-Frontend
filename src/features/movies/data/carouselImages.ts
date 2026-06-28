@@ -3,6 +3,8 @@ export interface CarouselItem {
   src: string;
   title: string;
   publishDate: string;
+  linkUrl?: string;
+  isClickable?: boolean;
 }
 
 const carouselImages: CarouselItem[] = [

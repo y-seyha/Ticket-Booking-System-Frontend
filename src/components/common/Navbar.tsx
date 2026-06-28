@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, FC } from "react";
+import { useState, FC, useEffect } from "react";
 import {
   Search,
   Ticket,
@@ -17,6 +17,8 @@ import { useRouter, usePathname } from "next/navigation";
 import { LuPopcorn } from "react-icons/lu";
 import { CiSquareMore } from "react-icons/ci";
 import { useAuthStore } from "@/features/auth/auth.store";
+import { cinemasApi } from "@/features/cinemas/cinemas.api";
+import { Cinema } from "@/features/cinemas/cinemas.types";
 
 type NavKey = "home" | "cinemas" | "promotions" | "fb" | "tickets" | "more";
 
@@ -30,13 +32,6 @@ const languages: Language[] = [
   { code: "en", label: "English", Flag: GB },
   { code: "kh", label: "Khmer", Flag: KH },
 ];
-
-type Cinema = {
-  id: number;
-  name: string;
-  location: string;
-  image: string;
-};
 
 type NavbarProps = {
   showSearch?: boolean;
@@ -72,6 +67,22 @@ const Navbar = ({
   const [openNotif, setOpenNotif] = useState(false);
   const [openCinema, setOpenCinema] = useState(false);
   const [logoFailed, setLogoFailed] = useState(false);
+  const [cinemas, setCinemas] = useState<Cinema[]>([]);
+
+  useEffect(() => {
+    cinemasApi
+      .getCinemas()
+      .then((res) => {
+        // Assuming your API returns { data: [...] } or just the array
+        setCinemas(res?.data);
+      })
+      .catch((err) => console.error("Failed to fetch cinemas:", err));
+  }, []);
+
+  const handleCinemaClick = (id: string) => {
+    router.push(`/cinemas/${id}`);
+    setOpenCinema(false); // Close dropdown
+  };
 
   const getActiveKey = (): NavKey | null => {
     if (pathname === "/") return "home";
@@ -79,7 +90,7 @@ const Navbar = ({
     if (pathname.startsWith("/promotions")) return "promotions";
     if (pathname.startsWith("/food-and-drinks")) return "fb";
     if (pathname.startsWith("/more")) return "more";
-    return null; 
+    return null;
   };
 
   const activeNav = getActiveKey();
@@ -90,11 +101,11 @@ const Navbar = ({
     "🎟️ Booking confirmed",
   ];
 
-  const cinemas: Cinema[] = [
-    { id: 1, name: "Eden Cinema", location: "Phnom Penh", image: logoUrl },
-    { id: 2, name: "Toul Kork Cinema", location: "Phnom Penh", image: logoUrl },
-    { id: 3, name: "Aeon 1 Cinema", location: "Phnom Penh", image: logoUrl },
-  ];
+  // const cinemas: Cinema[] = [
+  //   { id: 1, name: "Eden Cinema", location: "Phnom Penh", image: logoUrl },
+  //   { id: 2, name: "Toul Kork Cinema", location: "Phnom Penh", image: logoUrl },
+  //   { id: 3, name: "Aeon 1 Cinema", location: "Phnom Penh", image: logoUrl },
+  // ];
 
   const navText = (key: NavKey) =>
     `transition-colors duration-200 ${
@@ -306,38 +317,54 @@ const Navbar = ({
                 </Link>
               </div>
 
-              {/* CINEMA DROPDOWN */}
+              {/* CINEMA DROPDOWN WRAPPER */}
               {showCinemaDropdown && (
                 <div className="relative">
                   <button
                     onClick={() => setOpenCinema(!openCinema)}
-                    className="flex items-center gap-2 px-3 py-1 rounded-full cursor-pointer"
+                    className="flex items-center gap-2 px-3 py-1 rounded-full cursor-pointer hover:bg-white/5 transition-colors"
                   >
                     <MapPin className="w-4 h-4 text-red-500" />
-                    <span>All Cinemas</span>
+                    <span className="text-sm font-medium">All Cinemas</span>
                     <ChevronDown
-                      className={`w-4 h-4 ${openCinema ? "rotate-180" : ""}`}
+                      className={`w-4 h-4 transition-transform duration-300 ${openCinema ? "rotate-180" : ""}`}
                     />
                   </button>
 
-                  {openCinema && (
-                    <div className="absolute right-0 mt-2 w-80 bg-black/95 border border-white/10 rounded-xl shadow-xl overflow-hidden">
-                      <div className="px-4 py-1.5 border-b border-white/10 text-sm font-semibold">
+                  {/* DROPDOWN CONTAINER WITH SMOOTH ANIMATION */}
+                  <div
+                    className={`absolute right-0 mt-2 w-80 bg-zinc-950/95 backdrop-blur-md border border-white/10 rounded-xl shadow-2xl overflow-hidden transition-all duration-300 ease-in-out origin-top ${
+                      openCinema
+                        ? "opacity-100 scale-100 translate-y-0"
+                        : "opacity-0 scale-95 -translate-y-2 pointer-events-none"
+                    }`}
+                  >
+                    {/* HEADER */}
+                    <div className="px-4 py-3 border-b border-white/10 flex items-center gap-2">
+                      <MapPin className="w-4 h-4 text-zinc-400" />
+                      <span className="text-sm font-semibold text-zinc-300">
                         Cinema Locations
-                      </div>
+                      </span>
+                    </div>
 
-                      {cinemas.map((c) => (
+                    {/* LIST */}
+                    <div className="max-h-[300px] overflow-y-auto">
+                      {cinemas.map((c, index) => (
                         <button
                           key={c.id}
-                          className="w-full flex items-center gap-3 px-4 py-2 hover:bg-white/10 text-left"
+                          onClick={() => handleCinemaClick(c.id)}
+                          className={`w-full flex items-center gap-3 px-4 py-3 hover:bg-white/5 transition-colors text-left
+              ${index !== cinemas.length - 1 ? "border-b border-white/5" : ""}`}
                         >
                           <img
-                            src={c.image}
-                            className="w-10 h-10 rounded-md"
+                            src={c.image?.url || "/fallback-image.png"}
+                            className="w-10 h-10 rounded-lg object-cover bg-zinc-800"
                             alt={c.name}
                           />
                           <div>
-                            <div className="text-sm text-white">{c.name}</div>
+                            <div className="text-sm font-medium text-white">
+                              {c.name}
+                            </div>
                             <div className="text-xs text-zinc-400">
                               {c.location}
                             </div>
@@ -345,7 +372,7 @@ const Navbar = ({
                         </button>
                       ))}
                     </div>
-                  )}
+                  </div>
                 </div>
               )}
             </div>
@@ -366,7 +393,7 @@ const Navbar = ({
             {showNotification && (
               <button
                 onClick={() => setOpenNotif(!openNotif)}
-                className="w-10 h-10 flex items-center justify-center rounded-full z-500 bg-white/5 border border-white/10 hover:bg-white/10 transition"
+                className="w-10 h-10  flex items-center justify-center rounded-full z-[100] bg-white/5 border border-white/10 hover:bg-white/10 transition"
               >
                 <Bell className="w-5 h-5" />
               </button>
@@ -448,56 +475,70 @@ const Navbar = ({
         </div>
 
         {showCinemaDropdown && (
-          <div className="h-12 px-5 flex items-center justify-between border-t border-white/10 bg-black/50 backdrop-blur-xl">
-            <button
-              onClick={() => setOpenCinema(!openCinema)}
-              className="flex items-center gap-3"
-            >
-              <MapPin className="w-4 h-4 text-red-500" />
-              <span className="text-[15px] font-semibold tracking-wide text-white">
-                All Cinemas
-              </span>
-            </button>
+          <div className="border-t border-white/10 bg-black/50 backdrop-blur-xl">
+            {/* TRIGGER BAR */}
+            <div className="h-12 px-5 flex items-center justify-between">
+              <button
+                onClick={() => setOpenCinema(!openCinema)}
+                className="flex items-center gap-3 flex-1"
+              >
+                <MapPin className="w-4 h-4 text-red-500" />
+                <span className="text-[15px] font-semibold tracking-wide text-white">
+                  All Cinemas
+                </span>
+              </button>
 
-            <button
-              onClick={() => setOpenCinema(!openCinema)}
-              className="flex items-center justify-center w-9 h-9 rounded-md "
+              <button
+                onClick={() => setOpenCinema(!openCinema)}
+                className="flex items-center justify-center w-9 h-9 rounded-md hover:bg-white/5 transition"
+              >
+                <ChevronDown
+                  className={`w-5 h-5 text-white transition-transform duration-300 ${
+                    openCinema ? "rotate-180" : ""
+                  }`}
+                />
+              </button>
+            </div>
+
+            {/* SMOOTH ANIMATED LIST */}
+            <div
+              className={`overflow-hidden transition-all duration-300 ease-in-out ${
+                openCinema ? "max-h-[60vh] opacity-100" : "max-h-0 opacity-0"
+              }`}
             >
-              <ChevronDown
-                className={`w-5 h-5 text-white transition-transform duration-300 ${
-                  openCinema ? "rotate-180" : ""
-                }`}
-              />
-            </button>
+              <div className="px-5 pb-4">
+                {/* CINEMA ITEMS */}
+                <div className="flex flex-col">
+                  {cinemas.map((c, index) => (
+                    <button
+                      key={c.id}
+                      onClick={() => {
+                        handleCinemaClick(c.id);
+                        setOpenCinema(false); 
+                      }}
+                      className={`flex items-center gap-3 py-3 w-full text-left transition-colors
+                ${index !== cinemas.length - 1 ? "border-b border-white/5" : ""}`}
+                    >
+                      <img
+                        src={c.image?.url || "/fallback-image.png"}
+                        className="w-10 h-10 rounded-lg object-cover bg-zinc-800"
+                        alt={c.name}
+                      />
+                      <div>
+                        <div className="text-sm text-white font-medium">
+                          {c.name}
+                        </div>
+                        <div className="text-xs text-zinc-400">
+                          {c.location}
+                        </div>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
           </div>
         )}
-
-        <div
-          className={`absolute top-28 left-0 right-0 mx-4 px-2 bg-black/95 backdrop-blur-xl border border-white/10 rounded-xl shadow-xl overflow-hidden transition-all duration-300 ease-out ${
-            openCinema
-              ? "max-h-96 opacity-100"
-              : "max-h-0 opacity-0 pointer-events-none"
-          }`}
-        >
-          <div className="py-2 max-h-96 overflow-y-auto">
-            {cinemas.map((c) => (
-              <button
-                key={c.id}
-                className="w-full flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-white/10 transition text-left"
-              >
-                <img
-                  src={c.image}
-                  className="w-10 h-10 rounded-md object-cover"
-                  alt={c.name}
-                />
-                <div>
-                  <div className="text-sm text-white">{c.name}</div>
-                  <div className="text-xs text-zinc-400">{c.location}</div>
-                </div>
-              </button>
-            ))}
-          </div>
-        </div>
       </nav>
 
       {/* MOBILE FOOTER NAV  */}

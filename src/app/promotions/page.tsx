@@ -61,6 +61,7 @@ const staticOfferBanner: CarouselItem[] = [
     src: "/courousel/d7831d0d-faff-416d-bec5-06b413e5c8fe.jpeg",
     title: "Special Offers & Movie Rewards",
     publishDate: "2026-06-24",
+    isClickable: false,
   },
 ];
 

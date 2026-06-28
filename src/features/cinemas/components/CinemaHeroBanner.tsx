@@ -10,6 +10,7 @@ interface CinemaHeroBannerProps {
     name: string;
     address: string;
     imageUrl: string;
+    isClickable?: false;
   };
 }
 
@@ -20,6 +21,7 @@ export default function CinemaHeroBanner({ cinema }: CinemaHeroBannerProps) {
       src: cinema.imageUrl,
       title: cinema.name,
       publishDate: "2026-06-24",
+      isClickable: false,
     },
   ];
 

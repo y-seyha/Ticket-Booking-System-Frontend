@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
 import MovieDateTabs from "../MovieDateTabs";
@@ -21,6 +21,28 @@ export default function ShowtimeFilters({
   dateTabs,
 }: ShowtimeFiltersProps) {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+
+  const monthTabs = useMemo(() => {
+    const months = [];
+    const now = new Date();
+
+    for (let i = 0; i < 7; i++) {
+      const d = new Date(now.getFullYear(), now.getMonth() + i, 1);
+
+      months.push({
+        id: `${d.getFullYear()}-${d.getMonth()}`,
+        label: d
+          .toLocaleDateString("en-US", {
+            month: "short",
+            year: "numeric",
+          })
+          .toUpperCase(),
+        value: `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`,
+      });
+    }
+
+    return months;
+  }, []);
 
   return (
     <div className="space-y-4">
@@ -80,7 +102,9 @@ export default function ShowtimeFilters({
 
       <div className="bg-zinc-950/40 p-2.5 rounded-2xl backdrop-blur-sm texwhite overflow-x-auto patches-scroll">
         <MovieDateTabs
+          mode="showing"
           dateTabs={dateTabs}
+          monthTabs={monthTabs}
           selectedDate={selectedDate}
           onSelectDate={setSelectedDate}
         />

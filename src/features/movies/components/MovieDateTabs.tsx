@@ -9,14 +9,24 @@ interface DateTabItem {
   isoDate: string;
 }
 
+interface MonthTabItem {
+  id: string;
+  label: string;
+  value: string;
+}
+
 interface MovieDateTabsProps {
+  mode: "showing" | "coming";
   dateTabs: DateTabItem[];
+  monthTabs: MonthTabItem[];
   selectedDate: string;
-  onSelectDate: (date: string) => void;
+  onSelectDate: (value: string) => void;
 }
 
 export default function MovieDateTabs({
+  mode,
   dateTabs,
+  monthTabs,
   selectedDate,
   onSelectDate,
 }: MovieDateTabsProps) {
@@ -49,6 +59,8 @@ export default function MovieDateTabs({
     scrollRef.current.scrollLeft = scrollLeft.current - walk;
   };
 
+  const items = (mode === "showing" ? dateTabs : monthTabs) || [];
+
   return (
     <div
       ref={scrollRef}
@@ -58,33 +70,57 @@ export default function MovieDateTabs({
       onMouseMove={handleMouseMove}
       className="w-full overflow-x-auto py-4 md:py-6 flex flex-row flex-nowrap gap-3 scrollbar-none snap-x snap-mandatory touch-pan-x cursor-grab active:cursor-grabbing select-none"
     >
-      {dateTabs?.map((tab) => {
-        const isSelected = selectedDate === tab.date;
+      {items.map((item) => {
+        const isShowing = mode === "showing";
+        const itemValue = isShowing
+          ? (item as DateTabItem).isoDate
+          : (item as MonthTabItem).value;
+        const isSelected = selectedDate === itemValue;
+
         return (
           <button
-            key={`${tab.month}-${tab.date}`}
-            onClick={() => onSelectDate(tab.date)}
-            className={`w-[75px] sm:w-[95px] md:w-[115px] lg:w-[150px] rounded-[10px] bg-black p-2 border-2 transition-colors shrink-0 snap-start text-center cursor-pointer ${
+            key={itemValue}
+            onClick={() => onSelectDate(itemValue)}
+            className={`w-[75px] sm:w-[95px] md:w-[115px] lg:w-[150px] h-[78px] sm:h-[86px] rounded-[10px] bg-black p-2 border-2 transition-colors shrink-0 snap-start text-center cursor-pointer ${
               isSelected
                 ? "border-red-600 text-white"
                 : "border-zinc-800 text-white hover:border-zinc-500"
             }`}
           >
-            <div className="flex flex-col gap-0.5 pointer-events-none">
-              <p
-                className={`text-[10px] sm:text-xs ${isSelected ? "text-red-500" : "text-zinc-400"}`}
-              >
-                {tab.day}
-              </p>
-              <h3 className="text-sm sm:text-base font-extrabold text-white">
-                {tab.date}
-              </h3>
-              <p
-                className={`text-[10px] sm:text-xs ${isSelected ? "text-red-500" : "text-zinc-400"}`}
-              >
-                {tab.month}
-              </p>
-            </div>
+            {isShowing ? (
+              <div className="flex flex-col gap-0.5 pointer-events-none">
+                <p
+                  className={`text-[10px] sm:text-xs ${isSelected ? "text-red-500" : "text-zinc-400"}`}
+                >
+                  {(item as DateTabItem).day}
+                </p>
+                <h3 className="text-sm sm:text-base font-extrabold text-white">
+                  {(item as DateTabItem).date}
+                </h3>
+                <p
+                  className={`text-[10px] sm:text-xs ${isSelected ? "text-red-500" : "text-zinc-400"}`}
+                >
+                  {(item as DateTabItem).month}
+                </p>
+              </div>
+            ) : (
+              <div className="flex flex-col items-center justify-center h-full gap-0.5 pointer-events-none">
+                <p
+                  className={`text-[10px] sm:text-xs ${isSelected ? "text-red-500" : "text-zinc-400"}`}
+                >
+                  {/* Placeholder text to match the 'day' line */}
+                  COMING
+                </p>
+                <h3 className="text-xs sm:text-sm font-extrabold text-white">
+                  {(item as MonthTabItem).label.split(" ")[0]}
+                </h3>
+                <p
+                  className={`text-[10px] sm:text-xs ${isSelected ? "text-red-500" : "text-zinc-400"}`}
+                >
+                  {(item as MonthTabItem).label.split(" ")[1]}
+                </p>
+              </div>
+            )}
           </button>
         );
       })}

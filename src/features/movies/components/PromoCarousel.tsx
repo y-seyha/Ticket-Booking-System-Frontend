@@ -65,7 +65,7 @@ export default function PromoCarousel({
   return (
     <div className={`w-full bg-transparent ${className}`}>
       <h2 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight mb-5">
-        What's new?
+        What&apos;s new?
       </h2>
 
       {/* Embla Viewport Frame */}
@@ -104,25 +104,26 @@ export default function PromoCarousel({
                 key={item.id}
                 className="flex-[0_0_100%] min-w-0 w-full relative"
               >
-                {/*Grid Box */}
-                <div className="grid grid-cols-1 md:grid-cols-12 min-h-[340px] md:h-[380px] w-full">
+                {/* The container grid that switches to flex-col on mobile */}
+                <div className="flex flex-col md:grid md:grid-cols-12 min-h-[400px] md:h-[380px] w-full">
                   {/* Left Action Metadata Panel */}
-                  <article className="md:col-span-4 bg-zinc-950/40 md:bg-gradient-to-r md:from-zinc-950/80 md:to-zinc-950/20 backdrop-blur-xl p-6 sm:p-8 lg:p-10 flex flex-col justify-between z-20 border-b border-zinc-900/40 md:border-b-0 md:border-r md:border-zinc-900/40">
-                    <div className="space-y-3 sm:space-y-4">
-                      <h3 className="text-2xl sm:text-3xl lg:text-4xl font-black text-white leading-tight tracking-tight drop-shadow-sm">
+                  <article className="order-2 md:order-1 md:col-span-4 bg-zinc-950/40 md:bg-gradient-to-r md:from-zinc-950/80 md:to-zinc-950/20 backdrop-blur-xl p-6 md:p-8 lg:p-10 flex flex-col justify-between z-20 border-t md:border-t-0 md:border-r border-zinc-900/40 h-full">
+                    <div className="space-y-3">
+                      {/* Title: Truncate if too long */}
+                      <h3 className="text-xl sm:text-2xl lg:text-3xl font-black text-white leading-tight tracking-tight line-clamp-2">
                         {item.title}
                       </h3>
 
-                      <p className="text-sm sm:text-base text-zinc-200 font-medium leading-relaxed line-clamp-4 md:line-clamp-5 drop-shadow-sm">
+                      {/* Description: Controlled with line-clamp */}
+                      <p className="text-sm sm:text-base text-zinc-300 font-medium leading-relaxed line-clamp-3 md:line-clamp-4">
                         {item.description}
                       </p>
                     </div>
 
-                    <div className="pt-8 md:pt-6">
+                    <div className="pt-6">
                       <Link
                         href={item.linkUrl}
-                        title={`Learn more about ${item.title}`}
-                        className="inline-flex items-center justify-center bg-white hover:bg-zinc-100 text-black text-sm font-bold px-7 py-3 rounded-full shadow-md transition-all duration-200 hover:shadow-xl active:scale-[0.98] transform-gpu whitespace-nowrap"
+                        className="inline-flex items-center justify-center bg-white hover:bg-zinc-100 text-black text-sm font-bold px-6 py-2.5 rounded-full shadow-md transition-all active:scale-[0.98]"
                       >
                         Learn More
                       </Link>
@@ -130,17 +131,20 @@ export default function PromoCarousel({
                   </article>
 
                   {/* Right High Impact Key Visual Asset Frame */}
-                  <div className="md:col-span-8 relative w-full h-[220px] md:h-full bg-transparent overflow-hidden">
+                  <div className="order-1 md:order-2 md:col-span-8 relative w-full h-[200px] md:h-full bg-zinc-900 overflow-hidden">
                     <Image
                       src={item.src}
                       alt={item.title}
                       fill
-                      sizes="(max-w-768px) 100vw, 66vw"
+                      sizes="(max-width: 768px) 100vw, 66vw"
                       priority
-                      className="object-cover select-none transform scale-100 group-hover:scale-102 transition-transform duration-700"
+                      className="object-cover select-none"
                     />
+                    {/* Subtle overlay for text readability on mobile */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-zinc-950/60 to-transparent md:hidden" />
 
-                    <div className="hidden md:block absolute inset-y-0 left-0 w-32 bg-gradient-to-r from-zinc-950/60 to-transparent pointer-events-none" />
+                    {/* Desktop gradient fade */}
+                    <div className="hidden md:block absolute inset-y-0 left-0 w-32 bg-gradient-to-r from-zinc-950/80 to-transparent pointer-events-none" />
                   </div>
                 </div>
               </div>

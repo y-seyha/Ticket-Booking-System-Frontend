@@ -14,7 +14,7 @@ interface PromotionDetails {
   bullets: string[];
 }
 
-const OFFERS_DATA: Record<string, PromotionDetails> = {
+export const OFFERS_DATA: Record<string, PromotionDetails> = {
   "bello-ready-to-win": {
     id: "offer-1",
     title: "bello! Ready to win? ✨🐝",
@@ -25,14 +25,18 @@ const OFFERS_DATA: Record<string, PromotionDetails> = {
       "Don't miss your chance to win exclusive Toy Story Blind Boxes and many other exciting prizes at Legend Cinema! Simply spend $13.50 or more on Food & Beverages (F&B) and receive 1 Lucky Draw chance to win instantly!",
     bullets: [
       "Prizes include:",
-      "Minions Blind Box, Minions Towel, Minions ID card, Minions Bag",
+      "Minions Blind Box",
+      "Minions Towel",
+      "Minions ID Card",
+      "Minions Bag",
       "50% Off Movie Voucher",
       "Buy 1 Get 1 Free Movie Voucher",
       "$5 F&B Voucher",
       "$1 F&B Voucher",
-      "Prizes are limited, so don't miss out! Enjoy your favorite movies and snacks for a chance to take home amazing rewards.",
+      "Prizes are limited, so don't miss out!",
     ],
   },
+
   "buy-play-win": {
     id: "offer-2",
     title: "Buy, Play, Win! 🎫✨",
@@ -40,11 +44,70 @@ const OFFERS_DATA: Record<string, PromotionDetails> = {
     publishDate: "Jun 24, 2026",
     promotionPeriod: "24 June - 15 July 2026",
     description:
-      "Book tickets online and stand a chance to unlock major cinematic tier items.",
+      "Book tickets online and stand a chance to unlock major cinematic rewards and exclusive perks.",
     bullets: [
       "Valid across all cinema locations.",
-      "Applicable for 2D and 3D format screenings.",
+      "Applicable for 2D and 3D screenings.",
+      "Online booking only.",
     ],
+  },
+
+  "diamond-class-package": {
+    id: "offer-3",
+    title: "Diamond Class Package",
+    imageUrl: "/courousel/d7831d0d-faff-416d-bec5-06b413e5c8fe.jpeg",
+    publishDate: "Jun 20, 2026",
+    promotionPeriod: "20 June - 30 July 2026",
+    description:
+      "Experience premium cinema comfort with our Diamond Class seating and exclusive services.",
+    bullets: [
+      "Luxury reclining seats",
+      "Priority booking",
+      "Complimentary drinks",
+    ],
+  },
+
+  "toy-story-5-now-screening": {
+    id: "offer-4",
+    title: "Toy Story 5 is NOW SCREENING!",
+    imageUrl: "/courousel/d7831d0d-faff-416d-bec5-06b413e5c8fe.jpeg",
+    publishDate: "Jun 18, 2026",
+    promotionPeriod: "Now Showing",
+    description:
+      "The beloved Toy Story franchise returns with a brand-new adventure for all ages.",
+    bullets: ["Now showing in all formats", "Book your tickets early"],
+  },
+
+  "spiderman-advance-booking": {
+    id: "offer-5",
+    title: "Spider-Man Advance Booking is LIVE!",
+    imageUrl: "/courousel/d7831d0d-faff-416d-bec5-06b413e5c8fe.jpeg",
+    publishDate: "Jun 22, 2026",
+    promotionPeriod: "Limited Time",
+    description:
+      "Secure your seats early for the most anticipated Spider-Man release.",
+    bullets: ["Early bird discounts available", "Limited seats per show"],
+  },
+
+  "legend-cinema-membership": {
+    id: "offer-6",
+    title: "Legend Cinema Membership Benefits",
+    imageUrl: "/courousel/d7831d0d-faff-416d-bec5-06b413e5c8fe.jpeg",
+    publishDate: "Jun 10, 2026",
+    promotionPeriod: "Ongoing",
+    description:
+      "Become a member and unlock exclusive perks, discounts, and rewards.",
+    bullets: ["Discounted tickets", "Birthday rewards", "Priority booking"],
+  },
+
+  "popcorn-combo-discount": {
+    id: "offer-7",
+    title: "Exclusive Popcorn Combo Discount 🍿",
+    imageUrl: "/courousel/d7831d0d-faff-416d-bec5-06b413e5c8fe.jpeg",
+    publishDate: "Jun 25, 2026",
+    promotionPeriod: "Weekend Offer",
+    description: "Enjoy your movie with discounted popcorn and drink combos.",
+    bullets: ["Save up to 30%", "Available on weekends only"],
   },
 };
 

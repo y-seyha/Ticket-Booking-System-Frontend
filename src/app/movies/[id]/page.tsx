@@ -49,9 +49,7 @@ export default function MovieDetailsPage() {
   const [movie, setMovie] = useState<MovieDetails | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
-  const [selectedDate, setSelectedDate] = useState(() =>
-    new Date().getDate().toString(),
-  );
+  // const [selectedDate, setSelectedDate] = useState<string>("");
   const [activeTab, setActiveTab] = useState<"showtime" | "detail">("showtime");
   const [selectedLocationFilter, setSelectedLocationFilter] =
     useState("All Locations");
@@ -64,23 +62,25 @@ export default function MovieDetailsPage() {
       d.setDate(d.getDate() + i);
 
       tabs.push({
-        day: d
-          .toLocaleDateString("en-US", {
-            weekday: "short",
-          })
-          .toUpperCase(),
+        day: d.toLocaleDateString("en-US", { weekday: "short" }).toUpperCase(),
         date: d.getDate().toString(),
-        month: d
-          .toLocaleDateString("en-US", {
-            month: "short",
-          })
-          .toUpperCase(),
+        month: d.toLocaleDateString("en-US", { month: "short" }).toUpperCase(),
         isoDate: d.toISOString(),
       });
     }
 
     return tabs;
   }, []);
+
+  const [selectedDate, setSelectedDate] = useState<string>(
+    () => generatedDateTabs[0]?.isoDate ?? "",
+  );
+
+  // useEffect(() => {
+  //   if (generatedDateTabs.length > 0 && !selectedDate) {
+  //     setSelectedDate(generatedDateTabs[0].isoDate);
+  //   }
+  // }, [generatedDateTabs, selectedDate]);
 
   useEffect(() => {
     if (!movieId) return;
@@ -139,12 +139,19 @@ export default function MovieDetailsPage() {
     "All Locations",
     ...movie.showtimesByLocation.map((loc) => loc.name),
   ];
+
+  const selected = new Date(selectedDate);
+
   const displayedLocations = movie.showtimesByLocation
     .map((loc) => {
       const filteredShowtimes = loc.showtimes.filter((showtime) => {
-        const dateObj = new Date(showtime.startTime);
-        const dayOfMonth = dateObj.getDate().toString();
-        return dayOfMonth === selectedDate;
+        const show = new Date(showtime.startTime);
+
+        return (
+          show.getFullYear() === selected.getFullYear() &&
+          show.getMonth() === selected.getMonth() &&
+          show.getDate() === selected.getDate()
+        );
       });
 
       return {
@@ -152,14 +159,7 @@ export default function MovieDetailsPage() {
         showtimes: filteredShowtimes,
       };
     })
-    .filter((loc) => {
-      const matchesLocation =
-        selectedLocationFilter === "All Locations" ||
-        loc.name === selectedLocationFilter;
-      const hasShowtimesOnThisDay = loc.showtimes.length > 0;
-
-      return matchesLocation && hasShowtimesOnThisDay;
-    });
+    .filter((loc) => loc.showtimes.length > 0);
 
   const hasShowtimes = displayedLocations.length > 0;
 

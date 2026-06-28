@@ -15,6 +15,7 @@ const staticCinemaBanner: CarouselItem[] = [
     src: "/courousel/d7831d0d-faff-416d-bec5-06b413e5c8fe.jpeg",
     title: "Legend Cinema | Legend Premium Cinema",
     publishDate: "2026-06-24",
+    isClickable: false,
   },
 ];
 

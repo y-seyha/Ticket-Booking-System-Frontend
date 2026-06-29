@@ -1,6 +1,9 @@
+"use client";
+
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { LocationShowtimes } from "@/app/movies/[id]/page";
+import { useRouter } from "next/navigation";
 
 interface LocationAccordionListProps {
   displayedLocations: LocationShowtimes[];
@@ -9,6 +12,7 @@ interface LocationAccordionListProps {
 export default function LocationAccordionList({
   displayedLocations,
 }: LocationAccordionListProps) {
+  const router = useRouter();
   const [expandedLocations, setExpandedLocations] = useState<string[]>(
     displayedLocations.map((loc) => loc.name),
   );
@@ -87,6 +91,9 @@ export default function LocationAccordionList({
                           <div className="grid grid-cols-3 sm:grid-cols-4 md:flex md:flex-wrap gap-2">
                             {times.map((st) => (
                               <button
+                                onClick={() =>
+                                  router.push(`/showtime/${st.id}`)
+                                }
                                 key={st.id}
                                 className="w-full md:w-32 text-center px-3 py-2 md:py-2.5 bg-transparent border border-white/10 hover:border-red-600 rounded-full text-[11px] md:text-sm font-semibold text-white hover:text-white transition-all duration-300 cursor-pointer active:scale-95"
                               >

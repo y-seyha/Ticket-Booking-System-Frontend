@@ -6,6 +6,16 @@ import type {
   GetCinemasResponse,
 } from "./cinemas.types";
 
+export interface CreateTheaterPayload {
+  name: string;
+  location: string;
+  city: string;
+  status: "ACTIVE" | "INACTIVE";
+  phone?: string;
+  email?: string;
+  file?: File | null;
+}
+
 export const cinemasApi = {
   getCinemas(params?: GetCinemasQuery) {
     return apiRequest<GetCinemasResponse>("get", "/theaters", undefined, {
@@ -17,15 +27,53 @@ export const cinemasApi = {
     return apiRequest<GetCinemaResponse>("get", `/theaters/${id}`);
   },
 
-  createCinema(data: FormData) {
-    return apiRequest<GetCinemaResponse, FormData>("post", "/theaters", data);
+  createCinema(payload: CreateTheaterPayload) {
+    const formData = new FormData();
+
+    if (payload.file instanceof File) {
+      formData.append("theaters", payload.file);
+    }
+
+    formData.append("name", payload.name);
+    formData.append("location", payload.location);
+    formData.append("city", payload.city);
+    formData.append("status", payload.status);
+
+    if (payload.phone) formData.append("phone", payload.phone);
+    if (payload.email) formData.append("email", payload.email);
+
+    return apiRequest<GetCinemaResponse, FormData>(
+      "post",
+      "/theaters",
+      formData,
+      {
+        headers: { "Content-Type": "multipart/form-data" },
+      },
+    );
   },
 
-  updateCinema(id: string, data: FormData) {
+  updateCinema(id: string, payload: CreateTheaterPayload) {
+    const formData = new FormData();
+
+    if (payload.file instanceof File) {
+      formData.append("theaters", payload.file);
+    }
+
+    formData.append("name", payload.name);
+    formData.append("location", payload.location);
+    formData.append("city", payload.city);
+    formData.append("status", payload.status);
+
+    if (payload.phone) formData.append("phone", payload.phone);
+    if (payload.email) formData.append("email", payload.email);
+
     return apiRequest<GetCinemaResponse, FormData>(
       "patch",
       `/theaters/${id}`,
-      data,
+      formData,
+      {
+        headers: { "Content-Type": "multipart/form-data" },
+      },
     );
   },
 

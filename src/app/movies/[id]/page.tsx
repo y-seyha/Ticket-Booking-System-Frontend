@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useMemo } from "react";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { AnimatePresence, motion } from "framer-motion";
 import Image from "next/image";
 import Navbar from "@/components/common/Navbar";
@@ -12,6 +12,14 @@ import ShowtimeFilters from "@/features/movies/components/movie-details/Showtime
 import LocationAccordionList from "@/features/movies/components/movie-details/LocationAccordionList";
 import { apiRequest } from "@/lib/config/axios";
 import { CalendarX } from "lucide-react";
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb";
 
 export interface Showtime {
   id: string;
@@ -44,6 +52,7 @@ export interface MovieDetails {
 }
 
 export default function MovieDetailsPage() {
+  const router = useRouter();
   const params = useParams();
   const movieId = params?.id as string;
   const [movie, setMovie] = useState<MovieDetails | null>(null);
@@ -184,6 +193,29 @@ export default function MovieDetailsPage() {
       <Navbar />
 
       <main className="flex-1 pb-24 relative z-10 max-w-6xl w-full mx-auto px-4 sm:px-6 md:px-8 lg:px-12 pt-28 sm:pt-32 md:pt-36 lg:pt-40">
+        <div className="mb-10 mt-4 md:mt-0">
+          <Breadcrumb>
+            <BreadcrumbList>
+              <BreadcrumbItem>
+                <BreadcrumbLink
+                  onClick={() => router.push("/")}
+                  className="text-[11px] sm:text-xs font-bold tracking-[0.25em] uppercase text-zinc-500 hover:text-white transition-all duration-300 cursor-pointer"
+                >
+                  Home
+                </BreadcrumbLink>
+              </BreadcrumbItem>
+
+              <BreadcrumbSeparator className="text-zinc-800 mx-2" />
+
+              <BreadcrumbItem>
+                <BreadcrumbPage className="text-[11px] sm:text-xs font-bold tracking-[0.25em] uppercase text-zinc-300 truncate max-w-[250px] sm:max-w-md">
+                  {movie.title}
+                </BreadcrumbPage>
+              </BreadcrumbItem>
+            </BreadcrumbList>
+          </Breadcrumb>
+        </div>
+
         <div className="absolute top-[60%] left-1/2 -translate-x-1/2 -translate-y-1/2 w-80 sm:w-150 md:w-212.5 h-80 sm:h-150 md:h-212.5 bg-red-600/35 rounded-full blur-[160px] pointer-events-none z-0 transform-gpu" />
 
         <MovieHero movie={movie} />

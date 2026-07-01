@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, useCallback, useRef } from "react";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import SeatMap from "@/features/showitmes/components/SeatMap";
 import BookingPanel from "@/features/showitmes/components/BookingPanel";
 import {
@@ -10,6 +10,14 @@ import {
 } from "@/features/showitmes/showtimes.api";
 import Navbar from "@/components/common/Navbar";
 import Footer from "@/components/common/Footer";
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb";
 
 type SeatType = "STANDARD" | "VIP" | "COUPLE" | "WHEELCHAIR";
 
@@ -77,6 +85,7 @@ interface AxiosErrorResponse {
 }
 
 export default function ShowtimePage() {
+  const router = useRouter();
   const { id } = useParams() as { id: string };
   const [showtime, setShowtime] = useState<Showtime | null>(null);
   const [loading, setLoading] = useState(true);
@@ -230,9 +239,9 @@ export default function ShowtimePage() {
 
         await showtimesApi.lockSeat(payload);
         setSelectedSeats((prev) => [...prev, { ...seat, status: "LOCKED" }]);
-        if (selectedSeats.length === 0) setTimeLeft(60);
       }
 
+      // Synchronize exact database expiration data point right away
       await refreshSeatLayout();
     } catch (err) {
       console.error(
@@ -290,11 +299,47 @@ export default function ShowtimePage() {
     <div className="min-h-screen bg-zinc-950 text-zinc-100 selection:bg-red-500/30 font-sans antialiased relative overflow-x-hidden">
       <Navbar />
 
-      {/* Dynamic Scrolling Ambient Red Glow Aura Centerpieces */}
+      {/* Ambient Glows */}
       <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-red-600/10 rounded-full blur-[140px] pointer-events-none z-0" />
       <div className="absolute top-2/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-red-700/[0.07] rounded-full blur-[160px] pointer-events-none z-0" />
 
-      <main className="max-w-7xl mx-auto px-4 md:px-8 pt-36 pb-24 relative z-10">
+      <main className="max-w-7xl mx-auto px-4 md:px-8 pt-32 pb-24 relative z-10">
+        {/* Breadcrumb Section */}
+        {/* Breadcrumb Section */}
+        <div className="mb-8 py-4">
+          <Breadcrumb>
+            <BreadcrumbList>
+              <BreadcrumbItem>
+                <BreadcrumbLink
+                  onClick={() => router.push("/")}
+                  className="text-zinc-500 hover:text-white cursor-pointer transition-colors"
+                >
+                  Home
+                </BreadcrumbLink>
+              </BreadcrumbItem>
+
+              <BreadcrumbSeparator className="text-zinc-700" />
+
+              <BreadcrumbItem>
+                <BreadcrumbLink
+                  onClick={() => router.back()}
+                  className="text-zinc-500 hover:text-white cursor-pointer transition-colors"
+                >
+                  Movie
+                </BreadcrumbLink>
+              </BreadcrumbItem>
+
+              <BreadcrumbSeparator className="text-zinc-700" />
+
+              <BreadcrumbItem>
+                <BreadcrumbPage className="text-white font-bold tracking-wide">
+                  Showtime
+                </BreadcrumbPage>
+              </BreadcrumbItem>
+            </BreadcrumbList>
+          </Breadcrumb>
+        </div>
+
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
           <div className="lg:col-span-2 space-y-6">
             <div className="bg-zinc-900/20 backdrop-blur-xl p-4 sm:p-6 rounded-2xl border border-zinc-900/80 shadow-2xl relative overflow-hidden">
@@ -303,8 +348,12 @@ export default function ShowtimePage() {
                   1. Choose Seats
                 </h2>
                 {timeLeft !== null && (
-                  <div className="bg-red-500/10 border border-red-500/20 px-3 py-1 rounded-lg text-xs font-bold text-red-400 animate-pulse flex items-center gap-1.5 font-mono">
-                    <span>⏰</span> HELD: {formatTime(timeLeft)}
+                  <div className="bg-amber-500/10 border border-amber-500/20 px-3 py-1 rounded-lg text-xs font-bold text-amber-400 flex items-center gap-1.5 font-mono">
+                    <span className="relative flex h-1.5 w-1.5">
+                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
+                      <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-amber-500"></span>
+                    </span>
+                    HELD: {formatTime(timeLeft)}
                   </div>
                 )}
               </div>

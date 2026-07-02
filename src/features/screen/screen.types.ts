@@ -1,6 +1,6 @@
 export type ScreenType = "STANDARD" | "IMAX" | "VIP" | "DOLBY_ATMOS";
 
-export type SeatType = "REGULAR" | "VIP" | "COUPLE" | "WHEELCHAIR";
+export type SeatType = "STANDARD" | "VIP" | "COUPLE" | "WHEELCHAIR";
 
 export type SeatStatus = "ACTIVE" | "INACTIVE";
 

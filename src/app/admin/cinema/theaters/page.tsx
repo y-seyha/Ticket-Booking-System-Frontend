@@ -188,11 +188,14 @@ export default function TheaterDashboard() {
               cityFilter !== "ALL" ||
               search !== "") && (
               <button
-                onClick={handleResetFilters}
-                className="inline-flex items-center gap-1.5 px-3 py-2 text-xs font-semibold text-zinc-500 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-200 rounded-xl hover:bg-zinc-100 dark:hover:bg-zinc-900 transition-all"
+                onClick={() => {
+                  setStatusFilter("ALL");
+                  setCityFilter("ALL");
+                  setSearch("");
+                }}
+                className="cursor-pointer inline-flex items-center gap-1.5 px-3 py-2 text-xs font-semibold text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-200 rounded-xl hover:bg-zinc-100 dark:hover:bg-zinc-900 transition-colors"
               >
-                <RotateCcw className="h-3.5 w-3.5" />
-                Reset
+                Clear Filters
               </button>
             )}
           </div>

@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useEffect, useState, useMemo, useCallback, useRef } from "react";
@@ -109,91 +108,95 @@ export default function ScreenDashboardView() {
   }
 
   return (
-    <div className="space-y-6 p-4 sm:p-6 max-w-7xl mx-auto min-h-screen">
-      {/* Header section */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-zinc-100 dark:border-zinc-800 pb-5">
-        <div>
-          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-zinc-900 dark:text-zinc-50">
-            Cinematic Screens
-          </h1>
-          <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-1">
-            Manage theater setups, technical configurations, and layout seat
-            options.
-          </p>
+    <div className="min-h-screen bg-zinc-50/60 dark:bg-zinc-950 text-zinc-800 dark:text-zinc-100 antialiased">
+      <div className="mx-auto max-w-7xl space-y-6 p-4 sm:p-6 md:p-8">
+        {/* HEADER */}
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-zinc-100 dark:border-zinc-800 pb-5">
+          <div className="space-y-1">
+            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-zinc-900 dark:text-zinc-50">
+              Cinematic Screens
+            </h1>
+            <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-1">
+              Manage theater setups, technical configurations, and layout seat
+              options.
+            </p>
+          </div>
+          <button
+            onClick={() => {
+              setScreenToEdit(null);
+              setIsFormOpen(true);
+            }}
+            className="inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-zinc-900 hover:bg-zinc-800 text-white dark:bg-zinc-50 dark:hover:bg-zinc-200 dark:text-zinc-950 rounded-xl text-sm font-semibold transition-all shadow-sm"
+          >
+            <Plus className="h-4 w-4" />
+            Add Screen
+          </button>
         </div>
-        <button
-          onClick={() => {
+
+        {/* Filter Toolbar Component */}
+        <ScreenFilters
+          search={search}
+          onSearchChange={(val) => {
+            setSearch(val);
+            setPage(1);
+          }}
+          selectedType={selectedType}
+          onTypeChange={(val) => {
+            setSelectedType(val);
+            setPage(1);
+          }}
+        />
+
+        {/* Main Content Grid */}
+        {loading && screens.length === 0 ? (
+          <div className="p-16 text-center bg-white dark:bg-zinc-950 rounded-2xl border border-zinc-200 dark:border-zinc-800">
+            <Loader2 className="h-8 w-8 animate-spin mx-auto mb-3 text-zinc-400" />
+            <p className="text-sm text-zinc-500">
+              Syncing theater blueprints...
+            </p>
+          </div>
+        ) : (
+          <ScreenTable
+            screens={paginatedScreens}
+            totalCount={filteredScreens.length}
+            currentPage={currentPage}
+            maxPage={maxPage}
+            onPageChange={setPage}
+            onViewDetail={setSelectedScreen}
+            onEditClick={(screen) => {
+              setScreenToEdit(screen);
+              setIsFormOpen(true);
+            }}
+            onDeleteClick={(id, name) => setDeleteTarget({ id, name })}
+          />
+        )}
+
+        {/* Inspector Details View Drawer/Modal */}
+        {selectedScreen && (
+          <ScreenDetailModal
+            screen={selectedScreen}
+            onClose={() => setSelectedScreen(null)}
+          />
+        )}
+
+        {/* Create & Edit Shared Form Modal */}
+        <ScreenFormModal
+          isOpen={isFormOpen}
+          screenToEdit={screenToEdit}
+          onClose={() => {
+            setIsFormOpen(false);
             setScreenToEdit(null);
-            setIsFormOpen(true);
           }}
-          className="inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-zinc-900 hover:bg-zinc-800 text-white dark:bg-zinc-50 dark:hover:bg-zinc-200 dark:text-zinc-950 rounded-xl text-sm font-semibold transition-all shadow-sm"
-        >
-          <Plus className="h-4 w-4" />
-          Add Screen
-        </button>
+          onSuccess={fetchAllScreens}
+        />
+
+        {/* Delete Confirmation Modal */}
+        <DeleteScreenModal
+          target={deleteTarget}
+          onClose={() => setDeleteTarget(null)}
+          onSuccess={fetchAllScreens}
+        />
       </div>
-
-      {/* Filter Toolbar Component */}
-      <ScreenFilters
-        search={search}
-        onSearchChange={(val) => {
-          setSearch(val);
-          setPage(1);
-        }}
-        selectedType={selectedType}
-        onTypeChange={(val) => {
-          setSelectedType(val);
-          setPage(1);
-        }}
-      />
-
-      {/* Main Content Grid */}
-      {loading && screens.length === 0 ? (
-        <div className="p-16 text-center bg-white dark:bg-zinc-950 rounded-2xl border border-zinc-200 dark:border-zinc-800">
-          <Loader2 className="h-8 w-8 animate-spin mx-auto mb-3 text-zinc-400" />
-          <p className="text-sm text-zinc-500">Syncing theater blueprints...</p>
-        </div>
-      ) : (
-        <ScreenTable
-          screens={paginatedScreens}
-          totalCount={filteredScreens.length}
-          currentPage={currentPage}
-          maxPage={maxPage}
-          onPageChange={setPage}
-          onViewDetail={setSelectedScreen}
-          onEditClick={(screen) => {
-            setScreenToEdit(screen);
-            setIsFormOpen(true);
-          }}
-          onDeleteClick={(id, name) => setDeleteTarget({ id, name })}
-        />
-      )}
-
-      {/* Inspector Details View Drawer/Modal */}
-      {selectedScreen && (
-        <ScreenDetailModal
-          screen={selectedScreen}
-          onClose={() => setSelectedScreen(null)}
-        />
-      )}
-
-      {/* Create & Edit Shared Form Modal */}
-      <ScreenFormModal
-        isOpen={isFormOpen}
-        screenToEdit={screenToEdit}
-        onClose={() => {
-          setIsFormOpen(false);
-          setScreenToEdit(null);
-        }}
-        onSuccess={fetchAllScreens}
-      />
-
-      {/* Delete Confirmation Modal */}
-      <DeleteScreenModal
-        target={deleteTarget}
-        onClose={() => setDeleteTarget(null)}
-        onSuccess={fetchAllScreens}
-      />
     </div>
   );
 }

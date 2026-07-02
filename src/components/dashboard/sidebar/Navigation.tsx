@@ -50,6 +50,11 @@ export const navigationConfig: SidebarGroupType[] = [
       { title: "Theaters", href: "/admin/cinema/theaters", icon: Building2 },
       { title: "Screens", href: "/admin/cinema/screens", icon: Tv },
       {
+        title: "Screen Templates",
+        href: "/admin/cinema/screen-templates",
+        icon: Tv,
+      },
+      {
         title: "Seat Templates",
         href: "/admin/cinema/seat-templates",
         icon: Grid3X3,

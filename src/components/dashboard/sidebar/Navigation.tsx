@@ -71,12 +71,27 @@ export const navigationConfig: SidebarGroupType[] = [
     ],
   },
   {
-    title: "Customer Management",
+    title: "User Management",
     items: [
-      { title: "Users", href: "/admin/customers/users", icon: Users },
       {
-        title: "Roles & Permissions",
-        href: "/admin/customers/roles",
+        title: "Administrators",
+        href: "/admin/users/admins-dashboard",
+        icon: ShieldCheck,
+      },
+      {
+        title: "Users",
+        href: "/admin/users/users-dashboard",
+        icon: Users,
+      },
+      {
+        title: "Cashiers",
+        href: "/admin/users/cashiers-dashboard",
+        icon: Users,
+      },
+
+      {
+        title: "Roles",
+        href: "/admin/users/roles-dashboard",
         icon: ShieldCheck,
       },
     ],

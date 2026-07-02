@@ -54,7 +54,7 @@ export const userApi = {
     return apiRequest<UserResponse>("patch", `/users/${id}/unban`);
   },
 
-  changeUserRole(id: string, role: "USER" | "ADMIN") {
+  changeUserRole(id: string, role: "USER" | "ADMIN" | "CASHIER") {
     return apiRequest<UserResponse, { role: string }>(
       "patch",
       `/users/${id}/role`,

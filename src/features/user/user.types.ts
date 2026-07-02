@@ -14,8 +14,8 @@ export interface NestedProfile {
 export interface UserResponse {
   id: string;
   email: string;
-  role: "USER" | "ADMIN";
-  status: "ACTIVE" | "BANNED" | "INACTIVE";
+  role: "USER" | "ADMIN" | "CASHIER";
+  status: "ACTIVE" | "SUSPENDED" | "DELETED";
   emailVerified: boolean;
   phoneVerified: boolean;
   twoFactorEnabled: boolean;

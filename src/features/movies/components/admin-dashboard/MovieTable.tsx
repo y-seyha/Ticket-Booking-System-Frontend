@@ -1,8 +1,9 @@
 "use client";
 
 import Image from "next/image";
-import { Film, Calendar, Clock, Languages, Eye, Trash2 } from "lucide-react";
+import { Film, Calendar, Clock, Languages, Pencil, Trash2 } from "lucide-react"; // 👈 Exchanged Eye for Pencil
 import { Movie, MovieStatus } from "../../movie.type";
+import SmoothSelect from "@/components/ui/SmoothSelect";
 
 interface MovieTableProps {
   movies: Movie[];
@@ -33,8 +34,8 @@ export default function MovieTable({
   }
 
   return (
-    <div className="w-full overflow-hidden rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 shadow-sm">
-      <div className="overflow-x-auto">
+    <div className="w-full overflow-visible rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 shadow-sm">
+      <div className="overflow-visible">
         <table className="w-full border-collapse text-left text-sm">
           <thead className="bg-zinc-50 dark:bg-zinc-900/50 border-b border-zinc-200 dark:border-zinc-800">
             <tr>
@@ -58,8 +59,6 @@ export default function MovieTable({
           <tbody className="divide-y divide-zinc-200 dark:divide-zinc-800">
             {movies.map((movie, index) => {
               const rowNumber = (currentPage - 1) * limit + index + 1;
-
-              // Safely access the poster URL by asserting the type
               const poster = movie.poster as { url?: string } | undefined;
               const resolvedUrl = poster?.url || null;
 
@@ -117,34 +116,41 @@ export default function MovieTable({
                     </div>
                   </td>
 
-                  <td className="px-6 py-4">
-                    <select
-                      value={movie.status}
-                      onChange={(e) =>
-                        onStatusChange(movie.id, e.target.value as MovieStatus)
+                  <td className="px-6 py-4 w-52 overflow-visible relative z-10">
+                    <SmoothSelect
+                      label=""
+                      placeholder="Select status..."
+                      selectedValue={movie.status}
+                      onChange={(val) =>
+                        onStatusChange(movie.id, val as MovieStatus)
                       }
-                      className="bg-transparent border border-zinc-200 dark:border-zinc-700 rounded-lg px-3 py-1.5 text-xs font-medium cursor-pointer hover:border-blue-400 focus:ring-2 focus:ring-blue-100 dark:focus:ring-blue-900 transition-all"
-                    >
-                      <option value={MovieStatus.NOW_SHOWING}>
-                        Now Showing
-                      </option>
-                      <option value={MovieStatus.COMING_SOON}>
-                        Coming Soon
-                      </option>
-                      <option value={MovieStatus.ARCHIVED}>Archived</option>
-                    </select>
+                      options={[
+                        {
+                          value: MovieStatus.NOW_SHOWING,
+                          label: "Now Showing",
+                        },
+                        {
+                          value: MovieStatus.COMING_SOON,
+                          label: "Coming Soon",
+                        },
+                        { value: MovieStatus.ARCHIVED, label: "Archived" },
+                      ]}
+                    />
                   </td>
 
                   <td className="px-6 py-4 text-right">
                     <div className="flex justify-end gap-1">
                       <button
                         onClick={() => onEditClick(movie)}
+                        title="Edit Movie details"
                         className="p-2 text-zinc-400 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-950/30 rounded-lg transition-all cursor-pointer"
                       >
-                        <Eye className="h-4 w-4" />
+                        <Pencil className="h-4 w-4" />{" "}
+                        {/* 👈 Swapped component element display layout reference */}
                       </button>
                       <button
                         onClick={() => onDeleteClick(movie)}
+                        title="Delete Movie catalog link"
                         className="p-2 text-zinc-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/30 rounded-lg transition-all cursor-pointer"
                       >
                         <Trash2 className="h-4 w-4" />

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { ChevronDown } from "lucide-react";
 
 interface DropdownOption {
@@ -9,11 +9,12 @@ interface DropdownOption {
 }
 
 interface SelectProps {
-  label: string;
+  label?: string; 
   options: DropdownOption[];
   selectedValue: string;
   onChange: (value: string) => void;
   placeholder?: string;
+  disabled?: boolean;
 }
 
 export default function SmoothSelect({
@@ -22,6 +23,7 @@ export default function SmoothSelect({
   selectedValue,
   onChange,
   placeholder = "Select layout type...",
+  disabled = false,
 }: SelectProps) {
   const [isOpen, setIsOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -43,15 +45,18 @@ export default function SmoothSelect({
     options.find((opt) => opt.value === selectedValue)?.label || placeholder;
 
   return (
-    <div className="relative flex flex-col gap-1.5" ref={containerRef}>
-      <label className="text-sm font-medium text-zinc-600 dark:text-zinc-400">
-        {label}
-      </label>
+    <div className="relative flex flex-col gap-1.5 w-full" ref={containerRef}>
+      {label && (
+        <label className="text-sm font-medium text-zinc-600 dark:text-zinc-400">
+          {label}
+        </label>
+      )}
 
       <button
         type="button"
+        disabled={disabled}
         onClick={() => setIsOpen(!isOpen)}
-        className="flex w-full items-center justify-between rounded-xl border border-zinc-200 bg-white px-4 py-2.5 text-left text-sm text-zinc-800 shadow-sm transition-all focus:border-zinc-500 focus:ring-2 focus:ring-zinc-100 dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-200"
+        className="flex w-full items-center justify-between rounded-xl border border-zinc-200 bg-white px-4 py-2.5 text-left text-sm text-zinc-800 shadow-sm transition-all focus:border-zinc-500 focus:ring-2 focus:ring-zinc-100 dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-200 disabled:opacity-50 disabled:cursor-not-allowed"
       >
         <span>{selectedLabel}</span>
         <ChevronDown
@@ -59,8 +64,8 @@ export default function SmoothSelect({
         />
       </button>
 
-      {isOpen && (
-        <ul className="absolute top-[102%] z-20 max-h-56 w-full overflow-auto rounded-xl border border-zinc-200 bg-white p-1.5 shadow-lg dark:border-zinc-800 dark:bg-zinc-950 animate-in fade-in slide-in-from-top-2 duration-150">
+      {isOpen && !disabled && (
+        <ul className="absolute top-[102%] left-0 z-20 max-h-56 w-full overflow-auto rounded-xl border border-zinc-200 bg-white p-1.5 shadow-lg dark:border-zinc-800 dark:bg-zinc-950 animate-in fade-in slide-in-from-top-2 duration-150">
           {options.length === 0 ? (
             <li className="px-4 py-2 text-xs text-zinc-400">
               No options available

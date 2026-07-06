@@ -1,4 +1,3 @@
-
 import { ScreenType, SeatType } from "../screen/screen.types";
 
 export interface SeatRowConfig {
@@ -13,24 +12,44 @@ export interface GenerateTemplateSeatsPayload {
   seatMap: SeatRowConfig[];
 }
 
-export interface ScreenTemplateMini {
-  id: string;
-  name: string;
-  type: ScreenType;
+export interface UpdateTemplateSeatsPayload {
+  name?: string;
+  rows?: number;
+  seatsPerRow?: number;
+  seatMap?: SeatRowConfig[];
 }
 
-export interface ScreenTemplateSeat {
+export interface StrippedTemplateSeat {
   id: string;
-  templateId: string;
   seatRow: string;
   seatNumber: number;
   posX: number;
   posY: number;
   seatType: SeatType;
-  template?: ScreenTemplateMini;
+}
+
+export interface SeatLayoutVariant {
+  layoutId: string;
+  layoutName: string;
+  createdAt: string;
+  seats: StrippedTemplateSeat[];
+}
+
+export interface AggregatedScreenTemplateLayouts {
+  templateId: string;
+  templateName: string;
+  screenType: ScreenType;
+  screenSurcharge: string;
+  isActive: boolean;
+  layouts: SeatLayoutVariant[];
 }
 
 export interface GenerationResult {
   message: string;
-  total: number;
+  screenTemplateId: string;
+  seatLayout: {
+    id: string;
+    name: string;
+    totalSeatsGenerated: number;
+  };
 }

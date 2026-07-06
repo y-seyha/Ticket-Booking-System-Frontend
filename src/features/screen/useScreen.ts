@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { toast } from "sonner";
 
 import { screensApi } from "./screen.api";
@@ -11,7 +11,7 @@ import type {
 export function useScreen() {
   const [loading, setLoading] = useState(false);
 
-  const getScreens = async (): Promise<Screen[]> => {
+  const getScreens = useCallback(async (): Promise<Screen[]> => {
     try {
       setLoading(true);
       return await screensApi.findAll();
@@ -21,9 +21,9 @@ export function useScreen() {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
-  const getScreen = async (id: string): Promise<Screen> => {
+  const getScreen = useCallback(async (id: string): Promise<Screen> => {
     try {
       setLoading(true);
       return await screensApi.findOne(id);
@@ -33,9 +33,9 @@ export function useScreen() {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
-  const createScreen = async (payload: CreateScreenPayload) => {
+  const createScreen = useCallback(async (payload: CreateScreenPayload) => {
     try {
       setLoading(true);
       const screen = await screensApi.create(payload);
@@ -48,24 +48,27 @@ export function useScreen() {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
-  const updateScreen = async (id: string, payload: UpdateScreenPayload) => {
-    try {
-      setLoading(true);
-      const screen = await screensApi.update(id, payload);
+  const updateScreen = useCallback(
+    async (id: string, payload: UpdateScreenPayload) => {
+      try {
+        setLoading(true);
+        const screen = await screensApi.update(id, payload);
 
-      toast.success("Screen updated successfully.");
-      return screen;
-    } catch (error) {
-      toast.error("Failed to update screen.");
-      throw error;
-    } finally {
-      setLoading(false);
-    }
-  };
+        toast.success("Screen updated successfully.");
+        return screen;
+      } catch (error) {
+        toast.error("Failed to update screen.");
+        throw error;
+      } finally {
+        setLoading(false);
+      }
+    },
+    [],
+  );
 
-  const deleteScreen = async (id: string) => {
+  const deleteScreen = useCallback(async (id: string) => {
     try {
       setLoading(true);
       await screensApi.remove(id);
@@ -77,7 +80,7 @@ export function useScreen() {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   return {
     loading,

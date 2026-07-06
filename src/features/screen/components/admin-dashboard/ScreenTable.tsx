@@ -12,6 +12,7 @@ interface TableProps {
   onViewDetail: (screen: Screen) => void;
   onEditClick: (screen: Screen) => void;
   onDeleteClick: (id: string, name: string) => void;
+  loading?: boolean;
 }
 
 export default function ScreenTable({
@@ -22,6 +23,7 @@ export default function ScreenTable({
   onViewDetail,
   onEditClick,
   onDeleteClick,
+  loading = false,
 }: TableProps) {
   const getTypeBadgeStyles = (type: string) => {
     switch (type) {
@@ -50,7 +52,36 @@ export default function ScreenTable({
             </tr>
           </thead>
           <tbody className="divide-y divide-zinc-200 dark:divide-zinc-800 text-sm">
-            {screens.length === 0 ? (
+            {loading ? (
+              Array.from({ length: 5 }).map((_, idx) => (
+                <tr key={`skeleton-${idx}`} className="animate-pulse">
+                  <td className="p-4">
+                    <div className="flex items-center gap-3">
+                      <div className="p-4 bg-zinc-100 dark:bg-zinc-900 rounded-lg h-8 w-8" />
+                      <div className="space-y-2">
+                        <div className="h-4 bg-zinc-200 dark:bg-zinc-800 rounded w-24" />
+                        <div className="h-3 bg-zinc-100 dark:bg-zinc-900 rounded w-32" />
+                      </div>
+                    </div>
+                  </td>
+                  <td className="p-4">
+                    <div className="h-4 bg-zinc-100 dark:bg-zinc-900 rounded w-28" />
+                  </td>
+                  <td className="p-4">
+                    <div className="h-5 bg-zinc-100 dark:bg-zinc-900 rounded-lg w-16" />
+                  </td>
+                  <td className="p-4">
+                    <div className="h-4 bg-zinc-100 dark:bg-zinc-900 rounded w-20" />
+                  </td>
+                  <td className="p-4">
+                    <div className="flex justify-end gap-2">
+                      <div className="h-7 w-7 bg-zinc-100 dark:bg-zinc-900 rounded-lg" />
+                      <div className="h-7 w-7 bg-zinc-100 dark:bg-zinc-900 rounded-lg" />
+                    </div>
+                  </td>
+                </tr>
+              ))
+            ) : screens.length === 0 ? (
               <tr>
                 <td
                   colSpan={5}
@@ -73,7 +104,8 @@ export default function ScreenTable({
                       <div>
                         <div className="font-semibold">{screen.name}</div>
                         <div className="text-xs text-zinc-400">
-                          Template ID: {screen.templateId.substring(0, 8)}...
+                          Template ID:{" "}
+                          {screen.templateId?.substring(0, 8) || "N/A"}...
                         </div>
                       </div>
                     </div>
@@ -95,7 +127,6 @@ export default function ScreenTable({
                   <td className="p-4 text-zinc-600 dark:text-zinc-300 font-mono text-xs">
                     {screen.seats?.length || 0} Total Seats
                   </td>
-                  {/* Cleaned up action buttons inside a single valid td container */}
                   <td className="p-4 text-right">
                     <div className="flex items-center justify-end gap-2">
                       <button
@@ -136,14 +167,14 @@ export default function ScreenTable({
         <div className="flex gap-2">
           <button
             onClick={() => onPageChange(Math.max(currentPage - 1, 1))}
-            disabled={currentPage === 1}
+            disabled={currentPage === 1 || loading}
             className="px-3 py-1.5 border border-zinc-200 dark:border-zinc-800 rounded-xl bg-white dark:bg-zinc-950 text-xs font-semibold text-zinc-700 dark:text-zinc-300 disabled:opacity-50 transition-all hover:bg-zinc-50 dark:hover:bg-zinc-900"
           >
             Previous
           </button>
           <button
             onClick={() => onPageChange(Math.min(currentPage + 1, maxPage))}
-            disabled={currentPage === maxPage}
+            disabled={currentPage === maxPage || loading}
             className="px-3 py-1.5 border border-zinc-200 dark:border-zinc-800 rounded-xl bg-white dark:bg-zinc-950 text-xs font-semibold text-zinc-700 dark:text-zinc-300 disabled:opacity-50 transition-all hover:bg-zinc-50 dark:hover:bg-zinc-900"
           >
             Next

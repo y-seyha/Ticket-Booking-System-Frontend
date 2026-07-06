@@ -1,5 +1,10 @@
-import { Showtime } from "@/app/movies/[id]/page";
 import { apiRequest } from "@/lib/config/axios";
+import {
+  CreateShowtimeDto,
+  Showtime,
+  ShowtimeStatus,
+  UpdateShowtimeDto,
+} from "./showtimes.types";
 
 export interface RawSeat {
   id: string;
@@ -38,15 +43,42 @@ export const showtimesApi = {
     apiRequest<{ message?: string }>("post", `/seats/lock`, payload),
 
   unlockSeat: (payload: SeatActionPayload) =>
-    apiRequest<{ message?: string }>(
-      "delete",
-      `/seats/unlock`,
-      undefined, 
-      { data: payload }, 
-    ),
+    apiRequest<{ message?: string }>("delete", `/seats/unlock`, undefined, {
+      data: payload,
+    }),
 
   getCart: () => apiRequest<BackendCartResponse>("get", `/seats/cart`),
 
   clearCart: () =>
     apiRequest<{ message?: string }>("delete", `/seats/cart/clear`),
+
+  //-- admin operation
+  getAll: async (): Promise<Showtime[]> => {
+    return await apiRequest<Showtime[]>("get", "/showtimes");
+  },
+
+  getOne: async (id: string): Promise<Showtime> => {
+    return await apiRequest<Showtime>("get", `/showtimes/${id}`);
+  },
+
+  create: async (dto: CreateShowtimeDto): Promise<Showtime> => {
+    return await apiRequest<Showtime>("post", "/showtimes", dto);
+  },
+
+  update: async (id: string, dto: UpdateShowtimeDto): Promise<Showtime> => {
+    return await apiRequest<Showtime>("patch", `/showtimes/${id}`, dto);
+  },
+
+  updateStatus: async (
+    id: string,
+    status: ShowtimeStatus,
+  ): Promise<Showtime> => {
+    return await apiRequest<Showtime>("patch", `/showtimes/${id}/status`, {
+      status,
+    });
+  },
+
+  delete: async (id: string): Promise<void> => {
+    return await apiRequest<void>("delete", `/showtimes/${id}`);
+  },
 };

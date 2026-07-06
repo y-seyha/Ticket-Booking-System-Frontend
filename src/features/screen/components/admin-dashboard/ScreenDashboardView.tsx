@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, useMemo, useCallback, useRef } from "react";
-import { Plus, Loader2, ShieldAlert } from "lucide-react";
+import { Plus, Loader2, ShieldAlert, RotateCcw } from "lucide-react";
 import { useScreen } from "../../useScreen";
 import type { Screen } from "../../screen.types";
 import ScreenTable from "./ScreenTable";
@@ -26,6 +26,8 @@ export default function ScreenDashboardView() {
   // Data table states
   const [search, setSearch] = useState("");
   const [selectedType, setSelectedType] = useState<string>("ALL");
+  const [selectedCinema, setSelectedCinema] = useState<string>("ALL");
+  const [sortOrder, setSortOrder] = useState<string>("ASC");
   const [page, setPage] = useState(1);
   const limit = 10;
 
@@ -60,9 +62,44 @@ export default function ScreenDashboardView() {
     }
   }, [fetchAllScreens]);
 
-  // Filter and Search Pipeline
-  const filteredScreens = useMemo(() => {
-    return screens.filter((screen) => {
+  const handleResetFilters = useCallback(() => {
+    setSearch("");
+    setSelectedType("ALL");
+    setSelectedCinema("ALL");
+    setSortOrder("ASC");
+    setPage(1);
+  }, []);
+
+  const cinemaOptions = useMemo(() => {
+    const theaterMap = new Map<string, string>();
+
+    screens.forEach((screen) => {
+      const theaterId = screen.theaterId || screen.theater?.id;
+      const theaterName = screen.theater?.name || "Unknown Complex";
+      if (theaterId) {
+        theaterMap.set(theaterId, theaterName);
+      }
+    });
+
+    const options = Array.from(theaterMap.entries()).map(([id, name]) => ({
+      value: id,
+      label: name,
+    }));
+
+    return [{ value: "ALL", label: "All Cinemas" }, ...options];
+  }, [screens]);
+
+  const isFiltered = useMemo(() => {
+    return (
+      search !== "" ||
+      selectedType !== "ALL" ||
+      selectedCinema !== "ALL" ||
+      sortOrder !== "ASC"
+    );
+  }, [search, selectedType, selectedCinema, sortOrder]);
+
+  const filteredAndSortedScreens = useMemo(() => {
+    const result = screens.filter((screen) => {
       if (search) {
         const query = search.toLowerCase();
         const matchesName = screen.name?.toLowerCase().includes(query);
@@ -76,20 +113,35 @@ export default function ScreenDashboardView() {
         return false;
       }
 
+      if (selectedCinema !== "ALL") {
+        const currentTheaterId = screen.theaterId || screen.theater?.id;
+        if (currentTheaterId !== selectedCinema) return false;
+      }
+
       return true;
     });
-  }, [screens, search, selectedType]);
+
+    return result.sort((a, b) => {
+      const nameA = a.name || "";
+      const nameB = b.name || "";
+
+      if (sortOrder === "ASC") {
+        return nameA.localeCompare(nameB);
+      } else {
+        return nameB.localeCompare(nameA);
+      }
+    });
+  }, [screens, search, selectedType, selectedCinema, sortOrder]);
 
   // Client Side Pagination math
-  const maxPage = Math.ceil(filteredScreens.length / limit) || 1;
+  const maxPage = Math.ceil(filteredAndSortedScreens.length / limit) || 1;
   const currentPage = page > maxPage ? maxPage : page;
 
   const paginatedScreens = useMemo(() => {
     const offset = (currentPage - 1) * limit;
-    return filteredScreens.slice(offset, offset + limit);
-  }, [filteredScreens, currentPage, limit]);
+    return filteredAndSortedScreens.slice(offset, offset + limit);
+  }, [filteredAndSortedScreens, currentPage, limit]);
 
-  // Dynamic Auth State UI View
   if (isUnauthorized) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh] p-6 text-center">
@@ -121,16 +173,27 @@ export default function ScreenDashboardView() {
               options.
             </p>
           </div>
-          <button
-            onClick={() => {
-              setScreenToEdit(null);
-              setIsFormOpen(true);
-            }}
-            className="inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-zinc-900 hover:bg-zinc-800 text-white dark:bg-zinc-50 dark:hover:bg-zinc-200 dark:text-zinc-950 rounded-xl text-sm font-semibold transition-all shadow-sm"
-          >
-            <Plus className="h-4 w-4" />
-            Add Screen
-          </button>
+          <div className="flex items-center gap-3">
+            {isFiltered && (
+              <button
+                onClick={handleResetFilters}
+                className="inline-flex items-center justify-center gap-1.5 px-3 py-2 bg-zinc-100 hover:bg-zinc-200 dark:bg-zinc-900 dark:hover:bg-zinc-800 text-zinc-700 dark:text-zinc-300 rounded-xl text-xs font-semibold transition-all shadow-sm border border-zinc-200 dark:border-zinc-800"
+              >
+                <RotateCcw className="h-3.5 w-3.5" />
+                Reset Filters
+              </button>
+            )}
+            <button
+              onClick={() => {
+                setScreenToEdit(null);
+                setIsFormOpen(true);
+              }}
+              className="inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-zinc-900 hover:bg-zinc-800 text-white dark:bg-zinc-50 dark:hover:bg-zinc-200 dark:text-zinc-950 rounded-xl text-sm font-semibold transition-all shadow-sm"
+            >
+              <Plus className="h-4 w-4" />
+              Add Screen
+            </button>
+          </div>
         </div>
 
         {/* Filter Toolbar Component */}
@@ -145,9 +208,20 @@ export default function ScreenDashboardView() {
             setSelectedType(val);
             setPage(1);
           }}
+          selectedCinema={selectedCinema}
+          onCinemaChange={(val) => {
+            setSelectedCinema(val);
+            setPage(1);
+          }}
+          cinemaOptions={cinemaOptions}
+          sortOrder={sortOrder}
+          onSortOrderChange={(val) => {
+            setSortOrder(val);
+            setPage(1);
+          }}
         />
 
-        {/* Main Content Grid */}
+        {/* Main Content Table Rendering Area */}
         {loading && screens.length === 0 ? (
           <div className="p-16 text-center bg-white dark:bg-zinc-950 rounded-2xl border border-zinc-200 dark:border-zinc-800">
             <Loader2 className="h-8 w-8 animate-spin mx-auto mb-3 text-zinc-400" />
@@ -158,7 +232,7 @@ export default function ScreenDashboardView() {
         ) : (
           <ScreenTable
             screens={paginatedScreens}
-            totalCount={filteredScreens.length}
+            totalCount={filteredAndSortedScreens.length}
             currentPage={currentPage}
             maxPage={maxPage}
             onPageChange={setPage}

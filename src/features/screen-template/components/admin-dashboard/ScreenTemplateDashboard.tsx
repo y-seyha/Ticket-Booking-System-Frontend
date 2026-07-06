@@ -22,7 +22,7 @@ import {
 import Modal from "@/components/ui/Modal";
 import { useScreenTemplate } from "../../useScreenTemplate";
 import { CreateEditModal } from "./CreateEditModal";
-import { DetailModal } from "./DetailModal";
+import { DetailModal, ExtendedScreenTemplate } from "./DetailModal";
 
 const FILTER_TYPES = ["ALL", "STANDARD", "IMAX", "VIP", "FOUR_DX"];
 
@@ -52,8 +52,10 @@ export default function ScreenTemplateDashboard() {
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
   const [isStatusConfirmOpen, setIsStatusConfirmOpen] = useState(false);
-  const [selectedTemplate, setSelectedTemplate] =
-    useState<ScreenTemplate | null>(null);
+
+  const [selectedTemplate, setSelectedTemplate] = useState<
+    ExtendedScreenTemplate | ScreenTemplate | null
+  >(null);
   const [statusToggleLoading, setStatusToggleLoading] = useState(false);
 
   const filterContainerRef = useRef<HTMLDivElement>(null);
@@ -480,7 +482,7 @@ export default function ScreenTemplateDashboard() {
         <DetailModal
           isOpen={isDetailsOpen}
           onClose={() => setIsDetailsOpen(false)}
-          template={selectedTemplate}
+          template={selectedTemplate as ExtendedScreenTemplate | null}
         />
 
         {/* STATUS ALTERATION CONFIRM DIALOG */}

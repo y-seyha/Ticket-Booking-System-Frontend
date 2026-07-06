@@ -1,4 +1,4 @@
-export type ScreenType = "STANDARD" | "IMAX" | "VIP" | "DOLBY_ATMOS";
+export type ScreenType = "STANDARD" | "VIP" | "IMAX" | "THREE_D";
 
 export type SeatType = "STANDARD" | "VIP" | "COUPLE" | "WHEELCHAIR";
 
@@ -13,6 +13,9 @@ export interface ScreenTemplate {
   id: string;
   name: string;
   type: ScreenType;
+  isActive: boolean; 
+  layouts?: LayoutVariant[];
+  variants?: LayoutVariant[];
 }
 
 export interface Seat {
@@ -33,6 +36,7 @@ export interface Screen {
   id: string;
   theaterId: string;
   templateId: string;
+  layoutId: string;
   name: string;
   type: ScreenType;
   createdAt: string;
@@ -45,8 +49,15 @@ export interface Screen {
 export interface CreateScreenPayload {
   theaterId: string;
   templateId: string;
+  layoutId: string;
   name: string;
   type: ScreenType;
 }
 
 export type UpdateScreenPayload = Partial<CreateScreenPayload>;
+
+export interface LayoutVariant {
+  id: string;
+  layoutId?: string;
+  layoutName: string;
+}

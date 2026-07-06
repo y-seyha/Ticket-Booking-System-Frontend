@@ -38,8 +38,13 @@ export default function MovieFormModal({
   const [language, setLanguage] = useState(movie ? movie.language : "");
 
   const [posterFile, setPosterFile] = useState<File | null>(null);
+
   const [previewUrl, setPreviewUrl] = useState<string | null>(
-    movie?.poster || null,
+    movie?.poster &&
+      typeof movie.poster === "string" &&
+      movie.poster.trim() !== ""
+      ? movie.poster
+      : null,
   );
 
   const getInitialDate = () => {
@@ -69,7 +74,7 @@ export default function MovieFormModal({
     try {
       const payload: CreateMoviePayload = {
         title: title.trim(),
-        durationMinutes: parseInt(duration, 10),
+        durationMinutes: parseInt(duration, 10) || 0,
         language: language.trim(),
         releaseDate: releaseDate
           ? new Date(releaseDate).toISOString()
@@ -81,7 +86,8 @@ export default function MovieFormModal({
 
       await onSubmit(payload);
       onClose();
-    } catch {
+    } catch (err) {
+      console.error("Failed to submit film schema:", err);
     } finally {
       setIsSubmitting(false);
     }
@@ -95,7 +101,7 @@ export default function MovieFormModal({
     >
       <form
         onSubmit={handleSubmit}
-        className="space-y-4 max-h-[80vh] overflow-y-auto px-1"
+        className="space-y-4 max-h-[80vh] overflow-y-auto px-1 custom-scrollbar"
       >
         {/* Poster Upload Section with Visual Preview Feedback */}
         <div className="flex items-center gap-4 p-3 bg-zinc-50 dark:bg-zinc-900/50 rounded-xl border border-zinc-100 dark:border-zinc-800">
@@ -104,8 +110,10 @@ export default function MovieFormModal({
               <div className="relative h-24 w-16 overflow-hidden rounded-md">
                 <Image
                   src={previewUrl}
-                  alt="Poster Preview"
+                  alt="Movie Poster Canvas Preview"
                   fill
+                  sizes="64px"
+                  priority
                   className="object-cover"
                 />
               </div>
@@ -139,7 +147,7 @@ export default function MovieFormModal({
             value={title}
             placeholder="Spiderman..."
             onChange={(e) => setTitle(e.target.value)}
-            className="w-full rounded-lg border border-zinc-200 bg-white p-2 text-sm text-zinc-900 focus:outline-none dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-50 focus:border-zinc-900 dark:focus:border-zinc-50"
+            className="w-full h-10.5 rounded-lg border border-zinc-200 bg-white p-2 text-sm text-zinc-900 focus:outline-none dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-50 focus:border-zinc-900 dark:focus:border-zinc-50"
           />
         </div>
 
@@ -168,7 +176,7 @@ export default function MovieFormModal({
               value={duration}
               placeholder="150"
               onChange={(e) => setDuration(e.target.value)}
-              className="w-full rounded-lg border border-zinc-200 bg-white p-2 text-sm text-zinc-900 focus:outline-none dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-50 focus:border-zinc-900 dark:focus:border-zinc-50"
+              className="w-full h-10.5 rounded-lg border border-zinc-200 bg-white p-2 text-sm text-zinc-900 focus:outline-none dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-50 focus:border-zinc-900 dark:focus:border-zinc-50"
             />
           </div>
           <div>
@@ -181,7 +189,7 @@ export default function MovieFormModal({
               value={language}
               placeholder="English, Khmer..."
               onChange={(e) => setLanguage(e.target.value)}
-              className="w-full rounded-lg border border-zinc-200 bg-white p-2 text-sm text-zinc-900 focus:outline-none dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-50 focus:border-zinc-900 dark:focus:border-zinc-50"
+              className="w-full h-10.5 rounded-lg border border-zinc-200 bg-white p-2 text-sm text-zinc-900 focus:outline-none dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-50 focus:border-zinc-900 dark:focus:border-zinc-50"
             />
           </div>
         </div>
@@ -196,7 +204,7 @@ export default function MovieFormModal({
               required
               value={releaseDate}
               onChange={(e) => setReleaseDate(e.target.value)}
-              className="w-full rounded-lg border border-zinc-200 bg-white p-2 text-sm text-zinc-900 focus:outline-none dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-50 focus:border-zinc-900 dark:focus:border-zinc-50"
+              className="w-full h-10.5 rounded-lg border border-zinc-200 bg-white p-2 text-sm text-zinc-900 focus:outline-none dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-50 focus:border-zinc-900 dark:focus:border-zinc-50"
             />
           </div>
           <div>
@@ -208,7 +216,7 @@ export default function MovieFormModal({
               placeholder="e.g. avz06PDqDbM"
               value={trailerYoutubeId}
               onChange={(e) => setTrailerYoutubeId(e.target.value)}
-              className="w-full rounded-lg border border-zinc-200 bg-white p-2 text-sm text-zinc-900 focus:outline-none dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-50 focus:border-zinc-900 dark:focus:border-zinc-50"
+              className="w-full h-10.5 rounded-lg border border-zinc-200 bg-white p-2 text-sm text-zinc-900 focus:outline-none dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-50 focus:border-zinc-900 dark:focus:border-zinc-50"
             />
           </div>
         </div>
@@ -217,14 +225,14 @@ export default function MovieFormModal({
           <button
             type="button"
             onClick={onClose}
-            className="rounded-lg border border-zinc-200 dark:border-zinc-800 px-4 py-2 text-sm font-medium hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors"
+            className="cursor-pointer rounded-lg border border-zinc-200 dark:border-zinc-800 px-4 py-2 text-sm font-medium hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors"
           >
             Cancel
           </button>
           <button
             type="submit"
             disabled={isSubmitting}
-            className="rounded-lg bg-zinc-900 px-4 py-2 text-sm font-semibold text-white hover:bg-zinc-800 disabled:opacity-50 dark:bg-zinc-50 dark:text-zinc-950 dark:hover:bg-zinc-200 transition-colors"
+            className="cursor-pointer rounded-lg bg-zinc-900 px-4 py-2 text-sm font-semibold text-white hover:bg-zinc-800 disabled:opacity-50 dark:bg-zinc-50 dark:text-zinc-950 dark:hover:bg-zinc-200 transition-colors"
           >
             {isSubmitting ? "Saving..." : "Save Changes"}
           </button>

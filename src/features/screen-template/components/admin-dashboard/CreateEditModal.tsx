@@ -8,6 +8,7 @@ import type {
   UpdateScreenTemplatePayload,
   ScreenType,
 } from "../../screen-template.types";
+import { ExtendedScreenTemplate } from "./DetailModal";
 
 interface CreateEditModalProps {
   isOpen: boolean;
@@ -15,7 +16,7 @@ interface CreateEditModalProps {
   onSave: (
     payload: CreateScreenTemplatePayload | UpdateScreenTemplatePayload,
   ) => Promise<void>;
-  editingTemplate: ScreenTemplate | null;
+  editingTemplate: ScreenTemplate | ExtendedScreenTemplate | null;
 }
 
 export function CreateEditModal({

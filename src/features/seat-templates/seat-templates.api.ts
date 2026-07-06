@@ -2,8 +2,10 @@ import { apiRequest } from "@/lib/config/axios";
 import { ScreenTemplate } from "../screen-template/screen-template.types";
 import {
   GenerateTemplateSeatsPayload,
-  ScreenTemplateSeat,
+  AggregatedScreenTemplateLayouts,
   GenerationResult,
+  StrippedTemplateSeat,
+  UpdateTemplateSeatsPayload,
 } from "./seat-templates.types";
 
 export const seatTemplateApi = {
@@ -14,14 +16,32 @@ export const seatTemplateApi = {
       payload,
     ),
 
-  findAll: () => apiRequest<ScreenTemplateSeat[]>("get", "/template-seats"),
+  findAll: () =>
+    apiRequest<AggregatedScreenTemplateLayouts[]>("get", "/template-seats"),
 
   findByTemplate: (templateId: string) =>
-    apiRequest<ScreenTemplateSeat[]>(
+    apiRequest<StrippedTemplateSeat[]>(
       "get",
       `/template-seats/template/${templateId}`,
     ),
 
   fetchBaseTemplates: () =>
     apiRequest<ScreenTemplate[]>("get", "/screen-templates"),
+
+  deleteTemplateLayout: (templateId: string, layoutId: string) =>
+    apiRequest<{ message: string }>(
+      "delete",
+      `/template-seats/template/${templateId}/layout/${layoutId}`,
+    ),
+
+  updateTemplateLayout: (
+    templateId: string,
+    layoutId: string,
+    payload: UpdateTemplateSeatsPayload,
+  ) =>
+    apiRequest<{ message: string }, UpdateTemplateSeatsPayload>(
+      "patch",
+      `/template-seats/template/${templateId}/layout/${layoutId}`,
+      payload,
+    ),
 };

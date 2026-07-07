@@ -4,6 +4,7 @@ import { useState, useEffect, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Footer from "@/components/common/Footer";
 import Navbar from "@/components/common/Navbar";
+import NoticeModal from "@/components/common/NoticeModal";
 import HeroCarousel from "@/features/movies/components/HeroCarousel";
 import MovieFilterTabs from "@/features/movies/components/MovieFilterTabs";
 import MovieDateTabs from "@/features/movies/components/MovieDateTabs";
@@ -122,9 +123,6 @@ export default function Home() {
     fetchActiveListings();
   }, [currentMode, selectedDate, selectedMonth]);
 
-  // const activeDayLabel =
-  //   generatedDateTabs.find((t) => t.isoDate === selectedDate)?.date || "";
-
   const fadeVariants = {
     initial: { opacity: 0, y: 10 },
     animate: {
@@ -137,7 +135,10 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-black flex flex-col text-white select-none relative overflow-x-hidden">
-      {/* Background Visual Gradients (Optimized Canonical Classes) */}
+      {/* Target Mount for the Upgraded Intercept Modal */}
+      <NoticeModal />
+
+      {/* Background Visual Gradients */}
       <div className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none z-0 mix-blend-screen select-none">
         <div className="w-200 md:w-325 h-150 md:h-175 bg-red-700/20 rounded-full blur-[140px]" />
         <div className="absolute inset-0 m-auto w-100 md:w-175 h-75 md:h-[350px] bg-red-600/35 rounded-full blur-[90px]" />
@@ -171,14 +172,6 @@ export default function Home() {
               else setSelectedMonth(val);
             }}
           />
-
-          {/* Clean Editorial Date Meta-Label */}
-          {/* <div className="text-xs sm:text-sm font-semibold text-zinc-500 mb-6 tracking-wider uppercase">
-            Schedules for:{" "}
-            <span className="text-zinc-200 border border-zinc-900 bg-zinc-950/80 px-2.5 py-1 rounded-md ml-1 font-mono">
-              {formattedDmyLabel}
-            </span>
-          </div> */}
 
           {/* Dynamic Content Container */}
           <div className="relative w-full min-h-100 flex flex-col">
@@ -215,7 +208,6 @@ export default function Home() {
                   exit="exit"
                   className="w-full flex flex-col items-center justify-center text-center py-20 px-6"
                 >
-                  {/* Icon with a subtle color accent */}
                   <div className="w-12 h-12 mb-4 flex items-center justify-center text-amber-500/80">
                     <svg
                       className="w-10 h-10"
@@ -232,12 +224,10 @@ export default function Home() {
                     </svg>
                   </div>
 
-                  {/* High-contrast heading */}
                   <h3 className="text-base font-semibold text-zinc-100 tracking-tight">
                     No Sessions Available
                   </h3>
 
-                  {/* Softer body text */}
                   <p className="text-sm text-zinc-500 max-w-xs mt-1.5 leading-relaxed">
                     No sessions found for{" "}
                     <span className="text-zinc-400 font-medium">

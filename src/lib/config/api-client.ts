@@ -1,3 +1,5 @@
+import { useAuthStore } from "@/features/auth/auth.store";
+import { User } from "@/features/auth/auth.types";
 import axios, {
   AxiosError,
   AxiosInstance,
@@ -14,6 +16,10 @@ type QueueItem = {
   resolve: (value: unknown) => void;
   reject: (error: unknown) => void;
 };
+
+interface RefreshResponse {
+  user: User;
+}
 
 let apiClient: AxiosInstance | null = null;
 let isRefreshing = false;
@@ -61,12 +67,12 @@ export function getApiClient(): AxiosInstance {
 
       const status = axiosError.response.status;
 
-      // Only handle 401
+      // Only handle 401 Unauthorized
       if (status !== 401) {
         return Promise.reject(error);
       }
 
-      // Prevent infinite refresh loop
+      // Prevent infinite refresh loop if refresh itself fails
       if (originalRequest.url?.includes("/auth/refresh")) {
         return Promise.reject(error);
       }
@@ -75,6 +81,7 @@ export function getApiClient(): AxiosInstance {
         return Promise.reject(error);
       }
 
+      // If a token refresh operation is already in flight, queue concurrent requests
       if (isRefreshing) {
         return new Promise<unknown>((resolve, reject) => {
           failedQueue.push({ resolve, reject });
@@ -82,17 +89,20 @@ export function getApiClient(): AxiosInstance {
       }
 
       isRefreshing = true;
-      try {
-        await client.post("/auth/refresh");
 
+      try {
+        const response = await client.post<RefreshResponse>("/auth/refresh");
+        useAuthStore.getState().setUser(response.data.user);
         isRefreshing = false;
         processQueue(null);
 
-        // retry original request
+        // Retry original request with freshly written context cookies
         return client(originalRequest);
       } catch (refreshError: unknown) {
         isRefreshing = false;
         processQueue(refreshError);
+
+        useAuthStore.getState().clearAuth();
 
         return Promise.reject(refreshError);
       }

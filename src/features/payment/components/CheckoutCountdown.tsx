@@ -48,7 +48,7 @@ export default function CheckoutCountdown({
 
     return () => clearInterval(id);
   }, [calculateTime]);
-  
+
   useEffect(() => {
     const initialTime = calculateTime();
     if (initialTime <= 0) {
@@ -98,10 +98,10 @@ export default function CheckoutCountdown({
         </span>
 
         <div className="flex flex-col">
-          <span className="text-[11px] font-bold tracking-wider text-zinc-400 uppercase">
+          <span className="text-[11px] font-bold text-black tracking-wider = uppercase">
             Holding Your Seats
           </span>
-          <span className="text-[10px] text-zinc-500 font-medium">
+          <span className="text-[10px] text-zinc-800 font-medium">
             Complete checkout before expiration
           </span>
         </div>

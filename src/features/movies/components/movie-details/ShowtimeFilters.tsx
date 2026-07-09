@@ -1,6 +1,7 @@
+"use client";
+
 import { useMemo, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-
 import MovieDateTabs from "../MovieDateTabs";
 
 interface ShowtimeFiltersProps {
@@ -9,7 +10,7 @@ interface ShowtimeFiltersProps {
   selectedLocationFilter: string;
   setSelectedLocationFilter: (loc: string) => void;
   locations: string[];
-  dateTabs: { day: string; date: string; month: string; isoDate: string }[];
+  dateTabs: { day: string; date: string; month: string; dateString: string }[];
 }
 
 export default function ShowtimeFilters({
@@ -46,7 +47,6 @@ export default function ShowtimeFilters({
 
   return (
     <div className="space-y-4">
-      {/* Dropdown element selection box */}
       <div className="relative w-full z-30">
         <button
           onClick={() => setIsDropdownOpen(!isDropdownOpen)}
@@ -100,7 +100,7 @@ export default function ShowtimeFilters({
         </AnimatePresence>
       </div>
 
-      <div className="bg-zinc-950/40 p-2.5 rounded-2xl backdrop-blur-sm texwhite overflow-x-auto patches-scroll">
+      <div className="bg-zinc-950/40 p-2.5 rounded-2xl backdrop-blur-sm text-white overflow-x-auto patches-scroll">
         <MovieDateTabs
           mode="showing"
           dateTabs={dateTabs}

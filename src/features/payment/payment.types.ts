@@ -1,11 +1,11 @@
-export type PaymentProvider = "CASH" | "STRIPE" | "PAYPAL" | "VNPAY";
+export type PaymentProvider = "CASH" | "STRIPE" | "PAYPAL" | "VNPAY" | "KHQR";
 
 export type BookingStatus = "PENDING" | "CONFIRMED" | "EXPIRED" | "CANCELLED";
 
 export type PaymentStatus = "PENDING" | "SUCCESS" | "EXPIRED" | "FAILED";
 
 export interface CreateCheckoutDto {
-  paymentProvider: PaymentProvider;
+  paymentProvider?: PaymentProvider;
 }
 
 export interface PayDto {
@@ -22,6 +22,8 @@ export interface CheckoutResponse {
   paymentProvider: PaymentProvider;
   paymentStatus: PaymentStatus;
   paymentExpiresAt: string;
+  paymentUrl?: string;
+  qrCode?: string;
 }
 
 export interface PaymentSuccessResponse {

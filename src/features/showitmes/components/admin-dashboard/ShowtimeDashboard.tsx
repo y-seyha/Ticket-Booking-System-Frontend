@@ -129,7 +129,7 @@ export default function ShowtimeDashboard() {
         setIsLoadingDetails(true);
         const data = await apiRequest<Showtime>(
           "get",
-          `/api/v1/showtimes/${activeShowtimeId}`,
+          `showtimes/${activeShowtimeId}`,
         );
         if (isCurrentFetch) {
           setDetailedShowtime(data);

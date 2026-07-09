@@ -22,7 +22,13 @@ interface DateTabItem {
   day: string;
   date: string;
   month: string;
-  isoDate: string;
+  dateString: string;
+}
+
+interface MonthTabItem {
+  id: string;
+  label: string;
+  value: string;
 }
 
 export default function Home() {
@@ -36,22 +42,24 @@ export default function Home() {
       const d = new Date();
       d.setDate(d.getDate() + i);
 
-      const utcMidnight = new Date(
-        Date.UTC(d.getFullYear(), d.getMonth(), d.getDate(), 0, 0, 0, 0),
-      );
+      // Create local YYYY-MM-DD string representation
+      const year = d.getFullYear();
+      const month = String(d.getMonth() + 1).padStart(2, "0");
+      const day = String(d.getDate()).padStart(2, "0");
+      const dateString = `${year}-${month}-${day}`;
 
       tabs.push({
         day: d.toLocaleDateString("en-US", { weekday: "short" }).toUpperCase(),
         date: d.getDate().toString(),
         month: d.toLocaleDateString("en-US", { month: "short" }).toUpperCase(),
-        isoDate: utcMidnight.toISOString(),
+        dateString,
       });
     }
     return tabs;
   }, []);
 
-  const monthTabs = useMemo(() => {
-    const months = [];
+  const monthTabs = useMemo<MonthTabItem[]>(() => {
+    const months: MonthTabItem[] = [];
     const now = new Date();
     for (let i = 0; i < 7; i++) {
       const d = new Date(now.getFullYear(), now.getMonth() + i, 1);
@@ -67,20 +75,23 @@ export default function Home() {
   }, []);
 
   const [selectedDate, setSelectedDate] = useState<string>(
-    generatedDateTabs[0]?.isoDate || new Date().toISOString(),
+    generatedDateTabs[0]?.dateString || "",
   );
   const [selectedMonth, setSelectedMonth] = useState<string>(
     monthTabs[0]?.value || "",
   );
 
+  // --- REFACTOR: Parse local YYYY-MM-DD safely for display labels ---
   const formattedDmyLabel = useMemo(() => {
-    if (!selectedDate) return "";
-    const activeDateObj = new Date(selectedDate);
-    const day = String(activeDateObj.getUTCDate()).padStart(2, "0");
-    const month = String(activeDateObj.getUTCMonth() + 1).padStart(2, "0");
-    const year = activeDateObj.getUTCFullYear();
-    return `${day}/${month}/${year}`;
-  }, [selectedDate]);
+    if (currentMode === "showing") {
+      if (!selectedDate) return "";
+      const [year, month, day] = selectedDate.split("-");
+      return `${day}/${month}/${year}`;
+    } else {
+      const targetMonth = monthTabs.find((m) => m.value === selectedMonth);
+      return targetMonth ? targetMonth.label : "";
+    }
+  }, [selectedDate, selectedMonth, currentMode, monthTabs]);
 
   const movieItems: MovieItem[] = movies.map((m) => ({
     id: m.id,
@@ -99,6 +110,12 @@ export default function Home() {
         const status =
           currentMode === "showing" ? "NOW_SHOWING" : "COMING_SOON";
 
+        // If COMING_SOON, pass the first day of that targeted month layout row
+        const targetDateQuery =
+          currentMode === "showing" ? selectedDate : `${selectedMonth}-01`;
+
+        if (!targetDateQuery) return;
+
         const data = await apiRequest<Movie[]>(
           "get",
           "/showtimes/active/listings",
@@ -106,7 +123,7 @@ export default function Home() {
           {
             params: {
               status,
-              date: selectedDate,
+              date: targetDateQuery,
             },
           },
         );
@@ -135,10 +152,8 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-black flex flex-col text-white select-none relative overflow-x-hidden">
-      {/* Target Mount for the Upgraded Intercept Modal */}
       <NoticeModal />
 
-      {/* Background Visual Gradients */}
       <div className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none z-0 mix-blend-screen select-none">
         <div className="w-200 md:w-325 h-150 md:h-175 bg-red-700/20 rounded-full blur-[140px]" />
         <div className="absolute inset-0 m-auto w-100 md:w-175 h-75 md:h-[350px] bg-red-600/35 rounded-full blur-[90px]" />
@@ -173,7 +188,6 @@ export default function Home() {
             }}
           />
 
-          {/* Dynamic Content Container */}
           <div className="relative w-full min-h-100 flex flex-col">
             <AnimatePresence mode="wait">
               {isLoading ? (
@@ -189,19 +203,18 @@ export default function Home() {
                 </motion.div>
               ) : movies.length > 0 ? (
                 <motion.div
-                  key={`grid-${selectedDate}-${currentMode}`}
+                  key={`grid-${currentMode === "showing" ? selectedDate : selectedMonth}-${currentMode}`}
                   variants={fadeVariants}
                   initial="initial"
                   animate="animate"
                   exit="exit"
                   className="w-full"
                 >
-                  <MovieGrid movies={movieItems} />
+                  <MovieGrid movies={movieItems} selectedDate={selectedDate} />
                 </motion.div>
               ) : (
-                /* Fallback State */
                 <motion.div
-                  key={`empty-${selectedDate}-${currentMode}`}
+                  key={`empty-${currentMode === "showing" ? selectedDate : selectedMonth}-${currentMode}`}
                   variants={fadeVariants}
                   initial="initial"
                   animate="animate"

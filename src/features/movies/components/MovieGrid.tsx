@@ -15,6 +15,7 @@ interface MovieItem {
 
 interface MovieGridProps {
   movies: MovieItem[];
+  selectedDate?: string;
 }
 
 function SafeMoviePoster({ src, alt }: { src: string | null; alt: string }) {
@@ -37,8 +38,7 @@ function SafeMoviePoster({ src, alt }: { src: string | null; alt: string }) {
   );
 }
 
-export default function MovieGrid({ movies }: MovieGridProps) {
-  // Logic: Format date to a readable string like "JUN 18"
+export default function MovieGrid({ movies, selectedDate }: MovieGridProps) {
   const formatReleaseDate = (rawDate: string) => {
     const date = new Date(rawDate);
     return date
@@ -49,14 +49,16 @@ export default function MovieGrid({ movies }: MovieGridProps) {
       .toUpperCase();
   };
 
-  const displayMovies = movies;
-
   return (
     <div className="mx-auto w-full max-w-none">
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-6 gap-y-12 mt-8">
-        {displayMovies.map((movie) => (
+        {movies.map((movie) => (
           <Link
-            href={`/movies/${movie.id}`}
+            href={
+              selectedDate
+                ? `/movies/${movie.id}?date=${selectedDate}`
+                : `/movies/${movie.id}`
+            }
             key={movie.id}
             className="group flex flex-col w-full max-w-[190px] sm:max-w-[220px] md:max-w-[240px] lg:max-w-[260px] mx-auto min-w-0 cursor-pointer"
           >

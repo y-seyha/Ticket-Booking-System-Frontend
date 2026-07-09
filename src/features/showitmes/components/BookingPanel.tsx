@@ -17,11 +17,13 @@ interface BookingPanelProps {
     }>;
   };
   onClearCart: () => Promise<void>;
+  onSubmit: () => void; // Added validation click callback from parent view state
 }
 
 export default function BookingPanel({
   showtime,
   onClearCart,
+  onSubmit,
 }: BookingPanelProps) {
   const router = useRouter();
   const selectedSeats = showtime.seats;
@@ -193,7 +195,7 @@ export default function BookingPanel({
           <button
             disabled={selectedSeats.length === 0}
             className="flex-1 bg-gradient-to-r from-red-500 to-red-600 text-white py-4 px-6 rounded-xl font-black text-xs uppercase tracking-[0.2em] shadow-lg shadow-red-500/5 transition-all duration-150 hover:from-red-400 hover:to-red-500 active:scale-[0.985] focus:outline-none focus:ring-2 focus:ring-red-500/20 disabled:bg-none disabled:bg-zinc-900 disabled:text-zinc-600 disabled:border disabled:border-zinc-800/80 disabled:shadow-none disabled:transform-none disabled:cursor-not-allowed cursor-pointer"
-            onClick={() => router.push("/checkout")}
+            onClick={onSubmit} 
           >
             {selectedSeats.length === 0
               ? "Select Seats To Continue"

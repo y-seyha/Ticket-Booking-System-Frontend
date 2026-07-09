@@ -1,21 +1,27 @@
 "use client";
 
-import { CreditCard, Banknote, ShieldCheck } from "lucide-react";
+import { CreditCard, Banknote, ShieldCheck, QrCode } from "lucide-react";
 import { motion } from "framer-motion";
 import { PaymentProvider } from "../payment.types";
 
 interface PaymentMethodsProps {
   selectedProvider: PaymentProvider;
   onSelect: (provider: PaymentProvider) => void;
-  isStripeComingSoon?: boolean;
 }
 
 export default function PaymentMethods({
   selectedProvider,
   onSelect,
-  isStripeComingSoon = false,
 }: PaymentMethodsProps) {
+
   const methods = [
+    {
+      id: "KHQR" as PaymentProvider,
+      label: "KHQR Scan to Pay",
+      desc: "Scan instantly with Bakong or any Cambodian Mobile Banking application.",
+      icon: QrCode,
+      disabled: false,
+    },
     {
       id: "CASH" as PaymentProvider,
       label: "Cash Counter",
@@ -25,23 +31,35 @@ export default function PaymentMethods({
     },
     {
       id: "STRIPE" as PaymentProvider,
-      label: "Credit Card",
-      desc: "Instant and secure digital checkout via encrypted gateway.",
+      label: "Credit Card (Stripe)",
+      desc: "Instant digital checkout via secure encrypted gateway.",
       icon: CreditCard,
-      disabled: isStripeComingSoon, // Governed dynamically by the prop
+      disabled: true, // Read-Only
+    },
+    {
+      id: "PAYPAL" as PaymentProvider,
+      label: "PayPal Express",
+      desc: "Settle securely using your global PayPal balance.",
+      icon: CreditCard,
+      disabled: true, // Read-Only
+    },
+    {
+      id: "VNPAY" as PaymentProvider,
+      label: "VNPAY Gateway",
+      desc: "Local settlement via fast QR and Vietnamese bank transfers.",
+      icon: CreditCard,
+      disabled: true, // Read-Only
     },
   ];
 
   return (
     <div className="w-full max-w-2xl mx-auto space-y-5">
-      {/* Header */}
       <div>
         <h3 className="text-[11px] font-bold tracking-[0.15em] text-zinc-500 uppercase">
           Select Settlement Method
         </h3>
       </div>
 
-      {/* Stacked List Layout - Multiline Selection Rows */}
       <div className="flex flex-col gap-2.5 isolation-auto">
         {methods.map((method) => {
           const Icon = method.icon;
@@ -55,11 +73,10 @@ export default function PaymentMethods({
               onClick={() => !method.disabled && onSelect(method.id)}
               className={`group relative flex items-center justify-between gap-4 p-4 rounded-xl text-left border transition-all duration-300 focus:outline-none ${
                 method.disabled
-                  ? "bg-zinc-950/20 border-zinc-900/50 opacity-40 cursor-not-allowed select-none"
+                  ? "bg-zinc-950/20 border-zinc-900/30 opacity-40 cursor-not-allowed select-none"
                   : "bg-zinc-950 border-zinc-800 text-zinc-400 hover:border-zinc-700/60 cursor-pointer"
               }`}
             >
-              {/* Premium Layout Slider Dynamic Frame Animation */}
               {isSelected && (
                 <motion.div
                   layoutId="activePaymentBackground"
@@ -68,9 +85,7 @@ export default function PaymentMethods({
                 />
               )}
 
-              {/* Left Column: Icon + Core Content Stack */}
               <div className="flex items-center gap-4 min-w-0">
-                {/* Icon Box */}
                 <div
                   className={`p-2.5 rounded-lg transition-all duration-300 shrink-0 ${
                     isSelected
@@ -81,7 +96,6 @@ export default function PaymentMethods({
                   <Icon className="w-4 h-4 stroke-[1.75]" />
                 </div>
 
-                {/* Vertical Text Stack */}
                 <div className="space-y-0.5 min-w-0">
                   <p
                     className={`text-sm font-medium tracking-tight transition-colors duration-300 ${
@@ -100,14 +114,12 @@ export default function PaymentMethods({
                 </div>
               </div>
 
-              {/* Right Column: Status / Action Indicator */}
               <div className="flex items-center shrink-0 pr-1">
                 {method.disabled ? (
                   <span className="text-[9px] font-bold uppercase tracking-wider bg-zinc-900/80 text-zinc-500 px-1.5 py-0.5 rounded border border-zinc-800/80">
                     Soon
                   </span>
                 ) : (
-                  /* Subtle selection dot indicator */
                   <div
                     className={`w-2 h-2 rounded-full transition-all duration-300 ${
                       isSelected
@@ -122,7 +134,6 @@ export default function PaymentMethods({
         })}
       </div>
 
-      {/* Footer Security Badge */}
       <div className="flex items-center gap-2 pt-1 text-xs text-zinc-600">
         <ShieldCheck className="w-4 h-4 text-zinc-500 shrink-0" />
         <span className="font-medium tracking-tight">

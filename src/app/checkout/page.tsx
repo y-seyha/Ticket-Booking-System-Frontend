@@ -23,20 +23,13 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
+import { toast } from "sonner";
 
 interface CartItemPayload {
   lockId: string;
   expiresAt: string;
-  movie: {
-    id: string;
-    title: string;
-  };
-  seat: {
-    id: string;
-    row: string;
-    number: number;
-    type: string;
-  };
+  movie: { id: string; title: string };
+  seat: { id: string; row: string; number: number; type: string };
 }
 
 interface CartResponseData {
@@ -72,11 +65,11 @@ export default function CheckoutPage({
   const [checkout, setCheckout] = useState<CheckoutResponse | null>(
     initialCheckoutData || null,
   );
-  const [provider, setProvider] = useState<PaymentProvider>("CASH");
+
+  const [provider, setProvider] = useState<PaymentProvider>("KHQR");
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
-
   const [cartExpiresAt, setCartExpiresAt] = useState<string | null>(null);
 
   useEffect(() => {
@@ -86,24 +79,18 @@ export default function CheckoutPage({
     const bootstrapCheckout = async () => {
       try {
         setIsLoading(true);
-        let currentExpiry: string | null = null;
 
         if (!initialMovieTitle) {
           const cartData =
             (await showtimesApi.getCart()) as unknown as CartResponseData;
           if (cartData && cartData.items && cartData.items.length > 0) {
             const firstItem = cartData.items[0];
-            currentExpiry = firstItem.expiresAt;
             setCartExpiresAt(firstItem.expiresAt);
-
             const expiresTime = new Date(firstItem.expiresAt);
 
             setSummary({
               movieTitle: firstItem.movie.title,
-              showtimeDetails: `Reservation expires at ${expiresTime.toLocaleTimeString(
-                [],
-                { hour: "2-digit", minute: "2-digit" },
-              )}`,
+              showtimeDetails: `Reservation expires at ${expiresTime.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}`,
               seats: cartData.items.map((item) => ({
                 label: `Row ${item.seat.row} - Seat ${item.seat.number}`,
                 type: item.seat.type,
@@ -115,10 +102,10 @@ export default function CheckoutPage({
         }
 
         const data = await paymentApi.createCheckout({
-          paymentProvider: "CASH", // Initialize with a default static value
+          paymentProvider: "KHQR",
         });
-
         setCheckout(data);
+        setProvider(data.paymentProvider);
       } catch (err) {
         const axiosError = err as AxiosError<BackendErrorResponse>;
         const genericError = err as Error;
@@ -138,12 +125,14 @@ export default function CheckoutPage({
   const handleProviderChange = async (
     nextProvider: PaymentProvider,
   ): Promise<void> => {
+    if (!checkout) return;
     setProvider(nextProvider);
     setErrorMessage(null);
     try {
-      const updatedCheckout = await paymentApi.createCheckout({
-        paymentProvider: nextProvider,
-      });
+      const updatedCheckout = await paymentApi.changePaymentMethod(
+        checkout.paymentId,
+        { paymentProvider: nextProvider },
+      );
       setCheckout(updatedCheckout);
     } catch (err) {
       const axiosError = err as AxiosError<BackendErrorResponse>;
@@ -163,9 +152,11 @@ export default function CheckoutPage({
         const response = await paymentApi.payCash({
           paymentId: checkout.paymentId,
         });
+        toast.success("Checkout Complete via Cash Counter");
         router.push(`/bookings/confirmation/${response.bookingId}`);
-      } else {
-        console.log("Redirecting to external provider gateway...");
+      } else if (provider === "KHQR") {
+        // Redirect directly to your dedicated dynamic KHQR viewing component route
+        router.push(`/checkout/khqr?paymentId=${checkout.paymentId}`);
       }
     } catch (err) {
       const axiosError = err as AxiosError<BackendErrorResponse>;
@@ -203,14 +194,10 @@ export default function CheckoutPage({
   return (
     <div className="min-h-screen bg-zinc-950 text-zinc-100 selection:bg-red-500/30 font-sans antialiased relative overflow-x-hidden">
       <Navbar />
-
-      {/* Ambient Glow Background Accent */}
       <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 sm:w-125 sm:h-125 bg-red-600/10 rounded-full blur-[140px] pointer-events-none z-0" />
 
       <main className="max-w-7xl mx-auto px-4 md:px-8 pt-32 pb-24 relative z-10">
-        {/* Header & Breadcrumbs Bar */}
-        <div className="mb-8 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between border-b border-zinc-900/80 pb-4">
-          {/* Responsive Minimalist Breadcrumb Trail */}
+        <div className="mb-8 py-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between border-b border-zinc-900/80 pb-4">
           <Breadcrumb>
             <BreadcrumbList>
               <BreadcrumbItem>
@@ -238,18 +225,13 @@ export default function CheckoutPage({
               </BreadcrumbItem>
             </BreadcrumbList>
           </Breadcrumb>
-
-          {/* Dynamic System Badge */}
           <span className="text-[10px] font-mono tracking-widest text-zinc-600 font-bold select-none sm:text-right">
             SECURE TRANSACT v2.0
           </span>
         </div>
 
-        {/* Main Form Content Split Layout */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 xl:gap-8 items-start">
-          {/* Left Interactive Section */}
           <div className="order-2 lg:order-1 lg:col-span-7 space-y-6 bg-zinc-900/20 backdrop-blur-xl border border-zinc-900/80 rounded-2xl p-4 sm:p-6 md:p-8 shadow-2xl">
-            {/* Prioritize tracking the cart item lock timestamp over generated payment session duration */}
             <CheckoutCountdown
               expiresAt={cartExpiresAt || checkout.paymentExpiresAt}
               onExpire={handleSessionTimeout}
@@ -258,7 +240,6 @@ export default function CheckoutPage({
             <PaymentMethods
               selectedProvider={provider}
               onSelect={handleProviderChange}
-              isStripeComingSoon={true}
             />
 
             {errorMessage && (
@@ -267,7 +248,6 @@ export default function CheckoutPage({
               </div>
             )}
 
-            {/* Action Trigger Button */}
             <button
               onClick={handlePaymentSubmit}
               disabled={isSubmitting}
@@ -278,12 +258,11 @@ export default function CheckoutPage({
               ) : provider === "CASH" ? (
                 "Reserve Tickets & Print"
               ) : (
-                "Authorize Checkout Gateway"
+                "Generate KHQR Payment Portal"
               )}
             </button>
           </div>
 
-          {/* Right Information Sticky Summary Aside */}
           <aside className="order-1 lg:order-2 lg:col-span-5 lg:sticky lg:top-28 bg-zinc-900/20 backdrop-blur-xl border border-zinc-900/80 rounded-2xl p-4 sm:p-6 md:p-8 shadow-2xl">
             <OrderSummary
               movieTitle={summary.movieTitle}

@@ -2,11 +2,12 @@
 
 import { useRef, MouseEvent } from "react";
 
+
 interface DateTabItem {
   day: string;
   date: string;
   month: string;
-  isoDate: string;
+  dateString: string;
 }
 
 interface MonthTabItem {
@@ -72,8 +73,9 @@ export default function MovieDateTabs({
     >
       {items.map((item) => {
         const isShowing = mode === "showing";
-        const itemValue = isShowing
-          ? (item as DateTabItem).isoDate
+
+      const itemValue = isShowing
+          ? (item as DateTabItem).dateString
           : (item as MonthTabItem).value;
         const isSelected = selectedDate === itemValue;
 
@@ -108,7 +110,6 @@ export default function MovieDateTabs({
                 <p
                   className={`text-[10px] sm:text-xs ${isSelected ? "text-red-500" : "text-zinc-400"}`}
                 >
-                  {/* Placeholder text to match the 'day' line */}
                   COMING
                 </p>
                 <h3 className="text-xs sm:text-sm font-extrabold text-white">

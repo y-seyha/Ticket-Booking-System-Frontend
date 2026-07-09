@@ -2,6 +2,8 @@
 
 import { useEffect, useState, useCallback, useRef } from "react";
 import { useParams, useRouter } from "next/navigation";
+import { toast } from "sonner";
+import { useAuthStore } from "@/features/auth/auth.store"; 
 import SeatMap from "@/features/showitmes/components/SeatMap";
 import BookingPanel from "@/features/showitmes/components/BookingPanel";
 import {
@@ -87,6 +89,10 @@ interface AxiosErrorResponse {
 export default function ShowtimePage() {
   const router = useRouter();
   const { id } = useParams() as { id: string };
+
+  // Extract user identity state to protect checkout access
+  const user = useAuthStore((s) => s.user);
+
   const [showtime, setShowtime] = useState<Showtime | null>(null);
   const [loading, setLoading] = useState(true);
   const [selectedSeats, setSelectedSeats] = useState<Seat[]>([]);
@@ -217,6 +223,14 @@ export default function ShowtimePage() {
   const handleToggle = async (seatId: string) => {
     if (!showtime) return;
 
+    if (!user) {
+      toast.error(
+        "Authentication required. Please log in to hold or reserve seats.",
+      );
+      router.push("/auth/login");
+      return;
+    }
+
     const seat = showtime.screen.seats.find((s) => s.id === seatId);
     if (!seat) return;
 
@@ -241,7 +255,6 @@ export default function ShowtimePage() {
         setSelectedSeats((prev) => [...prev, { ...seat, status: "LOCKED" }]);
       }
 
-      // Synchronize exact database expiration data point right away
       await refreshSeatLayout();
     } catch (err) {
       console.error(
@@ -265,6 +278,26 @@ export default function ShowtimePage() {
     } catch (err) {
       console.error("Failed to clear cart session completely:", err);
     }
+  };
+
+  /**
+   * Evaluates session security conditions before transferring context to the payment system
+   */
+  const handleProceedToCheckout = () => {
+    if (!user) {
+      toast.error(
+        "Authentication required. Please log in to complete your ticket purchase.",
+      );
+      router.push("/auth/login"); // Redirects securely to your auth interface
+      return;
+    }
+
+    if (selectedSeats.length === 0) {
+      toast.error("Please select at least one seat to proceed.");
+      return;
+    }
+
+    router.push("/checkout");
   };
 
   const formatTime = (seconds: number) => {
@@ -299,13 +332,10 @@ export default function ShowtimePage() {
     <div className="min-h-screen bg-zinc-950 text-zinc-100 selection:bg-red-500/30 font-sans antialiased relative overflow-x-hidden">
       <Navbar />
 
-      {/* Ambient Glows */}
       <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-red-600/10 rounded-full blur-[140px] pointer-events-none z-0" />
       <div className="absolute top-2/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-red-700/[0.07] rounded-full blur-[160px] pointer-events-none z-0" />
 
       <main className="max-w-7xl mx-auto px-4 md:px-8 pt-32 pb-24 relative z-10">
-        {/* Breadcrumb Section */}
-        {/* Breadcrumb Section */}
         <div className="mb-8 py-4">
           <Breadcrumb>
             <BreadcrumbList>
@@ -369,6 +399,7 @@ export default function ShowtimePage() {
           <div className="lg:col-span-1 lg:sticky lg:top-28 transition-all duration-300">
             <BookingPanel
               onClearCart={handleClearCart}
+              onSubmit={handleProceedToCheckout} // Triggers checkout auth check
               showtime={{
                 ...showtime,
                 seats: selectedSeats.map((s) => ({

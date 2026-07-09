@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useMemo } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { AnimatePresence, motion } from "framer-motion";
 import Image from "next/image";
 import Navbar from "@/components/common/Navbar";
@@ -54,67 +54,132 @@ export interface MovieDetails {
 export default function MovieDetailsPage() {
   const router = useRouter();
   const params = useParams();
+  const searchParams = useSearchParams();
   const movieId = params?.id as string;
+
   const [movie, setMovie] = useState<MovieDetails | null>(null);
-  const [loading, setLoading] = useState<boolean>(true);
+  const [initialLoading, setInitialLoading] = useState<boolean>(true);
+  const [isUpdatingDate, setIsUpdatingDate] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
-  // const [selectedDate, setSelectedDate] = useState<string>("");
   const [activeTab, setActiveTab] = useState<"showtime" | "detail">("showtime");
   const [selectedLocationFilter, setSelectedLocationFilter] =
     useState("All Locations");
 
   const generatedDateTabs = useMemo(() => {
     const tabs = [];
-
     for (let i = 0; i < 7; i++) {
       const d = new Date();
       d.setDate(d.getDate() + i);
+
+      // Create uniform UTC midnight timestamps matching your homepage layout
+      const utcMidnight = new Date(
+        Date.UTC(d.getFullYear(), d.getMonth(), d.getDate(), 0, 0, 0, 0),
+      );
 
       tabs.push({
         day: d.toLocaleDateString("en-US", { weekday: "short" }).toUpperCase(),
         date: d.getDate().toString(),
         month: d.toLocaleDateString("en-US", { month: "short" }).toUpperCase(),
-        isoDate: d.toISOString(),
+        dateString: utcMidnight.toISOString(),
       });
     }
-
     return tabs;
   }, []);
 
-  const [selectedDate, setSelectedDate] = useState<string>(
-    () => generatedDateTabs[0]?.isoDate ?? "",
-  );
+  const [selectedDate, setSelectedDate] = useState<string>(() => {
+    const queryDate = searchParams.get("date");
+    if (queryDate) {
+      try {
+        const parsedDate = new Date(queryDate);
+        if (!isNaN(parsedDate.getTime())) {
+          return new Date(
+            Date.UTC(
+              parsedDate.getFullYear(),
+              parsedDate.getMonth(),
+              parsedDate.getDate(),
+              0,
+              0,
+              0,
+              0,
+            ),
+          ).toISOString();
+        }
+      } catch (e) {
+        console.error("Error parsing date parameter:", e);
+      }
+    }
 
-  // useEffect(() => {
-  //   if (generatedDateTabs.length > 0 && !selectedDate) {
-  //     setSelectedDate(generatedDateTabs[0].isoDate);
-  //   }
-  // }, [generatedDateTabs, selectedDate]);
+    // Fall back to the structured format of Tab index 0
+    return generatedDateTabs[0]?.dateString ?? new Date().toISOString();
+  });
 
   useEffect(() => {
     if (!movieId) return;
 
     const fetchMovieDetails = async () => {
       try {
-        setLoading(true);
+        if (!movie) {
+          setInitialLoading(true);
+        } else {
+          setIsUpdatingDate(true);
+        }
+
         const data = await apiRequest<MovieDetails>(
           "get",
           `/movies/${movieId}`,
+          undefined,
+          {
+            params: {
+              date: selectedDate,
+            },
+          },
         );
         setMovie(data);
+        setError(null);
       } catch (err) {
         const message =
           err instanceof Error ? err.message : "An unexpected error occurred";
         setError(message);
       } finally {
-        setLoading(false);
+        setInitialLoading(false);
+        setIsUpdatingDate(false);
       }
     };
 
     fetchMovieDetails();
-  }, [movieId]);
+  }, [movieId, selectedDate]);
 
-  if (loading) {
+  const displayedLocations = useMemo(() => {
+    if (!movie) return [];
+
+    // Format target comparison string (YYYY-MM-DD)
+    const targetDateStr = new Date(selectedDate).toISOString().split("T")[0];
+
+    return movie.showtimesByLocation
+      .filter(
+        (loc) =>
+          selectedLocationFilter === "All Locations" ||
+          loc.name === selectedLocationFilter,
+      )
+      .map((loc) => {
+        const filteredShowtimes = loc.showtimes.filter((showtime) => {
+          const showtimeDateStr = new Date(showtime.startTime)
+            .toISOString()
+            .split("T")[0];
+          return showtimeDateStr === targetDateStr;
+        });
+
+        return {
+          ...loc,
+          showtimes: filteredShowtimes,
+        };
+      })
+      .filter((loc) => loc.showtimes.length > 0);
+  }, [movie, selectedDate, selectedLocationFilter]);
+
+  const hasShowtimes = displayedLocations.length > 0;
+
+  if (initialLoading) {
     return (
       <div className="min-h-screen bg-black flex items-center justify-center text-white">
         <div className="text-center space-y-4">
@@ -149,29 +214,6 @@ export default function MovieDetailsPage() {
     ...movie.showtimesByLocation.map((loc) => loc.name),
   ];
 
-  const selected = new Date(selectedDate);
-
-  const displayedLocations = movie.showtimesByLocation
-    .map((loc) => {
-      const filteredShowtimes = loc.showtimes.filter((showtime) => {
-        const show = new Date(showtime.startTime);
-
-        return (
-          show.getFullYear() === selected.getFullYear() &&
-          show.getMonth() === selected.getMonth() &&
-          show.getDate() === selected.getDate()
-        );
-      });
-
-      return {
-        ...loc,
-        showtimes: filteredShowtimes,
-      };
-    })
-    .filter((loc) => loc.showtimes.length > 0);
-
-  const hasShowtimes = displayedLocations.length > 0;
-
   return (
     <div className="min-h-screen bg-black flex flex-col text-white select-none relative overflow-x-hidden antialiased">
       <div className="absolute inset-x-0 top-0 z-0 pointer-events-none select-none overflow-hidden h-85 sm:h-105 md:h-120 lg:h-135 will-change-transform transform-gpu pt-20 md:pt-24">
@@ -204,9 +246,7 @@ export default function MovieDetailsPage() {
                   Home
                 </BreadcrumbLink>
               </BreadcrumbItem>
-
               <BreadcrumbSeparator className="text-zinc-800 mx-2" />
-
               <BreadcrumbItem>
                 <BreadcrumbPage className="text-[11px] sm:text-xs font-bold tracking-[0.25em] uppercase text-zinc-300 truncate max-w-[250px] sm:max-w-md">
                   {movie.title}
@@ -245,21 +285,48 @@ export default function MovieDetailsPage() {
                 dateTabs={generatedDateTabs}
               />
 
-              {hasShowtimes ? (
-                <LocationAccordionList
-                  displayedLocations={displayedLocations}
-                />
+              {isUpdatingDate ? (
+                <div className="space-y-4 pt-2 animate-pulse">
+                  {[1, 2].map((i) => (
+                    <div
+                      key={i}
+                      className="border border-zinc-900 bg-zinc-900/20 rounded-xl p-5 space-y-4"
+                    >
+                      <div className="h-6 w-48 bg-zinc-800 rounded-md" />
+                      <div className="space-y-2 pt-2">
+                        <div className="h-4 w-24 bg-zinc-800/60 rounded" />
+                        <div className="flex gap-2">
+                          {[1, 2, 3].map((j) => (
+                            <div
+                              key={j}
+                              className="h-10 w-32 bg-zinc-800/40 rounded-full"
+                            />
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
               ) : (
-                <div className="flex flex-col items-center justify-center py-16 px-4 animate-in fade-in duration-500">
-                  <div className="bg-zinc-900/50 p-4 rounded-full mb-4">
-                    <CalendarX className="w-6 h-6 text-zinc-600" />
-                  </div>
-                  <h3 className="text-zinc-200 font-medium">
-                    No showtimes available
-                  </h3>
-                  <p className="text-zinc-500 text-sm mt-1">
-                    Try selecting a different date or location.
-                  </p>
+                <div className="animate-in fade-in duration-200">
+                  {hasShowtimes ? (
+                    <LocationAccordionList
+                      key={selectedDate}
+                      displayedLocations={displayedLocations}
+                    />
+                  ) : (
+                    <div className="flex flex-col items-center justify-center py-16 px-4">
+                      <div className="bg-zinc-900/50 p-4 rounded-full mb-4">
+                        <CalendarX className="w-6 h-6 text-zinc-600" />
+                      </div>
+                      <h3 className="text-zinc-200 font-medium">
+                        No showtimes available
+                      </h3>
+                      <p className="text-zinc-500 text-sm mt-1">
+                        Try selecting a different date or location.
+                      </p>
+                    </div>
+                  )}
                 </div>
               )}
             </motion.div>

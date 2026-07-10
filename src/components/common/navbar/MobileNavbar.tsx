@@ -11,7 +11,7 @@ import {
   Tag,
 } from "lucide-react";
 import Link from "next/link";
-import Image from "next/image"; 
+import Image from "next/image";
 import { LuPopcorn } from "react-icons/lu";
 import { CiSquareMore } from "react-icons/ci";
 import { Cinema } from "@/features/cinemas/cinemas.types";
@@ -104,6 +104,7 @@ export const MobileNavbar: FC<MobileNavbarProps> = ({
                     src={logoUrl}
                     onError={() => setLogoFailed(true)}
                     fill
+                    sizes="(max-width: 768px) 128px, 128px"
                     className="object-contain"
                     alt="Logo"
                     priority // Speeds up critical LCP path for your header logo
@@ -224,6 +225,7 @@ export const MobileNavbar: FC<MobileNavbarProps> = ({
                         <Image
                           src={c.image?.url || "/fallback-image.png"}
                           fill
+                          sizes="40px"
                           className="rounded-lg object-cover bg-zinc-800"
                           alt={c.name}
                         />

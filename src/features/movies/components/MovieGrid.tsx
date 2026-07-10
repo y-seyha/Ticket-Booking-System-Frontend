@@ -17,7 +17,7 @@ interface MovieItem {
   id: string;
   title: string;
   poster: string | PosterFile | null;
-  releaseDate: string;
+  releaseDate?: string;
   isAdvanceTicket?: boolean;
   tags?: string[];
 }
@@ -71,8 +71,10 @@ function SafeMoviePoster({ src, alt }: SafeMoviePosterProps) {
     />
   );
 }
+
 export default function MovieGrid({ movies, selectedDate }: MovieGridProps) {
-  const formatReleaseDate = (rawDate: string) => {
+  const formatReleaseDate = (rawDate?: string) => {
+    if (!rawDate) return "";
     const date = new Date(rawDate);
     return date
       .toLocaleDateString("en-US", {
@@ -108,9 +110,11 @@ export default function MovieGrid({ movies, selectedDate }: MovieGridProps) {
             <div className="mt-3 space-y-1.5 flex-1 flex flex-col justify-between px-0.5">
               <div className="space-y-1">
                 <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-[10px] text-zinc-400">
-                  <span className="font-semibold text-zinc-500">
-                    {formatReleaseDate(movie.releaseDate)}
-                  </span>
+                  {movie.releaseDate && (
+                    <span className="font-semibold text-zinc-500">
+                      {formatReleaseDate(movie.releaseDate)}
+                    </span>
+                  )}
                   {movie.tags?.map((tag) => (
                     <span
                       key={tag}

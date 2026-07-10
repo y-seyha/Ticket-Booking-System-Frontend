@@ -2,7 +2,6 @@
 
 import { useRef, MouseEvent } from "react";
 
-
 interface DateTabItem {
   day: string;
   date: string;
@@ -74,7 +73,7 @@ export default function MovieDateTabs({
       {items.map((item) => {
         const isShowing = mode === "showing";
 
-      const itemValue = isShowing
+        const itemValue = isShowing
           ? (item as DateTabItem).dateString
           : (item as MonthTabItem).value;
         const isSelected = selectedDate === itemValue;

@@ -4,6 +4,7 @@ import type {
   GetCinemaResponse,
   GetCinemasQuery,
   GetCinemasResponse,
+  GetTheaterMoviesResponse,
 } from "./cinemas.types";
 
 export interface CreateTheaterPayload {
@@ -79,5 +80,16 @@ export const cinemasApi = {
 
   deleteCinema(id: string) {
     return apiRequest<DeleteCinemaResponse>("delete", `/theaters/${id}`);
+  },
+
+  getTheaterMovies(id: string, date?: string) {
+    return apiRequest<GetTheaterMoviesResponse>(
+      "get",
+      `/theaters/${id}/movies`,
+      undefined,
+      {
+        params: date ? { date } : {},
+      },
+    );
   },
 };

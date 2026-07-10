@@ -79,3 +79,30 @@ export interface DeleteCinemaResponse {
   success: boolean;
   message: string;
 }
+
+export interface TheaterShowtime {
+  id: string;
+  startTime: string;
+  endTime: string;
+  basePrice: string | number;
+  status: string;
+  screen: {
+    id: string;
+    name: string;
+    type: ScreenType;
+  };
+}
+
+export interface TheaterMovieSchedule {
+  id: string;
+  title: string;
+  slug: string;
+  duration: number;
+  ageRating: string;
+  poster: string | null;
+  showtimes: TheaterShowtime[];
+}
+
+export interface GetTheaterMoviesResponse {
+  data: TheaterMovieSchedule[];
+}

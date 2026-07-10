@@ -12,7 +12,7 @@ import CinemaSearchList from "@/features/cinemas/components/CinemaSearchList";
 const staticCinemaBanner: CarouselItem[] = [
   {
     id: "cinema-page-banner",
-    src: "/courousel/d7831d0d-faff-416d-bec5-06b413e5c8fe.jpeg",
+    src: "/courousel/947cb7b7-0f54-462f-9f69-423c1f055aa0.jpeg",
     title: "Legend Cinema | Legend Premium Cinema",
     publishDate: "2026-06-24",
     isClickable: false,

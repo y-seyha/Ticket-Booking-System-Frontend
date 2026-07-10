@@ -47,8 +47,7 @@ export default async function CinemaDetailPage({ params }: PageProps) {
       );
     }
 
-    const baseUrl =
-      process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:3000/api/v1";
+    const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
 
     const computedImageUrl = cinema.image?.url
       ? cinema.image.url
@@ -69,7 +68,7 @@ export default async function CinemaDetailPage({ params }: PageProps) {
     };
 
     tabDetails = {
-      ...bannerDetails,
+      ...cinema,
       halls: cinema.screens?.length?.toString() || "0",
       openingHours: "09:30 - 22:30",
       mapUrl: functionalMapUrl,

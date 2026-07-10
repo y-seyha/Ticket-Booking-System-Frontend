@@ -44,7 +44,7 @@ export default function Modal({
       />
 
       <div
-        className={`relative w-full transform overflow-hidden rounded-2xl bg-white p-6 shadow-2xl dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800/80 z-10 animate-in fade-in-50 zoom-in-95 duration-200 ease-out ${className}`}
+        className={`relative w-full transform overflow-visible rounded-2xl bg-white p-6 shadow-2xl dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800/80 z-10 animate-in fade-in-50 zoom-in-95 duration-200 ease-out ${className}`}
       >
         {/* Modal Header Panel Section */}
         <div className="flex items-center justify-between pb-3.5 border-b border-zinc-100 dark:border-zinc-800">

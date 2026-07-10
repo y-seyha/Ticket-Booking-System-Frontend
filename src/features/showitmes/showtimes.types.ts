@@ -53,4 +53,13 @@ export interface CreateShowtimeDto {
   status: ShowtimeStatus;
 }
 
+export interface CreateBulkScheduleDto {
+  movieId: string;
+  screenIds: string[];
+  targetDates: string[];
+  dailySlots: string[];
+  basePrice: number;
+  cleaningBufferMinutes?: number;
+}
+
 export type UpdateShowtimeDto = Partial<CreateShowtimeDto>;

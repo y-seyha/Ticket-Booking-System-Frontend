@@ -62,10 +62,13 @@ export default function MovieTable({
               const poster = movie.poster as { url?: string } | undefined;
               const resolvedUrl = poster?.url || null;
 
+              const invertedZIndex = movies.length + 10 - index;
+
               return (
                 <tr
                   key={movie.id}
-                  className="group hover:bg-zinc-50 dark:hover:bg-zinc-900/30 transition-colors"
+                  style={{ zIndex: invertedZIndex }}
+                  className="group hover:bg-zinc-50 dark:hover:bg-zinc-900/30 transition-colors relative"
                 >
                   <td className="px-6 py-4 text-zinc-500 font-medium">
                     {rowNumber}
@@ -116,7 +119,7 @@ export default function MovieTable({
                     </div>
                   </td>
 
-                  <td className="px-6 py-4 w-52 overflow-visible relative z-10">
+                  <td className="px-6 py-4 w-52 overflow-visible relative">
                     <SmoothSelect
                       label=""
                       placeholder="Select status..."
@@ -146,7 +149,6 @@ export default function MovieTable({
                         className="p-2 text-zinc-400 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-950/30 rounded-lg transition-all cursor-pointer"
                       >
                         <Pencil className="h-4 w-4" />{" "}
-                        {/* 👈 Swapped component element display layout reference */}
                       </button>
                       <button
                         onClick={() => onDeleteClick(movie)}

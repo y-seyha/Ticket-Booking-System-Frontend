@@ -81,7 +81,6 @@ export default function Home() {
     monthTabs[0]?.value || "",
   );
 
-  // --- REFACTOR: Parse local YYYY-MM-DD safely for display labels ---
   const formattedDmyLabel = useMemo(() => {
     if (currentMode === "showing") {
       if (!selectedDate) return "";
@@ -107,28 +106,48 @@ export default function Home() {
       setIsLoading(true);
 
       try {
-        const status =
-          currentMode === "showing" ? "NOW_SHOWING" : "COMING_SOON";
+        if (currentMode === "showing") {
+          if (!selectedDate) return;
 
-        // If COMING_SOON, pass the first day of that targeted month layout row
-        const targetDateQuery =
-          currentMode === "showing" ? selectedDate : `${selectedMonth}-01`;
-
-        if (!targetDateQuery) return;
-
-        const data = await apiRequest<Movie[]>(
-          "get",
-          "/showtimes/active/listings",
-          undefined,
-          {
-            params: {
-              status,
-              date: targetDateQuery,
+          const activeShowtimes = await apiRequest<Movie[]>(
+            "get",
+            "/showtimes/active/listings",
+            undefined,
+            {
+              params: {
+                status: "NOW_SHOWING",
+                date: selectedDate,
+              },
             },
-          },
-        );
+          );
+          setMovies(activeShowtimes);
+        } else {
+          interface PaginatedMoviesResponse {
+            data: Movie[];
+            pagination: {
+              total: number;
+              page: number;
+              limit: number;
+              totalPages: number;
+            };
+          }
 
-        setMovies(data);
+          const response = await apiRequest<PaginatedMoviesResponse>(
+            "get",
+            "/movies",
+            undefined,
+            {
+              params: {
+                status: "COMING_SOON",
+                month: selectedMonth,
+                page: 1,
+                limit: 50,
+              },
+            },
+          );
+
+          setMovies(response.data || []);
+        }
       } catch (error) {
         console.error("Error retrieving dashboard theater matrix:", error);
         setMovies([]);

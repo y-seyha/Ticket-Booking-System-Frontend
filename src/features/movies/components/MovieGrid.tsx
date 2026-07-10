@@ -4,10 +4,19 @@ import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
 
+interface PosterFile {
+  id: string;
+  url: string;
+  publicId: string;
+  description?: string | null;
+  createdAt: string | Date;
+  updatedAt: string | Date;
+}
+
 interface MovieItem {
   id: string;
   title: string;
-  poster: string | null;
+  poster: string | PosterFile | null;
   releaseDate: string;
   isAdvanceTicket?: boolean;
   tags?: string[];
@@ -18,12 +27,37 @@ interface MovieGridProps {
   selectedDate?: string;
 }
 
-function SafeMoviePoster({ src, alt }: { src: string | null; alt: string }) {
+interface SafeMoviePosterProps {
+  src: string | PosterFile | null;
+  alt: string;
+}
+
+function SafeMoviePoster({ src, alt }: SafeMoviePosterProps) {
   const defaultFallback = "/fallback-poster.jpg";
-  const [imgSrc, setImgSrc] = useState<string>(src || defaultFallback);
+
+  const getInitialUrl = (): string => {
+    if (!src) return defaultFallback;
+    if (typeof src === "string") {
+      const trimmed = src.trim();
+      return trimmed !== "" ? trimmed : defaultFallback;
+    }
+    if (
+      typeof src === "object" &&
+      "url" in src &&
+      typeof src.url === "string"
+    ) {
+      const trimmed = src.url.trim();
+      return trimmed !== "" ? trimmed : defaultFallback;
+    }
+    return defaultFallback;
+  };
+
+  const initialUrl = getInitialUrl();
+  const [imgSrc, setImgSrc] = useState<string>(initialUrl);
 
   return (
     <Image
+      key={initialUrl}
       src={imgSrc}
       alt={alt}
       fill
@@ -37,7 +71,6 @@ function SafeMoviePoster({ src, alt }: { src: string | null; alt: string }) {
     />
   );
 }
-
 export default function MovieGrid({ movies, selectedDate }: MovieGridProps) {
   const formatReleaseDate = (rawDate: string) => {
     const date = new Date(rawDate);

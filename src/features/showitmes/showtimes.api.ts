@@ -1,5 +1,6 @@
 import { apiRequest } from "@/lib/config/axios";
 import {
+  CreateBulkScheduleDto,
   CreateShowtimeDto,
   Showtime,
   ShowtimeStatus,
@@ -80,5 +81,15 @@ export const showtimesApi = {
 
   delete: async (id: string): Promise<void> => {
     return await apiRequest<void>("delete", `/showtimes/${id}`);
+  },
+
+  bulkCreate: async (
+    dto: CreateBulkScheduleDto,
+  ): Promise<{ message?: string }> => {
+    return await apiRequest<{ message?: string }>(
+      "post",
+      "/showtimes/bulk",
+      dto,
+    );
   },
 };

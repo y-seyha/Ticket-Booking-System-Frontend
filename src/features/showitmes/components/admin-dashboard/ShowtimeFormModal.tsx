@@ -121,8 +121,8 @@ export function ShowtimeFormModal({
       }
       className="max-w-xl w-full"
     >
-      <form onSubmit={handleSubmitForm} className="space-y-4 pt-2">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <form onSubmit={handleSubmitForm} className="space-y-4 pt-2 ">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 relative z-30">
           <SmoothSelect
             label="Target Title Element"
             options={movies}
@@ -142,7 +142,8 @@ export function ShowtimeFormModal({
           />
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {/* Row 2: Inputs for Date & Time (Mid-level z-index) */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 relative z-20">
           <div className="space-y-1.5">
             <label className="text-xs font-bold text-zinc-400 uppercase tracking-wider">
               Initialization Stream
@@ -172,7 +173,8 @@ export function ShowtimeFormModal({
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {/* Row 3: Cost and Status Dropdown (Lowest z-index layer) */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 relative z-10">
           <div className="space-y-1.5">
             <label className="text-xs font-bold text-zinc-400 uppercase tracking-wider">
               Base Cost Index ($)
@@ -200,7 +202,8 @@ export function ShowtimeFormModal({
           />
         </div>
 
-        <div className="flex justify-end gap-2 pt-4 border-t border-zinc-100 dark:border-zinc-900 mt-6">
+        {/* Footer Area */}
+        <div className="flex justify-end gap-2 pt-4 border-t border-zinc-100 dark:border-zinc-900 mt-6 relative z-0">
           <button
             type="button"
             disabled={isSubmitting}

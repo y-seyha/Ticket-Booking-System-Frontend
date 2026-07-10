@@ -6,7 +6,12 @@ import { Search, Plus, CalendarCheck2, Loader2 } from "lucide-react";
 import SmoothSelect from "@/components/ui/SmoothSelect";
 import { useShowtimes } from "../../useShowtimes";
 
-import { Screen, Showtime, ShowtimeStatus } from "../../showtimes.types";
+import {
+  CreateBulkScheduleDto,
+  Screen,
+  Showtime,
+  ShowtimeStatus,
+} from "../../showtimes.types";
 import { ShowtimeTable } from "./ShowtimeTable";
 import { ShowtimeFormModal } from "./ShowtimeFormModal";
 import { ShowtimeDeleteConfirmModal } from "./ShowtimeDeleteConfirmModal";
@@ -15,6 +20,8 @@ import { useMovies } from "@/features/movies/useMovies";
 import { useScreen } from "@/features/screen/useScreen";
 import { MovieStatus } from "@/features/movies/movie.type";
 import { apiRequest } from "@/lib/config/axios";
+import { showtimesApi } from "../../showtimes.api";
+import { ShowtimeBulkFormModal } from "./ShowtimeBulkFormModal";
 
 type ShowtimePayload = Omit<
   Showtime,
@@ -62,7 +69,21 @@ export default function ShowtimeDashboard() {
     null,
   );
   const [isMutating, setIsMutating] = useState(false);
+  const [isBulkFormOpen, setIsBulkFormOpen] = useState<boolean>(false);
 
+  const handleBulkFormSubmit = async (
+    bulkPayload: CreateBulkScheduleDto,
+  ): Promise<void> => {
+    try {
+      setIsMutating(true);
+      await showtimesApi.bulkCreate(bulkPayload);
+      setIsBulkFormOpen(false);
+    } catch (err) {
+      console.error("Bulk scheduling configuration track failed:", err);
+    } finally {
+      setIsMutating(false);
+    }
+  };
   useEffect(() => {
     let isMounted = true;
     async function fetchScreenCollection() {
@@ -209,15 +230,24 @@ export default function ShowtimeDashboard() {
               matrices, and calibrate base cost indexes.
             </p>
           </div>
-          <button
-            onClick={() => {
-              setActiveShowtimeCtx(null);
-              setIsFormOpen(true);
-            }}
-            className="cursor-pointer inline-flex items-center gap-2 px-4 py-2 bg-zinc-950 hover:bg-zinc-800 text-white dark:bg-zinc-50 dark:text-zinc-950 dark:hover:bg-zinc-200 transition font-bold text-xs rounded-xl shadow-sm self-start md:self-auto"
-          >
-            <Plus className="h-4 w-4 stroke-3" /> Add Runtime Window
-          </button>
+          <div className="flex items-center gap-2 self-start md:self-auto">
+            <button
+              onClick={() => setIsBulkFormOpen(true)}
+              className="cursor-pointer inline-flex items-center gap-2 px-4 py-2 bg-zinc-300 hover:bg-zinc-200 text-zinc-900 dark:bg-zinc-900 dark:text-zinc-50 dark:hover:bg-zinc-800 transition font-bold text-xs rounded-xl shadow-xs"
+            >
+              <CalendarCheck2 className="h-4 w-4 stroke-2" /> Bulk Generation
+              Grid
+            </button>
+            <button
+              onClick={() => {
+                setActiveShowtimeCtx(null);
+                setIsFormOpen(true);
+              }}
+              className="cursor-pointer inline-flex items-center gap-2 px-4 py-2 bg-zinc-950 hover:bg-zinc-800 text-white dark:bg-zinc-50 dark:text-zinc-950 dark:hover:bg-zinc-200 transition font-bold text-xs rounded-xl shadow-sm"
+            >
+              <Plus className="h-4 w-4 stroke-3" /> Add Runtime Window
+            </button>
+          </div>
         </div>
 
         {/* Filters Controls Panel */}
@@ -352,6 +382,17 @@ export default function ShowtimeDashboard() {
             timeContext={new Date(
               activeShowtimeCtx.startTime,
             ).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+          />
+        )}
+
+        {/* Bulk Modal Layer */}
+        {isBulkFormOpen && (
+          <ShowtimeBulkFormModal
+            isOpen={isBulkFormOpen}
+            onClose={() => setIsBulkFormOpen(false)}
+            onSubmit={handleBulkFormSubmit}
+            movies={activeMovieOptions}
+            screens={activeScreenOptions}
           />
         )}
 

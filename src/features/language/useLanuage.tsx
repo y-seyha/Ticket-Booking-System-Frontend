@@ -3,6 +3,7 @@
 import { FC, useEffect, useState } from "react";
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
+
 export type LanguageCode = "en" | "kh";
 
 interface LanguageState {
@@ -14,6 +15,20 @@ type LanguageConfigItem = {
   code: LanguageCode;
   label: string;
   Flag: FC;
+};
+
+export const translations = {
+  searchMovies: { en: "Search Movies...", kh: "ស្វែងរកខ្សែភាពយន្ត..." },
+  ticket: { en: "Ticket", kh: "សំបុត្រ" },
+  joinNow: { en: "Join Now", kh: "ចុះឈ្មោះ" },
+  profile: { en: "Profile", kh: "គណនី" },
+  notifications: { en: "Notifications", kh: "ការជូនដំណឹង" },
+  home: { en: "Home", kh: "ទំព័រដើម" },
+  cinemas: { en: "Cinemas", kh: "រោងភាពយន្ត" },
+  offers: { en: "Offers", kh: "ការផ្តល់ជូន" },
+  fb: { en: "F&B", kh: "អាហារ និងភេសជ្ជៈ" },
+  allCinemas: { en: "All Cinemas", kh: "រោងភាពយន្តទាំងអស់" },
+  cinemaLocations: { en: "Cinema Locations", kh: "ទីតាំងរោងភាពយន្ត" },
 };
 
 export const useLanguageStore = create<LanguageState>()(
@@ -92,10 +107,16 @@ export const useLanguage = () => {
 
   const currentLanguage = LANGUAGES_MAP[currentLangCode] || LANGUAGES_MAP.en;
 
+  const t = (key: keyof typeof translations): string => {
+    if (!isHydrated) return translations[key]["en"];
+    return translations[key]?.[currentLangCode] || translations[key]["en"];
+  };
+
   return {
     currentLanguage,
     languagesList: LANGUAGES_ARRAY,
     setLanguage: setLanguageStore,
     isStoreReady: isHydrated,
+    t,
   };
 };

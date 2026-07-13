@@ -9,6 +9,8 @@ import CinemaInfoTab from "@/features/cinemas/components/CinemaInfoTab";
 
 import { cinemasApi } from "../cinemas.api";
 import type { Cinema, TheaterMovieSchedule } from "../cinemas.types";
+import { useLanguage } from "@/features/language/useLanuage";
+import { translations } from "@/features/language/translations";
 
 interface CinemaDetailTabsProps {
   cinemaDetails: Cinema & {
@@ -61,6 +63,14 @@ export default function CinemaDetailTabs({
   const [movies, setMovies] = useState<TheaterMovieSchedule[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [isPending, startTransition] = useTransition();
+
+  const { currentLanguage } = useLanguage();
+  const langCode = currentLanguage?.code || "en";
+
+  const th = (key: string): string => {
+    const lookupKey = key as keyof typeof translations;
+    return translations[lookupKey]?.[langCode] || translations[lookupKey]?.["en"] || key;
+  };
 
   const locations = [cinemaDetails.name];
 
@@ -129,8 +139,8 @@ export default function CinemaDetailTabs({
           />
 
           <div className="pt-2">
-            <h2 className="text-xl sm:text-2xl font-black tracking-tight text-white mb-6">
-              Now Showing
+            <h2 className="text-xl sm:text-2xl font-black tracking-tight text-white mb-6 uppercase">
+              {th("nowShowing")}
             </h2>
 
             <div className="relative w-full min-h-[400px] flex flex-col">
@@ -183,15 +193,15 @@ export default function CinemaDetailTabs({
                     </div>
 
                     <h3 className="text-base font-semibold text-zinc-100 tracking-tight">
-                      No Sessions Available
+                      {th("noSessionsTitle") || "No Sessions Available"}
                     </h3>
 
                     <p className="text-sm text-zinc-500 max-w-xs mt-1.5 loading-relaxed">
-                      No sessions found for{" "}
+                      {(th("noSessionsDescStart") || "No sessions found for ")}
                       <span className="text-zinc-400 font-medium">
                         {formattedDmyLabel}
                       </span>
-                      . Try checking an adjacent date.
+                      {(th("noSessionsDescEnd") || ". Try checking an adjacent date.")}
                     </p>
                   </motion.div>
                 )}

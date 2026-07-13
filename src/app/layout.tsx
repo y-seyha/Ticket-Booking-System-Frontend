@@ -1,12 +1,22 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono, Inter } from "next/font/google";
+import { Geist, Geist_Mono, Roboto, Kantumruy_Pro } from "next/font/google";
 import "./globals.css";
 import { cn } from "@/lib/utils";
 import { ThemeProvider } from "@/components/themes/theme-provider";
 import { Toaster } from "sonner";
 import { AuthInitProvider } from "@/features/auth/providers/authInit.provider";
 
-const inter = Inter({ subsets: ["latin"], variable: "--font-sans" });
+const roboto = Roboto({
+  subsets: ["latin"],
+  weight: ["300", "400", "500", "700", "900"],
+  variable: "--font-sans",
+});
+
+const khmerFont = Kantumruy_Pro({
+  subsets: ["khmer"],
+  weight: ["400", "500", "700"],
+  variable: "--font-khmer",
+});
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -36,8 +46,9 @@ export default function RootLayout({
         "antialiased",
         geistSans.variable,
         geistMono.variable,
+        roboto.variable,
+        khmerFont.variable,
         "font-sans",
-        inter.variable,
       )}
     >
       <body className="min-h-full flex flex-col bg-gray-500">

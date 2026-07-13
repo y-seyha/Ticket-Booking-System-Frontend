@@ -90,6 +90,8 @@ export default function HeroCarousel({
                 alt=""
                 fill
                 priority={activeIndex === 0}
+                loading={activeIndex === 0 ? "eager" : undefined}
+                unoptimized={true} // Prevents image optimization processing on the heavy layout blur effect
                 className="object-cover scale-110 blur-[20px] sm:blur-[80px]"
               />
             </motion.div>
@@ -152,6 +154,7 @@ export default function HeroCarousel({
               <div className="flex">
                 {carouselImg.map((item, index) => {
                   const isClickable = item.isClickable ?? true;
+                  const isFirstSlide = index === 0;
 
                   return (
                     <div
@@ -168,7 +171,9 @@ export default function HeroCarousel({
                             alt={item.title}
                             fill
                             sizes="(max-width: 480px) 100vw, (max-width: 768px) 100vw, (max-width: 1200px) 100vw, 1200px"
-                            priority={index === 0}
+                            priority={isFirstSlide}
+                            loading={isFirstSlide ? "eager" : undefined}
+                            {...(isFirstSlide ? { fetchPriority: "high" } : {})}
                             className="object-cover select-none transition-transform duration-500 hover:scale-[1.02]"
                           />
                         </Link>
@@ -179,7 +184,9 @@ export default function HeroCarousel({
                             alt={item.title}
                             fill
                             sizes="(max-width: 480px) 100vw, (max-width: 768px) 100vw, (max-width: 1200px) 100vw, 1200px"
-                            priority={index === 0}
+                            priority={isFirstSlide}
+                            loading={isFirstSlide ? "eager" : undefined}
+                            {...(isFirstSlide ? { fetchPriority: "high" } : {})}
                             className="object-cover select-none"
                           />
                         </div>

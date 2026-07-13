@@ -15,6 +15,8 @@ import { promoCarouselData } from "@/features/movies/data/promoCarouselImages";
 import carouselImages from "@/features/movies/data/carouselImages";
 import { apiRequest } from "@/lib/config/axios";
 import { Movie, MovieItem } from "@/features/movies/movie.type";
+import { useLanguage } from "@/features/language/useLanuage";
+import { translations } from "@/features/language/translations";
 
 type Mode = "showing" | "coming";
 
@@ -35,44 +37,57 @@ export default function Home() {
   const [currentMode, setCurrentMode] = useState<Mode>("showing");
   const [movies, setMovies] = useState<Movie[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const { currentLanguage } = useLanguage();
+
+  const langCode = currentLanguage?.code || "en";
+  const th = (key: keyof typeof translations): string => {
+    return translations[key]?.[langCode] || translations[key]["en"];
+  };
 
   const generatedDateTabs = useMemo<DateTabItem[]>(() => {
     const tabs: DateTabItem[] = [];
+    const localeString = langCode === "kh" ? "km-KH" : "en-US";
+
     for (let i = 0; i < 7; i++) {
       const d = new Date();
       d.setDate(d.getDate() + i);
 
-      // Create local YYYY-MM-DD string representation
       const year = d.getFullYear();
       const month = String(d.getMonth() + 1).padStart(2, "0");
       const day = String(d.getDate()).padStart(2, "0");
       const dateString = `${year}-${month}-${day}`;
 
       tabs.push({
-        day: d.toLocaleDateString("en-US", { weekday: "short" }).toUpperCase(),
+        day: d
+          .toLocaleDateString(localeString, { weekday: "short" })
+          .toUpperCase(),
         date: d.getDate().toString(),
-        month: d.toLocaleDateString("en-US", { month: "short" }).toUpperCase(),
+        month: d
+          .toLocaleDateString(localeString, { month: "short" })
+          .toUpperCase(),
         dateString,
       });
     }
     return tabs;
-  }, []);
+  }, [langCode]);
 
   const monthTabs = useMemo<MonthTabItem[]>(() => {
     const months: MonthTabItem[] = [];
     const now = new Date();
+    const localeString = langCode === "kh" ? "km-KH" : "en-US";
+
     for (let i = 0; i < 7; i++) {
       const d = new Date(now.getFullYear(), now.getMonth() + i, 1);
       months.push({
         id: `${d.getFullYear()}-${d.getMonth()}`,
         label: d
-          .toLocaleDateString("en-US", { month: "short", year: "numeric" })
+          .toLocaleDateString(localeString, { month: "short", year: "numeric" })
           .toUpperCase(),
         value: `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`,
       });
     }
     return months;
-  }, []);
+  }, [langCode]);
 
   const [selectedDate, setSelectedDate] = useState<string>(
     generatedDateTabs[0]?.dateString || "",
@@ -173,6 +188,7 @@ export default function Home() {
     <div className="min-h-screen bg-black flex flex-col text-white select-none relative overflow-x-hidden">
       <NoticeModal />
 
+      {/* Decorative Blur Backgrounds */}
       <div className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none z-0 mix-blend-screen select-none">
         <div className="w-200 md:w-325 h-150 md:h-175 bg-red-700/20 rounded-full blur-[140px]" />
         <div className="absolute inset-0 m-auto w-100 md:w-175 h-75 md:h-[350px] bg-red-600/35 rounded-full blur-[90px]" />
@@ -257,15 +273,15 @@ export default function Home() {
                   </div>
 
                   <h3 className="text-base font-semibold text-zinc-100 tracking-tight">
-                    No Sessions Available
+                    {th("noSessionsTitle")}
                   </h3>
 
                   <p className="text-sm text-zinc-500 max-w-xs mt-1.5 leading-relaxed">
-                    No sessions found for{" "}
+                    {th("noSessionsDescStart")}
                     <span className="text-zinc-400 font-medium">
                       {formattedDmyLabel}
                     </span>
-                    . Try checking an adjacent date.
+                    {th("noSessionsDescEnd")}
                   </p>
                 </motion.div>
               )}

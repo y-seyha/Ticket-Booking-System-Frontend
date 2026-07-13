@@ -1,4 +1,6 @@
-import { Suspense } from "react";
+"use client";
+
+import { useState, useEffect, Suspense } from "react";
 import Navbar from "@/components/common/Navbar";
 import Footer from "@/components/common/Footer";
 import HeroCarousel from "@/features/movies/components/HeroCarousel";
@@ -8,6 +10,8 @@ import { cinemasApi } from "@/features/cinemas/cinemas.api";
 import { Cinema } from "@/features/cinemas/cinemas.types";
 import { CinemaLocation } from "@/features/cinemas/components/CinemaLocationCard";
 import CinemaSearchList from "@/features/cinemas/components/CinemaSearchList";
+import { useLanguage } from "@/features/language/useLanuage";
+import { translations } from "@/features/language/translations";
 
 const staticCinemaBanner: CarouselItem[] = [
   {
@@ -19,29 +23,47 @@ const staticCinemaBanner: CarouselItem[] = [
   },
 ];
 
-export default async function CinemasPage() {
-  let initialCinemas: CinemaLocation[] = [];
-  let errorMsg = "";
+export default function CinemasPage() {
+  const [initialCinemas, setInitialCinemas] = useState<CinemaLocation[]>([]);
+  const [isPageLoading, setIsPageLoading] = useState(true);
+  const [hasError, setHasError] = useState(false);
 
-  try {
-    const response = await cinemasApi.getCinemas();
-    const baseUrl =
-      process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:3000/api/v1";
+  const { currentLanguage } = useLanguage();
+  const langCode = currentLanguage?.code || "en";
 
-    initialCinemas = response.data.map((cinema: Cinema) => ({
-      id: cinema.id,
-      name: cinema.name,
-      address: `${cinema.location}, ${cinema.city}`,
-      imageUrl: cinema.image?.url
-        ? cinema.image.url
-        : cinema.imageId
-          ? `${baseUrl}/files/${cinema.imageId}`
-          : "/courousel/d7831d0d-faff-416d-bec5-06b413e5c8fe.jpeg",
-    }));
-  } catch (error) {
-    console.error("Error loading cinemas on server:", error);
-    errorMsg = "Failed to load cinema locations. Please try again later.";
-  }
+  const th = (key: keyof typeof translations): string => {
+    return translations[key]?.[langCode] || translations[key]["en"];
+  };
+
+  useEffect(() => {
+    async function fetchCinemasData() {
+      try {
+        const response = await cinemasApi.getCinemas();
+        const baseUrl =
+          process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:3000/api/v1";
+
+        const mappedCinemas = response.data.map((cinema: Cinema) => ({
+          id: cinema.id,
+          name: cinema.name,
+          address: `${cinema.location}, ${cinema.city}`,
+          imageUrl: cinema.image?.url
+            ? cinema.image.url
+            : cinema.imageId
+              ? `${baseUrl}/files/${cinema.imageId}`
+              : "/courousel/d7831d0d-faff-416d-bec5-06b413e5c8fe.jpeg",
+        }));
+
+        setInitialCinemas(mappedCinemas);
+      } catch (error) {
+        console.error("Error loading cinemas:", error);
+        setHasError(true);
+      } finally {
+        setIsPageLoading(false);
+      }
+    }
+
+    fetchCinemasData();
+  }, []);
 
   return (
     <div className="min-h-screen bg-black flex flex-col text-white select-none relative overflow-x-hidden antialiased">
@@ -62,13 +84,15 @@ export default async function CinemasPage() {
 
         <div className="max-w-6xl w-full mx-auto px-4 sm:px-6 md:px-8 lg:px-12 mt-4 md:mt-6 space-y-6">
           <h1 className="text-xl sm:text-2xl font-black tracking-tight text-white uppercase tracking-wider">
-            Cinemas
+            {th("cinemasHeader")}
           </h1>
 
-          {errorMsg ? (
+          {hasError ? (
             <div className="text-center py-16 text-red-500 font-medium bg-red-950/10 border border-red-900/30 rounded-2xl">
-              {errorMsg}
+              {th("cinemaFetchError")}
             </div>
+          ) : isPageLoading ? (
+            <CinemaSkeletonGrid />
           ) : (
             <Suspense fallback={<CinemaSkeletonGrid />}>
               <CinemaSearchList initialCinemas={initialCinemas} />

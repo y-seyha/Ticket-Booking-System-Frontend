@@ -3,6 +3,8 @@
 import { useMemo, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import MovieDateTabs from "../MovieDateTabs";
+import { useLanguage } from "@/features/language/useLanuage";
+import { translations } from "@/features/language/translations";
 
 interface ShowtimeFiltersProps {
   selectedDate: string;
@@ -22,6 +24,18 @@ export default function ShowtimeFilters({
   dateTabs,
 }: ShowtimeFiltersProps) {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+
+  const { currentLanguage } = useLanguage();
+  const langCode = currentLanguage?.code || "en";
+
+  const th = (key: string): string => {
+    const lookupKey = key as keyof typeof translations;
+    return (
+      translations[lookupKey]?.[langCode] ||
+      translations[lookupKey]?.["en"] ||
+      key
+    );
+  };
 
   const monthTabs = useMemo(() => {
     const months = [];

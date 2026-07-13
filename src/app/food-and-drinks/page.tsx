@@ -9,27 +9,8 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { cinemasApi } from "@/features/cinemas/cinemas.api";
 import FoodCinemaSelectionCard from "@/features/foods-and-beverage/components/FoodCinemaSelectionCard";
-// import FoodCinemaSelectionCard, {
-//   FoodCinemaLocation,
-// } from "@/features/foods-and-beverage/components/FoodCinemaSelectionCard";
-
-// const FOOD_CINEMA_LOCATIONS: FoodCinemaLocation[] = [
-//   {
-//     id: "legend-271-mega-mall",
-//     name: "Legend 271 Mega Mall",
-//     imageUrl: "/courousel/cb64c978-0fca-4ae5-ad26-2937c1515dc5.jpeg",
-//   },
-//   {
-//     id: "legend-eden-garden",
-//     name: "Legend Eden Garden",
-//     imageUrl: "/courousel/cb64c978-0fca-4ae5-ad26-2937c1515dc5.jpeg",
-//   },
-//   {
-//     id: "legend-exchange-square",
-//     name: "Legend Exchange Square",
-//     imageUrl: "/courousel/cb64c978-0fca-4ae5-ad26-2937c1515dc5.jpeg",
-//   },
-// ];
+import { useLanguage } from "@/features/language/useLanuage";
+import { translations } from "@/features/language/translations";
 
 const foodDrinksBanner: CarouselItem[] = [
   {
@@ -46,13 +27,24 @@ export default function FoodAndDrinksPage() {
   const [loading, setLoading] = useState(true);
   const router = useRouter();
 
+  const { currentLanguage } = useLanguage();
+  const langCode = currentLanguage?.code || "en";
+
+  const th = (key: string): string => {
+    const lookupKey = key as keyof typeof translations;
+    return (
+      translations[lookupKey]?.[langCode] ||
+      translations[lookupKey]?.["en"] ||
+      key
+    );
+  };
+
   useEffect(() => {
     let ignore = false;
 
     const fetchCinemas = async () => {
       try {
         setLoading(true);
-
         const res = await cinemasApi.getCinemas();
         if (!ignore) {
           setCinemas(res.data);
@@ -74,6 +66,7 @@ export default function FoodAndDrinksPage() {
   const handleCinemaClick = (id: string) => {
     router.push(`/cinemas/${id}`);
   };
+
   return (
     <div className="min-h-screen bg-black flex flex-col text-white select-none relative overflow-x-hidden antialiased">
       {/* Background Ambient Aura Glow */}
@@ -93,8 +86,8 @@ export default function FoodAndDrinksPage() {
 
         <div className="max-w-6xl w-full mx-auto px-4 sm:px-6 md:px-8 lg:px-12 mt-10 space-y-8">
           <div className="text-left">
-            <h1 className="text-xl md:text-2xl font-bold tracking-tight text-white">
-              Choose Cinema
+            <h1 className="text-xl md:text-2xl font-bold tracking-tight text-white uppercase">
+              {th("chooseCinema")}
             </h1>
           </div>
 
@@ -115,8 +108,8 @@ export default function FoodAndDrinksPage() {
               ))
             ) : (
               // Empty State
-              <div className="col-span-full py-20 text-center text-zinc-500">
-                No cinema locations found.
+              <div className="col-span-full py-20 text-center text-zinc-500 font-medium">
+                {th("cinemaNotFound")}
               </div>
             )}
           </div>

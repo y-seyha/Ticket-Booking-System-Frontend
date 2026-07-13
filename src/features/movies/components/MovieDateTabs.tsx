@@ -1,6 +1,8 @@
 "use client";
 
 import { useRef, MouseEvent } from "react";
+import { useLanguage } from "@/features/language/useLanuage";
+import { translations } from "@/features/language/translations";
 
 interface DateTabItem {
   day: string;
@@ -34,6 +36,17 @@ export default function MovieDateTabs({
   const isDown = useRef(false);
   const startX = useRef(0);
   const scrollLeft = useRef(0);
+  
+  const { currentLanguage } = useLanguage();
+  const langCode = currentLanguage?.code || "en";
+
+  const monthKeys = ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"];
+  const dayKeys = ["sun", "mon", "tue", "wed", "thu", "fri", "sat"];
+
+ 
+  const th = (key: string): string => {
+    return translations[key]?.[langCode] || translations[key]?.["en"] || key;
+  };
 
   const handleMouseDown = (e: MouseEvent<HTMLDivElement>) => {
     if (!scrollRef.current) return;
@@ -78,6 +91,26 @@ export default function MovieDateTabs({
           : (item as MonthTabItem).value;
         const isSelected = selectedDate === itemValue;
 
+        let localizedDayName = "";
+        let localizedMonthName = "";
+        let yearDisplay = "";
+
+        if (isShowing) {
+          const dateObj = new Date((item as DateTabItem).dateString);
+          
+          const dayIndex = dateObj.getDay();     // 0-6
+          const monthIndex = dateObj.getMonth(); // 0-11
+          
+          localizedDayName = th(dayKeys[dayIndex]);
+          localizedMonthName = th(monthKeys[monthIndex]);
+        } else {
+          const [yearStr, monthStr] = (item as MonthTabItem).value.split("-");
+          const monthIndex = parseInt(monthStr, 10) - 1;
+          
+          localizedMonthName = th(monthKeys[monthIndex]);
+          yearDisplay = yearStr;
+        }
+
         return (
           <button
             key={itemValue}
@@ -93,7 +126,7 @@ export default function MovieDateTabs({
                 <p
                   className={`text-[10px] sm:text-xs ${isSelected ? "text-red-500" : "text-zinc-400"}`}
                 >
-                  {(item as DateTabItem).day}
+                  {localizedDayName}
                 </p>
                 <h3 className="text-sm sm:text-base font-extrabold text-white">
                   {(item as DateTabItem).date}
@@ -101,7 +134,7 @@ export default function MovieDateTabs({
                 <p
                   className={`text-[10px] sm:text-xs ${isSelected ? "text-red-500" : "text-zinc-400"}`}
                 >
-                  {(item as DateTabItem).month}
+                  {localizedMonthName}
                 </p>
               </div>
             ) : (
@@ -109,15 +142,15 @@ export default function MovieDateTabs({
                 <p
                   className={`text-[10px] sm:text-xs ${isSelected ? "text-red-500" : "text-zinc-400"}`}
                 >
-                  COMING
+                  {th("comingLabel")}
                 </p>
-                <h3 className="text-xs sm:text-sm font-extrabold text-white">
-                  {(item as MonthTabItem).label.split(" ")[0]}
+                <h3 className="text-xs sm:text-sm font-extrabold text-white line-clamp-1">
+                  {localizedMonthName}
                 </h3>
                 <p
                   className={`text-[10px] sm:text-xs ${isSelected ? "text-red-500" : "text-zinc-400"}`}
                 >
-                  {(item as MonthTabItem).label.split(" ")[1]}
+                  {yearDisplay}
                 </p>
               </div>
             )}

@@ -1,6 +1,8 @@
 "use client";
 
 import { motion } from "framer-motion";
+import { useLanguage } from "@/features/language/useLanuage";
+import { translations } from "@/features/language/translations";
 
 type Mode = "showing" | "coming";
 
@@ -14,6 +16,13 @@ export default function MovieFilterTabs({
   onChangeMode,
 }: MovieFilterTabsProps) {
   const modes: Mode[] = ["showing", "coming"];
+  const { currentLanguage } = useLanguage();
+
+  const langCode = currentLanguage?.code || "en";
+
+  const th = (key: keyof typeof translations): string => {
+    return translations[key]?.[langCode] || translations[key]["en"];
+  };
 
   return (
     <>
@@ -41,7 +50,7 @@ export default function MovieFilterTabs({
                 currentMode === mode ? "text-white" : "text-zinc-400"
               }`}
             >
-              {mode === "showing" ? "Now Showing" : "Coming Soon"}
+              {mode === "showing" ? th("nowShowing") : th("comingSoon")}
             </span>
           </button>
         ))}
@@ -57,7 +66,7 @@ export default function MovieFilterTabs({
               : "text-zinc-400 hover:text-white"
           }`}
         >
-          Now Showing
+          {th("nowShowing")}
         </button>
         <span className="text-zinc-800 font-light select-none">|</span>
         <button
@@ -68,7 +77,7 @@ export default function MovieFilterTabs({
               : "text-zinc-400 hover:text-white"
           }`}
         >
-          Coming Soon
+          {th("comingSoon")}
         </button>
       </div>
     </>

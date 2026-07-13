@@ -7,6 +7,8 @@ import Footer from "@/components/common/Footer";
 import HeroCarousel from "@/features/movies/components/HeroCarousel";
 import { CarouselItem } from "@/features/movies/data/carouselImages";
 import NewsCard, { NewsActivity } from "@/features/news/NewsActivity";
+import { useLanguage } from "@/features/language/useLanuage";
+import { translations } from "@/features/language/translations";
 
 const MOCK_NEWS: NewsActivity[] = [
   {
@@ -78,6 +80,18 @@ export default function NewsActivityPage() {
   const [visibleCount, setVisibleCount] = useState(6);
   const gridTopRef = useRef<HTMLDivElement>(null);
 
+  const { currentLanguage } = useLanguage();
+  const langCode = currentLanguage?.code || "en";
+
+  const th = (key: string): string => {
+    const lookupKey = key as keyof typeof translations;
+    return (
+      translations[lookupKey]?.[langCode] ||
+      translations[lookupKey]?.["en"] ||
+      key
+    );
+  };
+
   const displayedNews = MOCK_NEWS.slice(0, visibleCount);
   const hasMoreThanDefault = MOCK_NEWS.length > 6;
   const isShowingAll = visibleCount >= MOCK_NEWS.length;
@@ -115,8 +129,8 @@ export default function NewsActivityPage() {
           className="max-w-6xl w-full mx-auto px-4 sm:px-6 md:px-8 lg:px-12 mt-6 md:mt-8 space-y-6 scroll-mt-24"
         >
           <div className="border-b border-zinc-900 pb-4">
-            <h1 className="text-xl sm:text-2xl font-black tracking-tight text-white">
-              Publications
+            <h1 className="text-xl sm:text-2xl font-black tracking-tight text-white uppercase">
+              {th("publicationsTitle")}
             </h1>
           </div>
 
@@ -147,7 +161,7 @@ export default function NewsActivityPage() {
                   onClick={handleToggleVisibility}
                   className="group/btn cursor-pointer inline-flex items-center gap-2 px-6 py-3 bg-red-800 hover:bg-red-700 text-white text-sm font-bold tracking-wider rounded-full transition-all duration-300 shadow-[0_4px_15px_rgba(220,38,38,0.3)] hover:shadow-[0_6px_20px_rgba(220,38,38,0.4)] hover:scale-[1.03] active:scale-[0.98]"
                 >
-                  <span>{isShowingAll ? "See Less" : "See More"}</span>
+                  <span>{isShowingAll ? th("seeLess") : th("seeMore")}</span>
 
                   <svg
                     xmlns="http://www.w3.org/2000/svg"

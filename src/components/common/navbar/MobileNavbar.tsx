@@ -16,6 +16,7 @@ import { LuPopcorn } from "react-icons/lu";
 import { CiSquareMore } from "react-icons/ci";
 import { Cinema } from "@/features/cinemas/cinemas.types";
 import { LanguageCode } from "@/features/language/useLanuage";
+import { translations } from "@/features/language/translations";
 
 type NavKey = "home" | "cinemas" | "promotions" | "fb" | "tickets" | "more";
 
@@ -72,6 +73,13 @@ export const MobileNavbar: FC<MobileNavbarProps> = ({
   handleCinemaClick,
   activeNav,
 }) => {
+
+  const t = (key: string) => {
+    return (
+      translations[key]?.[language.code] || translations[key]?.["en"] || key
+    );
+  };
+
   return (
     <>
       {/* MOBILE TOP BAR */}
@@ -98,8 +106,6 @@ export const MobileNavbar: FC<MobileNavbarProps> = ({
             <Link href="/" className="cursor-pointer">
               {!logoFailed ? (
                 <div className="relative h-8 w-32">
-                  {" "}
-                  {/* Added relative wrapper for proper sizing */}
                   <Image
                     src={logoUrl}
                     onError={() => setLogoFailed(true)}
@@ -107,7 +113,7 @@ export const MobileNavbar: FC<MobileNavbarProps> = ({
                     sizes="(max-width: 768px) 128px, 128px"
                     className="object-contain"
                     alt="Logo"
-                    priority // Speeds up critical LCP path for your header logo
+                    priority
                   />
                 </div>
               ) : (
@@ -185,7 +191,7 @@ export const MobileNavbar: FC<MobileNavbarProps> = ({
               >
                 <MapPin className="w-4 h-4 text-red-500" />
                 <span className="text-[15px] font-semibold tracking-wide text-white">
-                  All Cinemas
+                  {t("allCinemas")}
                 </span>
               </button>
 
@@ -220,8 +226,6 @@ export const MobileNavbar: FC<MobileNavbarProps> = ({
                       ${index !== cinemas.length - 1 ? "border-b border-white/5" : ""}`}
                     >
                       <div className="relative w-10 h-10 shrink-0">
-                        {" "}
-                        {/* Added relative container for w-10 h-10 */}
                         <Image
                           src={c.image?.url || "/fallback-image.png"}
                           fill
@@ -272,7 +276,7 @@ export const MobileNavbar: FC<MobileNavbarProps> = ({
               <span
                 className={`text-[11px] transition-all duration-300 ${activeNav === "home" ? "text-white" : "text-zinc-400"}`}
               >
-                Home
+                {t("home")}
               </span>
             </Link>
 
@@ -295,7 +299,7 @@ export const MobileNavbar: FC<MobileNavbarProps> = ({
               <span
                 className={`text-[11px] transition-all duration-300 ${activeNav === "promotions" ? "text-white" : "text-zinc-400"}`}
               >
-                Offers
+                {t("offers")}
               </span>
             </Link>
 
@@ -318,7 +322,7 @@ export const MobileNavbar: FC<MobileNavbarProps> = ({
               <span
                 className={`text-[11px] transition-all duration-300 ${activeNav === "cinemas" ? "text-white" : "text-zinc-400"}`}
               >
-                Cinemas
+                {t("cinemas")}
               </span>
             </Link>
 
@@ -341,7 +345,7 @@ export const MobileNavbar: FC<MobileNavbarProps> = ({
               <span
                 className={`text-[11px] transition-all duration-300 ${activeNav === "fb" ? "text-white" : "text-zinc-400"}`}
               >
-                F&B
+                {t("fb")}
               </span>
             </Link>
 

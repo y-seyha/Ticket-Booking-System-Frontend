@@ -9,6 +9,8 @@ import { CarouselItem } from "@/features/movies/data/carouselImages";
 import PromotionCard, {
   Promotion,
 } from "@/features/offers/components/PromotionCard";
+import { useLanguage } from "@/features/language/useLanuage";
+import { translations } from "@/features/language/translations";
 
 const MOCK_OFFERS: Promotion[] = [
   {
@@ -69,6 +71,18 @@ export default function OffersPage() {
   const [visibleCount, setVisibleCount] = useState(6);
   const gridTopRef = useRef<HTMLDivElement>(null);
 
+  const { currentLanguage } = useLanguage();
+  const langCode = currentLanguage?.code || "en";
+
+  const th = (key: string): string => {
+    const lookupKey = key as keyof typeof translations;
+    return (
+      translations[lookupKey]?.[langCode] ||
+      translations[lookupKey]?.["en"] ||
+      key
+    );
+  };
+
   const displayedOffers = MOCK_OFFERS.slice(0, visibleCount);
   const hasMoreThanDefault = MOCK_OFFERS.length > 6;
   const isShowingAll = visibleCount >= MOCK_OFFERS.length;
@@ -76,7 +90,6 @@ export default function OffersPage() {
   const handleToggleVisibility = () => {
     if (isShowingAll) {
       setVisibleCount(6);
-      // Smoothly scrolls back up to the grid top anchor point
       gridTopRef.current?.scrollIntoView({
         behavior: "smooth",
         block: "start",
@@ -110,8 +123,8 @@ export default function OffersPage() {
         >
           {/* Label Heading & Subtitle line */}
           <div className="border-b border-zinc-900 pb-4">
-            <h1 className="text-xl sm:text-2xl font-black tracking-tight text-white">
-              Promotions
+            <h1 className="text-xl sm:text-2xl font-black tracking-tight text-white uppercase">
+              {th("promotionsTitle") || "Promotions"}
             </h1>
           </div>
 
@@ -144,7 +157,11 @@ export default function OffersPage() {
                   onClick={handleToggleVisibility}
                   className="group/btn cursor-pointer inline-flex items-center gap-2 px-6 py-3 bg-red-800 hover:bg-red-700 text-white text-sm font-bold tracking-wider rounded-full transition-all duration-300 shadow-[0_4px_15px_rgba(220,38,38,0.3)] hover:shadow-[0_6px_20px_rgba(220,38,38,0.4)] hover:scale-[1.03] active:scale-[0.98]"
                 >
-                  <span>{isShowingAll ? "See Less" : "See More"}</span>
+                  <span>
+                    {isShowingAll
+                      ? th("seeLess") || "See Less"
+                      : th("seeMore") || "See More"}
+                  </span>
 
                   <svg
                     xmlns="http://www.w3.org/2000/svg"

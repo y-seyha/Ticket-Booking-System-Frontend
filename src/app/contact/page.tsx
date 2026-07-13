@@ -1,11 +1,23 @@
+"use client";
+
 import Link from "next/link";
 import Image from "next/image";
 import { Phone, Mail, MessageSquare } from "lucide-react";
 import Navbar from "@/components/common/Navbar";
 import Footer from "@/components/common/Footer";
+import { useLanguage } from "@/features/language/useLanuage";
+import { translations } from "@/features/language/translations";
 
 export default function ContactPage() {
   const cinemaHeroImage = "/courousel/contact-hero.jpg";
+
+  const { currentLanguage } = useLanguage();
+  const langCode = currentLanguage?.code || "en";
+
+  const th = (key: string): string => {
+    const lookupKey = key as keyof typeof translations;
+    return translations[lookupKey]?.[langCode] || translations[lookupKey]?.["en"] || key;
+  };
 
   return (
     <div className="min-h-screen bg-black flex flex-col justify-between overflow-x-hidden relative">
@@ -34,7 +46,7 @@ export default function ContactPage() {
             <div className="overflow-hidden rounded-xl sm:rounded-3xl border border-zinc-900/80 shadow-2xl w-full bg-zinc-950/40 backdrop-blur-sm mb-6">
               <Image
                 src={cinemaHeroImage}
-                alt="Contact Legend Cinema"
+                alt={th("contactUs")}
                 width={1200}
                 height={750}
                 priority
@@ -49,7 +61,7 @@ export default function ContactPage() {
                 href="/"
                 className="hover:text-white transition-colors shrink-0"
               >
-                Home
+                {th("homeBreadcrumb")}
               </Link>
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -65,21 +77,21 @@ export default function ContactPage() {
                   d="M8.25 4.5l7.5 7.5-7.5 7.5"
                 />
               </svg>
-              <span className="text-zinc-300 truncate">Contact Us</span>
+              <span className="text-zinc-300 truncate">{th("contactUs")}</span>
             </nav>
 
-            {/* MAIN COPY AND INFRASTRUCTURE GRID (Now perfectly aligned to width bounds) */}
+            {/* MAIN COPY AND INFRASTRUCTURE GRID */}
             <div className="space-y-6 w-full">
               <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-white break-words">
-                Contact Info
+                {th("contactInfoTitle")}
               </h1>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-5 pt-1">
                 {/* CARD 1: HOTLINE GROUP */}
                 <div className="rounded-xl sm:rounded-2xl border border-zinc-900/80 bg-zinc-950/40 backdrop-blur-sm overflow-hidden shadow-xl flex flex-col">
                   <div className="bg-zinc-900/40 px-5 py-4 border-b border-zinc-900/80">
-                    <h3 className="text-sm sm:text-base font-bold tracking-wide text-white">
-                      Hotline
+                    <h3 className="text-sm sm:text-base font-bold tracking-wide text-white uppercase">
+                      {th("hotlineLabel")}
                     </h3>
                   </div>
 
@@ -108,7 +120,7 @@ export default function ContactPage() {
                         <MessageSquare size={16} />
                       </div>
                       <span className="text-sm text-white font-normal">
-                        Messenger
+                        {th("messengerLabel")}
                       </span>
                     </a>
 
@@ -130,8 +142,8 @@ export default function ContactPage() {
                 {/* CARD 2: ADVERTISING & PARTNERSHIP */}
                 <div className="rounded-xl sm:rounded-2xl border border-zinc-900/80 bg-zinc-950/40 backdrop-blur-sm overflow-hidden shadow-xl flex flex-col">
                   <div className="bg-zinc-900/40 px-5 py-4 border-b border-zinc-900/80">
-                    <h3 className="text-sm sm:text-base font-bold tracking-wide text-white">
-                      Advertising & Partnership
+                    <h3 className="text-sm sm:text-base font-bold tracking-wide text-white uppercase">
+                      {th("advertisingLabel")}
                     </h3>
                   </div>
 

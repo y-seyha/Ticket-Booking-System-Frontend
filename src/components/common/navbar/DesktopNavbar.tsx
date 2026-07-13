@@ -75,7 +75,7 @@ export const DesktopNavbar: FC<DesktopNavbarProps> = ({
   navText,
   navIcon,
 }) => {
-  const { currentLanguage, languagesList, setLanguage, isStoreReady } =
+  const { currentLanguage, languagesList, setLanguage, isStoreReady, t } =
     useLanguage();
 
   return (
@@ -86,7 +86,7 @@ export const DesktopNavbar: FC<DesktopNavbarProps> = ({
           {showSearch && (
             <div className="relative group w-65">
               <input
-                placeholder="Search Movies..."
+                placeholder={t("searchMovies")}
                 className="w-full bg-white/5 text-base px-5 py-1.5 rounded-full border border-white/10 outline-none
                 transition-all duration-250
                 hover:border-white/40 focus:border-white
@@ -129,7 +129,7 @@ export const DesktopNavbar: FC<DesktopNavbarProps> = ({
               {showTicket && (
                 <button className="hidden lg:flex items-center gap-2 px-3 md:px-4 py-1.5 rounded-full bg-white/5 border border-white/10 text-sm hover:border-white/30 transition cursor-pointer">
                   <Ticket className="w-4 h-4" />
-                  <span className="hidden md:inline">Ticket</span>
+                  <span className="hidden md:inline">{t("ticket")}</span>
                 </button>
               )}
 
@@ -143,7 +143,7 @@ export const DesktopNavbar: FC<DesktopNavbarProps> = ({
                       className="flex items-center gap-2 px-3 md:px-4 py-1.5 rounded-full bg-white/10 border border-white/10 text-sm whitespace-nowrap hover:border-white/30 transition cursor-pointer"
                     >
                       <UserIcon className="w-4 h-4" />
-                      <span>Join Now</span>
+                      <span>{t("joinNow")}</span>
                     </button>
                   ) : (
                     <button
@@ -151,7 +151,7 @@ export const DesktopNavbar: FC<DesktopNavbarProps> = ({
                       className="flex items-center gap-2 px-3 md:px-4 py-1.5 rounded-full bg-white/10 border border-white/10 text-sm whitespace-nowrap hover:border-white/30 transition cursor-pointer"
                     >
                       <UserIcon className="w-4 h-4 text-red-400" />
-                      <span>Profile</span>
+                      <span>{t("profile")}</span>
                     </button>
                   )}
                 </>
@@ -172,7 +172,7 @@ export const DesktopNavbar: FC<DesktopNavbarProps> = ({
               {openNotif && (
                 <div className="absolute right-0 mt-2 w-72 bg-black/95 border border-white/10 rounded-xl overflow-hidden shadow-xl z-120">
                   <div className="px-4 py-1.5 text-xs text-zinc-400 border-b border-white/10">
-                    Notifications
+                    {t("notifications")}
                   </div>
                   {notifications.map((n, i) => (
                     <div
@@ -254,25 +254,25 @@ export const DesktopNavbar: FC<DesktopNavbarProps> = ({
             <div className="flex gap-10 text-sm md:text-base px-2">
               <Link href="/" className="flex items-center gap-2 group">
                 <Home className={navIcon("home")} />
-                <span className={navText("home")}>Home</span>
+                <span className={navText("home")}>{t("home")}</span>
               </Link>
               <Link href="/cinemas" className="flex items-center gap-2 group">
                 <MapPin className={navIcon("cinemas")} />
-                <span className={navText("cinemas")}>Cinemas</span>
+                <span className={navText("cinemas")}>{t("cinemas")}</span>
               </Link>
               <Link
                 href="/promotions"
                 className="flex items-center gap-2 group"
               >
                 <Tag className={navIcon("promotions")} />
-                <span className={navText("promotions")}>Offers</span>
+                <span className={navText("promotions")}>{t("offers")}</span>
               </Link>
               <Link
                 href="/food-and-drinks"
                 className="flex items-center gap-2 group"
               >
                 <LuPopcorn className={navIcon("fb")} />
-                <span className={navText("fb")}>F&B</span>
+                <span className={navText("fb")}>{t("fb")}</span>
               </Link>
             </div>
 
@@ -283,7 +283,7 @@ export const DesktopNavbar: FC<DesktopNavbarProps> = ({
                   className="flex items-center gap-2 px-3 py-1 rounded-full cursor-pointer hover:bg-white/5 transition-colors"
                 >
                   <MapPin className="w-4 h-4 text-red-500" />
-                  <span className="text-sm font-medium">All Cinemas</span>
+                  <span className="text-sm font-medium">{t("allCinemas")}</span>
                   <ChevronDown
                     className={`w-4 h-4 transition-transform duration-300 ${openCinema ? "rotate-180" : ""}`}
                   />
@@ -299,7 +299,7 @@ export const DesktopNavbar: FC<DesktopNavbarProps> = ({
                   <div className="px-4 py-3 border-b border-white/10 flex items-center gap-2">
                     <MapPin className="w-4 h-4 text-zinc-400" />
                     <span className="text-sm font-semibold text-zinc-300">
-                      Cinema Locations
+                      {t("cinemaLocations")}
                     </span>
                   </div>
                   <div className="max-h-75 overflow-y-auto">

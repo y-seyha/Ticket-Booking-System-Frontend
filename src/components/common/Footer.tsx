@@ -2,28 +2,36 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { usePathname } from "next/navigation"; // Added hook
+import { usePathname } from "next/navigation";
 
 import { Send, Music2 } from "lucide-react";
 import { FaFacebook, FaApple } from "react-icons/fa";
 import { BsInstagram, BsYoutube } from "react-icons/bs";
+import { useLanguage } from "@/features/language/useLanuage";
+import { footerTranslations } from "@/features/language/translations";
 
 export default function Footer() {
   const currentYear = new Date().getFullYear();
-  const pathname = usePathname(); // Get current URL path
+  const pathname = usePathname();
+  const { currentLanguage } = useLanguage();
+
+  const tf = (key: keyof typeof footerTranslations): string => {
+    const langCode = currentLanguage?.code || "en";
+    return footerTranslations[key]?.[langCode] || footerTranslations[key]["en"];
+  };
 
   const companyLinks = [
-    { label: "About Us", href: "/about-us" },
-    { label: "Contact Us", href: "/contact" },
-    { label: "Cinemas", href: "/cinemas" },
+    { label: tf("aboutUs"), href: "/about-us" },
+    { label: tf("contactUs"), href: "/contact" },
+    { label: tf("cinemas"), href: "/cinemas" },
   ];
 
   const moreLinks = [
-    { label: "Promotions", href: "/promotions" },
-    { label: "News & Activity", href: "/news-activity" },
-    { label: "My Tickets", href: "/tickets" },
-    { label: "Terms & Conditions", href: "/terms-&-conditions" },
-    { label: "Privacy Policy", href: "/privacy" },
+    { label: tf("promotions"), href: "/promotions" },
+    { label: tf("newsActivity"), href: "/news-activity" },
+    { label: tf("myTickets"), href: "/tickets" },
+    { label: tf("termsConditions"), href: "/terms-&-conditions" },
+    { label: tf("privacyPolicy"), href: "/privacy-policy" },
   ];
 
   const socials = [
@@ -65,17 +73,16 @@ export default function Footer() {
       <div className="mx-auto max-w-7xl px-8 py-12 sm:px-6 lg:px-8">
         {/* Top Section */}
         <div className="grid grid-cols-2 gap-10 lg:grid-cols-3">
-          {/* Company */}
+          {/* Company Group */}
           <div>
-            <h3 className="text-lg font-semibold">Company</h3>
+            <h3 className="text-lg font-semibold">{tf("company")}</h3>
 
             <ul className="mt-5 space-y-3">
               {companyLinks.map((link) => {
-                // Check if current path matches link href exactly or contextually
                 const isActive = pathname === link.href;
 
                 return (
-                  <li key={link.label}>
+                  <li key={link.href}>
                     <Link
                       href={link.href}
                       className={`text-sm transition-colors duration-300 hover:text-white ${
@@ -90,16 +97,16 @@ export default function Footer() {
             </ul>
           </div>
 
-          {/* More */}
+          {/* More Group */}
           <div>
-            <h3 className="text-lg font-semibold">More</h3>
+            <h3 className="text-lg font-semibold">{tf("more")}</h3>
 
             <ul className="mt-5 space-y-3">
               {moreLinks.map((link) => {
                 const isActive = pathname === link.href;
 
                 return (
-                  <li key={link.label}>
+                  <li key={link.href}>
                     <Link
                       href={link.href}
                       className={`text-sm transition-colors duration-300 hover:text-white ${
@@ -114,26 +121,17 @@ export default function Footer() {
             </ul>
           </div>
 
-          {/* App + Social */}
+          {/* App + Social Media Links */}
           <div className="col-span-2 lg:col-span-1">
-            <h3 className="text-lg font-semibold">Download Our App</h3>
+            <h3 className="text-lg font-semibold">{tf("downloadApp")}</h3>
 
             <div className="mt-5 flex gap-4">
               {/* Google Play */}
               <Link
                 href="https://play.google.com/store/apps/details?id=kh.com.legend&hl=en"
                 target="_blank"
-                className="
-    flex h-14 w-14 items-center justify-center
-    rounded-full
-    border border-zinc-700
-    bg-zinc-900
-    transition-all duration-300
-    hover:scale-105
-    hover:border-white
-  "
+                className="flex h-14 w-14 items-center justify-center rounded-full border border-zinc-700 bg-zinc-990 transition-all duration-300 hover:scale-105 hover:border-white bg-zinc-900"
               >
-                {/* Modern Official Google Play Multi-Color SVG Logo */}
                 <svg
                   viewBox="0 0 24 24"
                   className="w-6 h-6"
@@ -162,24 +160,15 @@ export default function Footer() {
               <Link
                 href="https://apps.apple.com/us/app/legend-cinema/id1494420578"
                 target="_blank"
-                className="
-                  flex h-14 w-14 items-center justify-center
-                  rounded-full
-                  border border-zinc-700
-                  bg-zinc-900
-                  text-white
-                  transition-all duration-300
-                  hover:scale-105
-                  hover:border-white
-                "
+                className="flex h-14 w-14 items-center justify-center rounded-full border border-zinc-700 bg-zinc-900 text-white transition-all duration-300 hover:scale-105 hover:border-white"
               >
                 <FaApple size={24} />
               </Link>
             </div>
 
-            {/* Social */}
+            {/* Social Group */}
             <div className="mt-8">
-              <h3 className="text-lg font-semibold">Follow Our Social Media</h3>
+              <h3 className="text-lg font-semibold">{tf("followSocials")}</h3>
 
               <div className="mt-4 flex flex-wrap gap-3">
                 {socials.map((social) => {
@@ -191,18 +180,7 @@ export default function Footer() {
                       href={social.href}
                       target="_blank"
                       aria-label={social.label}
-                      className="
-                        flex h-11 w-11 items-center justify-center
-                        rounded-full
-                        border border-zinc-700
-                        bg-zinc-900
-                        text-zinc-300
-                        transition-all duration-300
-                        hover:scale-110
-                        hover:border-white
-                        hover:bg-red-500
-                        hover:text-white
-                      "
+                      className="flex h-11 w-11 items-center justify-center rounded-full border border-zinc-700 bg-zinc-900 text-zinc-300 transition-all duration-300 hover:scale-110 hover:border-white hover:bg-red-500 hover:text-white"
                     >
                       <Icon size={18} />
                     </Link>
@@ -213,20 +191,15 @@ export default function Footer() {
           </div>
         </div>
 
-        {/* Payment Methods */}
+        {/* Payment Methods Section */}
         <div className="mt-14 border-t border-zinc-800 pt-8">
-          <h3 className="text-lg font-semibold">Payment</h3>
+          <h3 className="text-lg font-semibold">{tf("payment")}</h3>
 
           <div className="mt-5 flex flex-wrap items-center gap-4">
             {payments.map((src) => (
               <div
                 key={src}
-                className="
-                  rounded-xl
-                  p-3
-                  transition-all duration-300
-                  hover:border-white
-                "
+                className="rounded-xl p-3 transition-all duration-300 hover:border-white"
               >
                 <Image
                   src={src}
@@ -240,10 +213,10 @@ export default function Footer() {
           </div>
         </div>
 
-        {/* Bottom */}
+        {/* Bottom Section */}
         <div className="mt-10 border-t border-zinc-800 pt-6">
           <p className="text-center text-sm text-zinc-500">
-            © {currentYear} Ticket Booking System. All rights reserved.
+            © {currentYear} {tf("copyright")}
           </p>
         </div>
       </div>

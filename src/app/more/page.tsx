@@ -17,6 +17,7 @@ import {
 import Navbar from "@/components/common/Navbar";
 import { useAuth } from "@/features/auth/auth.hook";
 import { useLanguageStore } from "@/features/language/language.store";
+import { localTranslations } from "@/features/more/more-translations";
 
 interface RowItem {
   icon: ReactNode;
@@ -35,13 +36,22 @@ export default function MorePage() {
   const { logout } = useAuth();
   const currentLanguage = useLanguageStore((s) => s.language);
 
+  const langCode = currentLanguage === "kh" ? "kh" : "en";
+
+  const t = (key: string) => {
+    return (
+      localTranslations[key]?.[langCode] ||
+      localTranslations[key]?.["en"] ||
+      key
+    );
+  };
+
   useEffect(() => {
     if (window.innerWidth >= 768) {
       router.replace("/");
       return;
     }
 
-    // Create a listener handler for real-time viewport changes
     const handleResize = () => {
       if (window.innerWidth >= 768) {
         router.replace("/");
@@ -49,8 +59,6 @@ export default function MorePage() {
     };
 
     window.addEventListener("resize", handleResize);
-
-    // Clean up listener when the component unmounts
     return () => window.removeEventListener("resize", handleResize);
   }, [router]);
 
@@ -62,50 +70,49 @@ export default function MorePage() {
     }
   };
 
-
   const sections: RowSection[] = [
     {
-      title: "Cinema Experience",
+      title: t("cinemaExperience"),
       items: [
         {
           icon: <Ticket className="w-4 h-4 text-zinc-500" />,
-          label: "My Tickets & History",
+          label: t("myTickets"),
           path: "/my-tickets",
         },
         {
           icon: <MapPin className="w-4 h-4 text-zinc-500" />,
-          label: "Cinema Locations",
+          label: t("cinemaLocations"),
           path: "/cinemas",
         },
         {
           icon: <Gift className="w-4 h-4 text-zinc-500" />,
-          label: "Promotions",
+          label: t("promotions"),
           path: "/promotions",
         },
       ],
     },
     {
-      title: "Support & Legal",
+      title: t("supportLegal"),
       items: [
         {
           icon: <Info className="w-4 h-4 text-zinc-500" />,
-          label: "About Legend Cinema",
+          label: t("aboutUs"),
           path: "/about-us",
         },
         {
           icon: <ShieldCheck className="w-4 h-4 text-zinc-500" />,
-          label: "Terms & Conditions",
+          label: t("terms"),
           path: "/terms-&-conditions",
         },
         {
           icon: <HelpCircle className="w-4 h-4 text-zinc-500" />,
-          label: "Contact & Support",
+          label: t("contact"),
           path: "/contact",
         },
         {
           icon: <Languages className="w-4 h-4 text-zinc-500" />,
-          label: "App Language",
-          badge: currentLanguage,
+          label: t("appLanguage"),
+          badge: currentLanguage || "en",
         },
       ],
     },
@@ -124,7 +131,7 @@ export default function MorePage() {
       <main className="flex-1 w-full pt-32 pb-28 px-4 relative z-10 flex flex-col justify-between overflow-y-auto animate-in fade-in slide-in-from-bottom-6 duration-500 ease-out">
         <div className="space-y-6">
           <h1 className="text-xs font-mono font-bold tracking-[0.2em] px-1 text-zinc-400 uppercase">
-            More Configurations
+            {t("moreConfigurations")}
           </h1>
 
           {/* PROFILE / ACCOUNT TRIGGER */}
@@ -139,10 +146,10 @@ export default function MorePage() {
               </div>
               <div className="min-w-0">
                 <div className="font-bold text-sm text-white tracking-wide truncate">
-                  My Profile
+                  {t("myProfile")}
                 </div>
                 <div className="text-xs text-zinc-500 mt-0.5 font-medium truncate">
-                  Manage personal data & settings
+                  {t("manageProfileDesc")}
                 </div>
               </div>
             </div>
@@ -203,7 +210,7 @@ export default function MorePage() {
           className="w-full flex items-center justify-center gap-2 mt-6 p-4 bg-red-950/20 border border-red-500/20 text-red-400 font-mono font-bold text-xs uppercase tracking-widest rounded-2xl active:bg-red-500/20 transition-all duration-200 shadow-md cursor-pointer"
         >
           <LogOut className="w-4 h-4" />
-          <span>Terminate Session</span>
+          <span>{t("terminateSession")}</span>
         </button>
       </main>
     </div>

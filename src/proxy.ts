@@ -7,7 +7,7 @@ interface CustomJwtPayload {
   sub?: string;
 }
 
-export function middleware(request: NextRequest) {
+export function proxy(request: NextRequest) {
   const tokenCookie = request.cookies.get("access_token");
   const { pathname } = request.nextUrl;
 

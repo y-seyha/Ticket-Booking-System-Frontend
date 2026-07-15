@@ -59,8 +59,7 @@ export default function MovieTable({
           <tbody className="divide-y divide-zinc-200 dark:divide-zinc-800">
             {movies.map((movie, index) => {
               const rowNumber = (currentPage - 1) * limit + index + 1;
-              const poster = movie.poster as { url?: string } | undefined;
-              const resolvedUrl = poster?.url || null;
+              const resolvedUrl = typeof movie.poster === "string" ? movie.poster : null;
 
               const invertedZIndex = movies.length + 10 - index;
 

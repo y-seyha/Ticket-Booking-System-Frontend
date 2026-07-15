@@ -37,6 +37,9 @@ export interface BackendCartResponse {
 export const showtimesApi = {
   getById: (id: string) => apiRequest<Showtime>("get", `/showtimes/${id}`),
 
+  getByMovie: (movieId: string) =>
+    apiRequest<Showtime[]>("get", `/showtimes/movie/${movieId}`),
+
   getSeatMap: (showtimeId: string) =>
     apiRequest<RawSeat[]>("get", `/seats/map/${showtimeId}`),
 

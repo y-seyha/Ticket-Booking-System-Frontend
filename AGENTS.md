@@ -36,6 +36,20 @@ No test runner configured. No typecheck script — rely on `tsc --noEmit` manual
 - Role-based routing: `ADMIN`, `CASHIER`, `USER`. Unauthorized access rewrites to `/unauthorized` or `/404`.
 - Proxy matches `/profile/:path*`, `/admin/:path*`, `/cashier/:path*` only. Public and `/auth` routes are unrestricted.
 
+## WebSocket / real-time seat updates
+- **Namespace**: `/seats` on backend (Socket.IO) — hook at `src/features/showitmes/hooks/useSeatSocket.ts`
+- **WS base URL**: derived from `NEXT_PUBLIC_API_BASE_URL` by stripping `/api/v1`
+- **Auth**: optional (JWT via `auth.token` — unauthenticated allowed for viewing)
+- **Usage**: `useSeatSocket(showtimeId, { onSeatLocked, onSeatUnlocked, onSeatsBooked, onSeatsExpired })`
+- **Client events**:
+  | Event | Payload | Seat status |
+  |---|---|---|
+  | `seat:locked` | `{ seatId, showtimeId }` | Set to LOCKED |
+  | `seat:unlocked` | `{ seatId, showtimeId }` | Set to AVAILABLE |
+  | `seat:booked` | `{ seatIds[], showtimeId }` | Set to BOOKED |
+  | `seat:expired` | `{ seatIds[], showtimeId }` | Set to AVAILABLE |
+- Implemented in `src/app/showtime/[id]/page.tsx` — updates seat state without full REST refresh
+
 ## Conventions
 
 - **No test runner** — verify by running `npm run dev` and checking the browser, or `npm run build` for compilation errors.

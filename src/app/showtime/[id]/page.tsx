@@ -10,6 +10,7 @@ import {
   showtimesApi,
   BackendCartResponse,
 } from "@/features/showitmes/showtimes.api";
+import { useSeatSocket } from "@/features/showitmes/hooks/useSeatSocket";
 import Navbar from "@/components/common/Navbar";
 import Footer from "@/components/common/Footer";
 import {
@@ -99,6 +100,67 @@ export default function ShowtimePage() {
   const [timeLeft, setTimeLeft] = useState<number | null>(null);
 
   const timerRef = useRef<NodeJS.Timeout | null>(null);
+
+  const updateSeatStatuses = useCallback(
+    (
+      updater: (
+        seats: Seat[],
+      ) => { id: string; status: "AVAILABLE" | "LOCKED" | "BOOKED" }[],
+    ) => {
+      setShowtime((prev) => {
+        if (!prev) return prev;
+        const updates = updater(prev.screen.seats);
+        const updateMap = new Map(updates.map((u) => [u.id, u.status]));
+        return {
+          ...prev,
+          screen: {
+            ...prev.screen,
+            seats: prev.screen.seats.map((s) => ({
+              ...s,
+              status: updateMap.get(s.id) ?? s.status,
+            })),
+          },
+        };
+      });
+    },
+    [],
+  );
+
+  useSeatSocket(id, {
+    onSeatLocked: (data) => {
+      updateSeatStatuses((seats) =>
+        seats
+          .filter((s) => s.id === data.seatId && s.status === "AVAILABLE")
+          .map((s) => ({ id: s.id, status: "LOCKED" as const })),
+      );
+    },
+
+    onSeatUnlocked: (data) => {
+      updateSeatStatuses((seats) =>
+        seats
+          .filter((s) => s.id === data.seatId && s.status === "LOCKED")
+          .map((s) => ({ id: s.id, status: "AVAILABLE" as const })),
+      );
+    },
+
+    onSeatsBooked: (data) => {
+      const booked = new Set(data.seatIds);
+      updateSeatStatuses((seats) =>
+        seats
+          .filter((s) => booked.has(s.id) && s.status === "LOCKED")
+          .map((s) => ({ id: s.id, status: "BOOKED" as const })),
+      );
+    },
+
+    onSeatsExpired: (data) => {
+      const expired = new Set(data.seatIds);
+      updateSeatStatuses((seats) =>
+        seats
+          .filter((s) => expired.has(s.id) && s.status !== "AVAILABLE")
+          .map((s) => ({ id: s.id, status: "AVAILABLE" as const })),
+      );
+    },
+  });
 
   const refreshSeatLayout = useCallback(async () => {
     if (!id) return;
@@ -204,9 +266,12 @@ export default function ShowtimePage() {
 
     if (timeLeft <= 0) {
       timerRef.current = setTimeout(() => {
+        const expired = selectedSeats;
         setSelectedSeats([]);
         setTimeLeft(null);
-        refreshSeatLayout();
+        updateSeatStatuses(() =>
+          expired.map((s) => ({ id: s.id, status: "AVAILABLE" as const })),
+        );
       }, 0);
       return;
     }
@@ -245,6 +310,7 @@ export default function ShowtimePage() {
           if (updated.length === 0) setTimeLeft(null);
           return updated;
         });
+        updateSeatStatuses(() => [{ id: seatId, status: "AVAILABLE" }]);
       } else {
         if (seat.status !== "AVAILABLE") {
           alert("This seat is currently unavailable.");
@@ -253,9 +319,8 @@ export default function ShowtimePage() {
 
         await showtimesApi.lockSeat(payload);
         setSelectedSeats((prev) => [...prev, { ...seat, status: "LOCKED" }]);
+        updateSeatStatuses(() => [{ id: seatId, status: "LOCKED" }]);
       }
-
-      await refreshSeatLayout();
     } catch (err) {
       console.error(
         "Error communicating ticket locks with network service:",
@@ -271,10 +336,13 @@ export default function ShowtimePage() {
 
   const handleClearCart = async () => {
     try {
+      const locked = selectedSeats;
       await showtimesApi.clearCart();
       setSelectedSeats([]);
       setTimeLeft(null);
-      await refreshSeatLayout();
+      updateSeatStatuses(() =>
+        locked.map((s) => ({ id: s.id, status: "AVAILABLE" as const })),
+      );
     } catch (err) {
       console.error("Failed to clear cart session completely:", err);
     }

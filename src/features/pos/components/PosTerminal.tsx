@@ -32,13 +32,11 @@ const STEP_IDS: PosStepId[] = [
 
 function ShowtimeGrid({
   showtimes,
-  movieTitle,
-  movieId,
+  movie,
   onSelect,
 }: {
   showtimes: Movie["showtimes"];
-  movieTitle: string;
-  movieId: string;
+  movie: Movie;
   onSelect: (st: Showtime) => void;
 }) {
   const locations = useMemo(() => {
@@ -150,7 +148,7 @@ function ShowtimeGrid({
                                 key={st.id}
                                 onClick={() => onSelect({
                                   id: st.id,
-                                  movieId,
+                                  movieId: movie.id,
                                   screenId: "",
                                   startTime: st.startTime,
                                   endTime: st.endTime,
@@ -158,7 +156,7 @@ function ShowtimeGrid({
                                   status: "SCHEDULED" as const,
                                   createdAt: "",
                                   updatedAt: "",
-                                  movie: { id: movieId, title: movieTitle, durationMinutes: 0, language: "", poster: null, status: "NOW_SHOWING" as const, createdAt: "", updatedAt: "" },
+                                  movie: { id: movie.id, title: movie.title, durationMinutes: movie.durationMinutes, language: movie.language, poster: null, status: "NOW_SHOWING" as const, createdAt: "", updatedAt: "" },
                                   screen: { id: "", name: st.screenName, type: st.screenType },
                                 } as Showtime)}
                                 className="px-4 py-2 rounded-full border border-white/10 hover:border-red-600 bg-transparent hover:bg-red-600/10 text-sm font-semibold text-white transition-all cursor-pointer active:scale-95"
@@ -323,8 +321,7 @@ export default function PosTerminal() {
             </div>
             <ShowtimeGrid
               showtimes={movie?.showtimes}
-              movieTitle={movie?.title || ""}
-              movieId={movie?.id || ""}
+              movie={movie!}
               onSelect={selectShowtime}
             />
           </div>
@@ -389,6 +386,7 @@ export default function PosTerminal() {
             foods={foods}
             grandTotal={grandTotal}
             onNewSale={reset}
+            paymentMethod={paymentMethod}
           />
         ) : null;
 

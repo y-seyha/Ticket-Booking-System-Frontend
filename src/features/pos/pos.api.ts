@@ -14,6 +14,36 @@ export interface SeatMapSeat {
   surcharge: number;
 }
 
+export interface CashierOrder {
+  id: string;
+  bookingCode: string;
+  totalPrice: number;
+  status: string;
+  createdAt: string;
+  account: {
+    id: string;
+    email: string;
+    profile?: { firstName: string; lastName: string } | null;
+  };
+  showtime: {
+    startTime: string;
+    movie: { title: string; durationMinutes: number; language: string };
+    screen: { name: string; type: string; theater: { name: string; location: string } };
+  };
+  bookingSeats: Array<{
+    id: string;
+    price: number;
+    seat: { seatRow: string; seatNumber: number; seatType: string };
+    ticket?: { qrCode: string; status: string } | null;
+  }>;
+  payment: {
+    provider: string;
+    status: string;
+    amount: number;
+    paidAt: string | null;
+  } | null;
+}
+
 export const posApi = {
   getMovies: (date: string) =>
     apiRequest<Movie[]>("get", "/showtimes/active/listings", undefined, {
@@ -53,4 +83,7 @@ export const posApi = {
     paymentApi.createCheckout({ paymentProvider }),
 
   payCash: (paymentId: string) => paymentApi.payCash({ paymentId }),
+
+  getOrders: (params?: { startDate?: string; endDate?: string; movieTitle?: string }) =>
+    apiRequest<CashierOrder[]>("get", "/tickets/orders", undefined, { params }),
 };

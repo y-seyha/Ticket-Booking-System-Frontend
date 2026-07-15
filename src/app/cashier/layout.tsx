@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { LogOut, ShoppingCart } from "lucide-react";
+import { LogOut, ShoppingCart, Scan } from "lucide-react";
 
 export default function CashierLayout({
   children,
@@ -32,6 +32,13 @@ export default function CashierLayout({
               className="text-xs font-bold text-zinc-400 hover:text-white transition-colors uppercase tracking-wider"
             >
               Orders
+            </Link>
+            <Link
+              href="/cashier/validate"
+              className="flex items-center gap-1.5 text-xs font-bold text-zinc-400 hover:text-white transition-colors uppercase tracking-wider"
+            >
+              <Scan className="w-3.5 h-3.5" />
+              Validate
             </Link>
             <form action="/auth/login" method="GET">
               <button

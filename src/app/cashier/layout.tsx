@@ -1,5 +1,5 @@
-import { LogOut, ShoppingCart } from "lucide-react";
 import Link from "next/link";
+import { LogOut, ShoppingCart } from "lucide-react";
 
 export default function CashierLayout({
   children,
@@ -11,22 +11,22 @@ export default function CashierLayout({
       {/* Minimal top bar */}
       <header className="sticky top-0 z-40 border-b border-zinc-800 bg-zinc-950/80 backdrop-blur-xl">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between">
-          <Link href="/cashier" className="flex items-center gap-2.5">
+          <a href="/cashier" className="flex items-center gap-2.5">
             <div className="w-8 h-8 rounded-lg bg-red-600 flex items-center justify-center">
               <ShoppingCart className="w-4 h-4 text-white" />
             </div>
             <span className="font-black text-sm uppercase tracking-wider text-white hidden sm:block">
               CineBook <span className="text-red-500">POS</span>
             </span>
-          </Link>
+          </a>
 
           <nav className="flex items-center gap-4">
-            <Link
+            <a
               href="/cashier"
               className="text-xs font-bold text-zinc-400 hover:text-white transition-colors uppercase tracking-wider"
             >
               Terminal
-            </Link>
+            </a>
             <Link
               href="/cashier/orders"
               className="text-xs font-bold text-zinc-400 hover:text-white transition-colors uppercase tracking-wider"

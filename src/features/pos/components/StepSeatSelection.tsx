@@ -10,17 +10,19 @@ import { Loader2, ArrowLeft, Clock } from "lucide-react";
 
 interface StepSeatSelectionProps {
   showtime: Showtime;
+  initialSelectedIds?: string[];
   onBack: () => void;
   onConfirm: (seats: PosSeat[]) => void;
 }
 
 export default function StepSeatSelection({
   showtime,
+  initialSelectedIds,
   onBack,
   onConfirm,
 }: StepSeatSelectionProps) {
   const [seats, setSeats] = useState<SeatMapSeat[]>([]);
-  const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  const [selectedIds, setSelectedIds] = useState<string[]>(initialSelectedIds ?? []);
   const [loading, setLoading] = useState(true);
   const [locking, setLocking] = useState(false);
   const [timeLeft, setTimeLeft] = useState<number | null>(null);
@@ -48,10 +50,17 @@ export default function StepSeatSelection({
     setLocking(false);
   }, [showtime.id, refreshSeatLayout]);
 
-  const fetchCartAndSetTimer = useCallback(async () => {
+  const fetchCartAndSetTimer = useCallback(async (seatsData?: SeatMapSeat[]) => {
     try {
       const cart = await showtimesApi.getCart();
       if (cart.items.length > 0) {
+        const cartSeatIds = cart.items.map((item) => item.seat.id);
+        if (seatsData) {
+          const activeIds = seatsData
+            .filter((s) => cartSeatIds.includes(s.id))
+            .map((s) => s.id);
+          setSelectedIds(activeIds);
+        }
         const earliestExpiry = Math.min(
           ...cart.items.map((item) => new Date(item.expiresAt).getTime()),
         );
@@ -60,6 +69,9 @@ export default function StepSeatSelection({
           Math.floor((earliestExpiry - Date.now()) / 1000),
         );
         setTimeLeft(secondsLeft > 0 ? secondsLeft : null);
+      } else {
+        setSelectedIds([]);
+        setTimeLeft(null);
       }
     } catch {}
   }, []);
@@ -69,12 +81,12 @@ export default function StepSeatSelection({
     (async () => {
       try {
         const data = await posApi.getSeatMap(showtime.id);
-        if (!cancelled) setSeats(data);
+        if (!cancelled) {
+          setSeats(data);
+          await fetchCartAndSetTimer(data);
+        }
       } catch {}
-      if (!cancelled) {
-        await fetchCartAndSetTimer();
-        setLoading(false);
-      }
+      if (!cancelled) setLoading(false);
     })();
     return () => { cancelled = true; };
   }, [showtime.id, fetchCartAndSetTimer]);
@@ -113,7 +125,7 @@ export default function StepSeatSelection({
       }
       const refreshed = await posApi.getSeatMap(showtime.id);
       setSeats(refreshed);
-      await fetchCartAndSetTimer();
+      await fetchCartAndSetTimer(refreshed);
     } catch {
       // silently fail
     } finally {

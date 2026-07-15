@@ -97,4 +97,6 @@ export interface ShowTime {
   screenName: string;
   screenType: string;
   theaterName: string;
+  theaterLocation: string;
+  theaterCity: string;
 }

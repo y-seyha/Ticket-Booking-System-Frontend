@@ -48,6 +48,7 @@ interface MobileNavbarProps {
   cinemas: Cinema[];
   handleCinemaClick: (id: string) => void;
   activeNav: NavKey | null;
+  onSearchClick: () => void;
 }
 
 export const MobileNavbar: FC<MobileNavbarProps> = ({
@@ -72,6 +73,7 @@ export const MobileNavbar: FC<MobileNavbarProps> = ({
   cinemas,
   handleCinemaClick,
   activeNav,
+  onSearchClick,
 }) => {
 
   const t = (key: string) => {
@@ -177,7 +179,7 @@ export const MobileNavbar: FC<MobileNavbarProps> = ({
             )}
 
             {showSearch && (
-              <button className="w-10 h-10 flex items-center justify-center">
+              <button onClick={onSearchClick} className="w-10 h-10 flex items-center justify-center cursor-pointer">
                 <Search className="w-5 h-5" />
               </button>
             )}

@@ -9,6 +9,7 @@ import { Cinema } from "@/features/cinemas/cinemas.types";
 import { DesktopNavbar } from "./navbar/DesktopNavbar";
 import { MobileNavbar } from "./navbar/MobileNavbar";
 import { useLanguage } from "@/features/language/useLanuage";
+import SearchDialog from "@/features/search/components/SearchDialog";
 
 type NavKey = "home" | "cinemas" | "promotions" | "fb" | "tickets" | "more";
 
@@ -44,6 +45,7 @@ const Navbar = ({
 
   const { currentLanguage, languagesList, setLanguage } = useLanguage();
 
+  const [openSearch, setOpenSearch] = useState(false);
   const [openLang, setOpenLang] = useState(false);
   const [openNotif, setOpenNotif] = useState(false);
   const [openCinema, setOpenCinema] = useState(false);
@@ -148,7 +150,10 @@ const Navbar = ({
         cinemas={cinemas}
         handleCinemaClick={handleCinemaClick}
         activeNav={activeNav}
+        onSearchClick={() => setOpenSearch(true)}
       />
+
+      <SearchDialog open={openSearch} onClose={() => setOpenSearch(false)} />
     </>
   );
 };

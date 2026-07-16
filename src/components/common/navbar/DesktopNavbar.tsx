@@ -2,7 +2,6 @@
 
 import { FC } from "react";
 import {
-  Search,
   Ticket,
   User as UserIcon,
   Bell,
@@ -16,6 +15,7 @@ import Image from "next/image";
 import { LuPopcorn } from "react-icons/lu";
 import { Cinema } from "@/features/cinemas/cinemas.types";
 import { useLanguage } from "@/features/language/useLanuage";
+import DesktopSearch from "@/features/search/components/DesktopSearch";
 
 type NavKey = "home" | "cinemas" | "promotions" | "fb" | "tickets" | "more";
 
@@ -83,19 +83,7 @@ export const DesktopNavbar: FC<DesktopNavbarProps> = ({
       <div className="grid grid-cols-3 items-center max-w-7xl mx-auto px-4 md:px-23 lg:px-25 py-2">
         {/* LEFT */}
         <div className="flex justify-start">
-          {showSearch && (
-            <div className="relative group w-65">
-              <input
-                placeholder={t("searchMovies")}
-                className="w-full bg-white/5 text-base px-5 py-1.5 rounded-full border border-white/10 outline-none
-                transition-all duration-250
-                hover:border-white/40 focus:border-white
-                hover:shadow-[0_0_10px_rgba(255,255,255,0.12)]
-                focus:shadow-[0_0_14px_rgba(255,255,255,0.20)]"
-              />
-              <Search className="absolute right-5 top-2.5 w-4 h-4 text-zinc-400 group-focus:text-white transition-colors" />
-            </div>
-          )}
+          {showSearch && <DesktopSearch />}
         </div>
 
         {/* CENTER */}

@@ -1,10 +1,12 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { toast } from "sonner";
 import { AxiosError } from "axios";
 import type { Movie } from "@/features/movies/movie.type";
 import type { Showtime } from "@/features/showitmes/showtimes.types";
+import type { FoodItem } from "@/features/foods-and-beverage/foods-and-beverage.types";
+import { foodAndBeverageApi } from "@/features/foods-and-beverage/foods-and-beverage.api";
 import type {
   PosState,
   PosStepId,
@@ -14,7 +16,6 @@ import type {
   KhqrData,
 } from "./pos.types";
 import { posApi } from "./pos.api";
-import { mockFoods, type MockFoodItem } from "./data/mockFoods";
 
 const ORDERS_KEY = "pos-completed-orders";
 
@@ -62,6 +63,12 @@ export function usePos() {
     khqrData: null,
     selectedDate: "",
   });
+
+  const [foodItems, setFoodItems] = useState<FoodItem[]>([]);
+
+  useEffect(() => {
+    foodAndBeverageApi.getAllItems().then(setFoodItems).catch(() => {});
+  }, []);
 
   const goTo = useCallback((step: PosStepId) => {
     setState((prev) => ({ ...prev, step }));
@@ -115,7 +122,7 @@ export function usePos() {
     }));
   }, []);
 
-  const addFood = useCallback((item: MockFoodItem) => {
+  const addFood = useCallback((item: FoodItem) => {
     setState((prev) => {
       const existing = prev.foods.find((f) => f.item.id === item.id);
       if (existing) {
@@ -292,7 +299,7 @@ export function usePos() {
     ? Number(state.showtime.basePrice) * state.seats.length
     : 0;
   const totalFoodPrice = state.foods.reduce(
-    (sum, f) => sum + f.item.price * f.quantity,
+    (sum, f) => sum + Number(f.item.price) * f.quantity,
     0,
   );
   const grandTotal = totalBasePrice
@@ -318,7 +325,7 @@ export function usePos() {
     totalSeatPrice,
     totalFoodPrice,
     grandTotal,
-    mockFoods,
+    foodItems,
     currentStepIndex: getStepIndex(state.step),
   };
 }

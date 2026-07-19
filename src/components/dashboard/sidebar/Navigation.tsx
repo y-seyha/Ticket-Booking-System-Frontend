@@ -16,6 +16,8 @@ import {
   PieChart,
   Settings,
   User,
+  CupSoda,
+  Utensils,
 } from "lucide-react";
 import { ForwardRefExoticComponent, RefAttributes } from "react";
 import { LucideProps } from "lucide-react";
@@ -63,6 +65,16 @@ export const navigationConfig: SidebarGroupType[] = [
         title: "Seat Pricing",
         href: "/admin/cinema/seat-pricing",
         icon: DollarSign,
+      },
+      {
+        title: "Food & Beverage",
+        href: "/admin/cinema/food-beverage",
+        icon: CupSoda,
+      },
+      {
+        title: "Food Categories",
+        href: "/admin/cinema/food-categories",
+        icon: Utensils,
       },
       { title: "Showtimes", href: "/admin/cinema/showtimes", icon: Calendar },
     ],

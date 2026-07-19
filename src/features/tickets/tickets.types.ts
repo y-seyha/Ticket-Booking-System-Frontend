@@ -1,5 +1,18 @@
 export type TicketStatus = "ACTIVE" | "USED" | "REFUNDED" | "EXPIRED";
 
+export interface TicketFoodItem {
+  id: string;
+  bookingId: string;
+  foodItemId: string;
+  quantity: number;
+  unitPrice: number;
+  foodItem: {
+    id: string;
+    name: string;
+    price: number;
+  };
+}
+
 export interface Ticket {
   id: string;
   bookingId: string;
@@ -15,6 +28,7 @@ export interface Ticket {
     bookingCode: string;
     totalPrice: number;
     status: string;
+    foodItems?: TicketFoodItem[];
     account?: {
       id: string;
       email: string;

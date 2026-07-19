@@ -199,7 +199,7 @@ export default function PosTerminal() {
     totalSeatPrice,
     totalFoodPrice,
     grandTotal,
-    mockFoods,
+    foodItems,
     currentStepIndex,
     goBack,
     selectMovie,
@@ -351,7 +351,7 @@ export default function PosTerminal() {
             totalSeatPrice={totalSeatPrice}
             totalFoodPrice={totalFoodPrice}
             grandTotal={grandTotal}
-            mockFoods={mockFoods}
+            foodItems={foodItems}
             onAddFood={addFood}
             onRemoveFood={removeFood}
             onBack={goBack}

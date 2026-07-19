@@ -3,7 +3,7 @@
 import { useEffect, useState, useCallback, useRef } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { useAuthStore } from "@/features/auth/auth.store"; 
+import { useAuthStore } from "@/features/auth/auth.store";
 import SeatMap from "@/features/showitmes/components/SeatMap";
 import BookingPanel from "@/features/showitmes/components/BookingPanel";
 import {
@@ -351,12 +351,12 @@ export default function ShowtimePage() {
   /**
    * Evaluates session security conditions before transferring context to the payment system
    */
-  const handleProceedToCheckout = () => {
+  const handleProceedToFood = () => {
     if (!user) {
       toast.error(
         "Authentication required. Please log in to complete your ticket purchase.",
       );
-      router.push("/auth/login"); // Redirects securely to your auth interface
+      router.push("/auth/login");
       return;
     }
 
@@ -467,7 +467,7 @@ export default function ShowtimePage() {
           <div className="lg:col-span-1 lg:sticky lg:top-28 transition-all duration-300">
             <BookingPanel
               onClearCart={handleClearCart}
-              onSubmit={handleProceedToCheckout} // Triggers checkout auth check
+              onSubmit={handleProceedToFood}
               showtime={{
                 ...showtime,
                 seats: selectedSeats.map((s) => ({

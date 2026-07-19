@@ -31,6 +31,7 @@ export interface RegisterResponse {
 
 export interface LoginResponse {
   user: User;
+  accessToken?: string;
 }
 
 export interface TwoFactorRequiredResponse {
@@ -76,4 +77,5 @@ export interface Enable2FARequest {
 
 export interface CurrentUserResponse {
   user: User;
+  accessToken?: string;
 }

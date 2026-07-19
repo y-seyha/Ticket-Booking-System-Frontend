@@ -19,6 +19,7 @@ type QueueItem = {
 
 interface RefreshResponse {
   user: User;
+  accessToken?: string;
 }
 
 let apiClient: AxiosInstance | null = null;
@@ -93,6 +94,9 @@ export function getApiClient(): AxiosInstance {
       try {
         const response = await client.post<RefreshResponse>("/auth/refresh");
         useAuthStore.getState().setUser(response.data.user);
+        if (response.data.accessToken) {
+          useAuthStore.getState().setAccessToken(response.data.accessToken);
+        }
         isRefreshing = false;
         processQueue(null);
 

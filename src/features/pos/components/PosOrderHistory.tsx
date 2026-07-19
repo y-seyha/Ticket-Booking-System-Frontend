@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useCallback } from "react";
 import { posApi, type CashierOrder } from "../pos.api";
-import { Banknote, QrCode, Search, Calendar, TicketCheck } from "lucide-react";
+import { Banknote, QrCode, Search, Calendar, TicketCheck, ShoppingCart } from "lucide-react";
 
 export default function PosOrderHistory() {
   const [orders, setOrders] = useState<CashierOrder[]>([]);
@@ -138,6 +138,19 @@ export default function PosOrderHistory() {
                         </span>
                       ))}
                     </div>
+                    {order.foodItems && order.foodItems.length > 0 && (
+                      <div className="flex flex-wrap gap-1 mt-1.5 pt-1.5 border-t border-zinc-800/40">
+                        {order.foodItems.map((fi) => (
+                          <span
+                            key={fi.id}
+                            className="flex items-center gap-0.5 text-[9px] font-bold text-emerald-400 bg-emerald-500/10 px-1.5 py-0.5 rounded"
+                          >
+                            <ShoppingCart className="w-2.5 h-2.5" />
+                            {fi.foodItem.name} x{fi.quantity}
+                          </span>
+                        ))}
+                      </div>
+                    )}
                   </td>
                   <td className="py-3 px-2 text-zinc-400 text-xs whitespace-nowrap">
                     {new Date(order.showtime.startTime).toLocaleDateString([], {

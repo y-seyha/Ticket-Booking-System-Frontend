@@ -14,12 +14,20 @@ export interface SeatMapSeat {
   surcharge: number;
 }
 
+export interface CashierOrderFoodItem {
+  id: string;
+  foodItem: { name: string; price: number };
+  quantity: number;
+  unitPrice: number;
+}
+
 export interface CashierOrder {
   id: string;
   bookingCode: string;
   totalPrice: number;
   status: string;
   createdAt: string;
+  foodItems?: CashierOrderFoodItem[];
   account: {
     id: string;
     email: string;

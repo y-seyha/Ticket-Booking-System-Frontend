@@ -199,7 +199,7 @@ export default function BookingPanel({
           >
             {selectedSeats.length === 0
               ? "Select Seats To Continue"
-              : "Confirm Reservation"}
+              : "Add Food & Drinks"}
           </button>
         </div>
       </div>

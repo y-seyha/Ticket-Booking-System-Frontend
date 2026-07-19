@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { AxiosError } from "axios";
 import {
@@ -9,6 +9,7 @@ import {
 } from "@/features/payment/payment.types";
 import { paymentApi } from "@/features/payment/payment.api";
 import { showtimesApi } from "@/features/showitmes/showtimes.api";
+import { foodAndBeverageApi } from "@/features/foods-and-beverage/foods-and-beverage.api";
 import { Loader2 } from "lucide-react";
 import CheckoutCountdown from "@/features/payment/components/CheckoutCountdown";
 import PaymentMethods from "@/features/payment/components/PaymentMethods";
@@ -36,41 +37,40 @@ interface CartResponseData {
   items: CartItemPayload[];
 }
 
-interface CheckoutPageProps {
-  initialCheckoutData?: CheckoutResponse;
-  movieTitle?: string;
-  showtimeDetails?: string;
-  seats?: Array<{ label: string; type: string }>;
+interface FoodItemStorage {
+  foodItemId: string;
+  name: string;
+  price: number;
+  quantity: number;
 }
 
 interface BackendErrorResponse {
   message: string;
 }
 
-export default function CheckoutPage({
-  initialCheckoutData,
-  movieTitle: initialMovieTitle,
-  showtimeDetails: initialShowtimeDetails,
-  seats: initialSeats,
-}: CheckoutPageProps) {
+export default function CheckoutPage() {
   const router = useRouter();
   const bootstrapCalled = useRef(false);
 
   const [summary, setSummary] = useState({
-    movieTitle: initialMovieTitle || "",
-    showtimeDetails: initialShowtimeDetails || "",
-    seats: initialSeats || [],
+    movieTitle: "",
+    showtimeDetails: "",
+    seats: [] as Array<{ label: string; type: string }>,
   });
 
-  const [checkout, setCheckout] = useState<CheckoutResponse | null>(
-    initialCheckoutData || null,
-  );
-
+  const [foodItems, setFoodItems] = useState<FoodItemStorage[]>([]);
+  const [checkout, setCheckout] = useState<CheckoutResponse | null>(null);
   const [provider, setProvider] = useState<PaymentProvider>("KHQR");
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [cartExpiresAt, setCartExpiresAt] = useState<string | null>(null);
+  const [hasSeats, setHasSeats] = useState(false);
+
+  const foodTotal = useMemo(
+    () => foodItems.reduce((sum, f) => sum + Number(f.price) * f.quantity, 0),
+    [foodItems],
+  );
 
   useEffect(() => {
     if (bootstrapCalled.current) return;
@@ -80,32 +80,60 @@ export default function CheckoutPage({
       try {
         setIsLoading(true);
 
-        if (!initialMovieTitle) {
-          const cartData =
-            (await showtimesApi.getCart()) as unknown as CartResponseData;
-          if (cartData && cartData.items && cartData.items.length > 0) {
-            const firstItem = cartData.items[0];
-            setCartExpiresAt(firstItem.expiresAt);
-            const expiresTime = new Date(firstItem.expiresAt);
-
-            setSummary({
-              movieTitle: firstItem.movie.title,
-              showtimeDetails: `Reservation expires at ${expiresTime.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}`,
-              seats: cartData.items.map((item) => ({
-                label: `Row ${item.seat.row} - Seat ${item.seat.number}`,
-                type: item.seat.type,
-              })),
-            });
-          } else {
-            throw new Error("No active seat reservations found.");
-          }
+        const stored = sessionStorage.getItem("bookingFoodItems");
+        let parsedFood: FoodItemStorage[] = [];
+        if (stored) {
+          parsedFood = JSON.parse(stored);
+          setFoodItems(parsedFood);
         }
 
-        const data = await paymentApi.createCheckout({
-          paymentProvider: "KHQR",
-        });
-        setCheckout(data);
-        setProvider(data.paymentProvider);
+        let cartData: CartResponseData | null = null;
+        try {
+          cartData =
+            (await showtimesApi.getCart()) as unknown as CartResponseData;
+        } catch {
+          cartData = null;
+        }
+
+        if (cartData && cartData.items && cartData.items.length > 0) {
+          setHasSeats(true);
+          const firstItem = cartData.items[0];
+          setCartExpiresAt(firstItem.expiresAt);
+          const expiresTime = new Date(firstItem.expiresAt);
+
+          setSummary({
+            movieTitle: firstItem.movie.title,
+            showtimeDetails: `Reservation expires at ${expiresTime.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}`,
+            seats: cartData.items.map((item) => ({
+              label: `Row ${item.seat.row} - Seat ${item.seat.number}`,
+              type: item.seat.type,
+            })),
+          });
+
+          const data = await paymentApi.createCheckout({
+            paymentProvider: "KHQR",
+          });
+          setCheckout(data);
+          setProvider(data.paymentProvider);
+
+          if (parsedFood.length > 0) {
+            try {
+              await foodAndBeverageApi.addFoodItems(
+                data.bookingId,
+                parsedFood.map((f) => ({
+                  foodItemId: f.foodItemId,
+                  quantity: f.quantity,
+                })),
+              );
+            } catch {
+              toast.error("Failed to add food items to your booking");
+            }
+          }
+
+          sessionStorage.removeItem("bookingFoodItems");
+        } else if (parsedFood.length === 0) {
+          throw new Error("No items to checkout.");
+        }
       } catch (err) {
         const axiosError = err as AxiosError<BackendErrorResponse>;
         const genericError = err as Error;
@@ -120,14 +148,14 @@ export default function CheckoutPage({
     };
 
     bootstrapCheckout();
-  }, [initialCheckoutData, initialMovieTitle]);
+  }, []);
 
   const handleProviderChange = async (
     nextProvider: PaymentProvider,
   ): Promise<void> => {
-    if (!checkout) return;
     setProvider(nextProvider);
     setErrorMessage(null);
+    if (!checkout) return;
     try {
       const updatedCheckout = await paymentApi.changePaymentMethod(
         checkout.paymentId,
@@ -142,26 +170,54 @@ export default function CheckoutPage({
     }
   };
 
-  const handlePaymentSubmit = async (): Promise<void> => {
-    if (!checkout) return;
+  const handlePlaceOrder = async (): Promise<void> => {
     setIsSubmitting(true);
     setErrorMessage(null);
 
     try {
-      if (provider === "CASH") {
-        const response = await paymentApi.payCash({
-          paymentId: checkout.paymentId,
+      if (hasSeats && checkout) {
+        if (provider === "CASH") {
+          const response = await paymentApi.payCash({
+            paymentId: checkout.paymentId,
+          });
+          toast.success("Checkout Complete via Cash Counter");
+          router.push(`/bookings/confirmation/${response.bookingId}`);
+        } else if (provider === "KHQR") {
+          router.push(`/checkout/khqr?paymentId=${checkout.paymentId}`);
+        }
+      } else {
+        const order = await foodAndBeverageApi.createFoodOrder({
+          items: foodItems.map((f) => ({
+            foodItemId: f.foodItemId,
+            quantity: f.quantity,
+          })),
         });
-        toast.success("Checkout Complete via Cash Counter");
-        router.push(`/bookings/confirmation/${response.bookingId}`);
-      } else if (provider === "KHQR") {
-        // Redirect directly to your dedicated dynamic KHQR viewing component route
-        router.push(`/checkout/khqr?paymentId=${checkout.paymentId}`);
+        sessionStorage.setItem(
+          "foodOrderConfirmation",
+          JSON.stringify({
+            bookingId: order.bookingId,
+            bookingCode: order.bookingCode,
+            totalAmount: order.totalAmount,
+            status: order.status,
+            provider,
+            items: foodItems.map((f) => ({
+              name: f.name,
+              price: f.price,
+              quantity: f.quantity,
+            })),
+          }),
+        );
+        sessionStorage.removeItem("bookingFoodItems");
+        toast.success(`Order placed! Code: ${order.bookingCode}`);
+        router.push(`/bookings/confirmation/${order.bookingId}`);
       }
     } catch (err) {
       const axiosError = err as AxiosError<BackendErrorResponse>;
+      const genericError = err as Error;
       setErrorMessage(
-        axiosError.response?.data?.message || "Payment engine execution error.",
+        axiosError.response?.data?.message ||
+          genericError.message ||
+          "Failed to process your order.",
       );
     } finally {
       setIsSubmitting(false);
@@ -176,7 +232,9 @@ export default function CheckoutPage({
     }, 2500);
   };
 
-  if (isLoading || !checkout) {
+  const showLoading = isLoading || (hasSeats && !checkout);
+
+  if (showLoading) {
     return (
       <div className="min-h-screen bg-zinc-950 flex flex-col gap-3 items-center justify-center text-xs font-mono tracking-widest text-zinc-500 uppercase">
         <Loader2 className="w-4 h-4 animate-spin text-white" />
@@ -187,6 +245,16 @@ export default function CheckoutPage({
         ) : (
           "Syncing Secure Cart Session..."
         )}
+      </div>
+    );
+  }
+
+  if (errorMessage && !hasSeats && foodItems.length === 0) {
+    return (
+      <div className="min-h-screen bg-zinc-950 flex flex-col gap-3 items-center justify-center text-xs font-mono tracking-widest text-zinc-500 uppercase">
+        <span className="text-red-400 max-w-xs text-center normal-case tracking-normal px-4">
+          {errorMessage}
+        </span>
       </div>
     );
   }
@@ -214,7 +282,7 @@ export default function CheckoutPage({
                   onClick={() => router.back()}
                   className="text-zinc-500 hover:text-white cursor-pointer transition-colors"
                 >
-                  Showtime
+                  Food & Drinks
                 </BreadcrumbLink>
               </BreadcrumbItem>
               <BreadcrumbSeparator className="text-zinc-700" />
@@ -232,10 +300,12 @@ export default function CheckoutPage({
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 xl:gap-8 items-start">
           <div className="order-2 lg:order-1 lg:col-span-7 space-y-6 bg-zinc-900/20 backdrop-blur-xl border border-zinc-900/80 rounded-2xl p-4 sm:p-6 md:p-8 shadow-2xl">
-            <CheckoutCountdown
-              expiresAt={cartExpiresAt || checkout.paymentExpiresAt}
-              onExpire={handleSessionTimeout}
-            />
+            {hasSeats && (
+              <CheckoutCountdown
+                expiresAt={cartExpiresAt || checkout!.paymentExpiresAt}
+                onExpire={handleSessionTimeout}
+              />
+            )}
 
             <PaymentMethods
               selectedProvider={provider}
@@ -249,16 +319,16 @@ export default function CheckoutPage({
             )}
 
             <button
-              onClick={handlePaymentSubmit}
+              onClick={handlePlaceOrder}
               disabled={isSubmitting}
               className="w-full h-12 flex items-center justify-center bg-white text-zinc-950 text-xs font-black uppercase tracking-[0.2em] rounded-xl hover:bg-zinc-200 disabled:bg-zinc-900 disabled:text-zinc-600 disabled:border disabled:border-zinc-800 transition-all active:scale-[0.99] cursor-pointer disabled:cursor-not-allowed"
             >
               {isSubmitting ? (
                 <Loader2 className="w-4 h-4 animate-spin" />
               ) : provider === "CASH" ? (
-                "Reserve Tickets & Print"
+                hasSeats ? "Pay at Counter" : "Place Order (Cash)"
               ) : (
-                "Generate KHQR Payment Portal"
+                hasSeats ? "Generate KHQR Payment" : "Place Order (KHQR)"
               )}
             </button>
           </div>
@@ -268,7 +338,12 @@ export default function CheckoutPage({
               movieTitle={summary.movieTitle}
               showtimeDetails={summary.showtimeDetails}
               seats={summary.seats}
-              totalAmount={checkout.totalAmount}
+              foodItems={foodItems.map((f) => ({
+                name: f.name,
+                quantity: f.quantity,
+                price: f.price,
+              }))}
+              totalAmount={hasSeats && checkout ? checkout.totalAmount : foodTotal}
             />
           </aside>
         </div>

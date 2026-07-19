@@ -6,6 +6,7 @@ import { useAuthStore } from "@/features/auth/auth.store";
 
 export function AuthInitProvider({ children }: { children: React.ReactNode }) {
   const setUser = useAuthStore((s) => s.setUser);
+  const setAccessToken = useAuthStore((s) => s.setAccessToken);
   const clearAuth = useAuthStore((s) => s.clearAuth);
   const setHydrated = useAuthStore((s) => s.setHydrated);
 
@@ -19,6 +20,7 @@ export function AuthInitProvider({ children }: { children: React.ReactNode }) {
       try {
         const res = await authApi.me();
         setUser(res.user);
+        if (res.accessToken) setAccessToken(res.accessToken);
       } catch {
         clearAuth();
       } finally {
@@ -27,7 +29,7 @@ export function AuthInitProvider({ children }: { children: React.ReactNode }) {
     };
 
     init();
-  }, [setUser, clearAuth, setHydrated]);
+  }, [setUser, setAccessToken, clearAuth, setHydrated]);
 
   return <>{children}</>;
 }

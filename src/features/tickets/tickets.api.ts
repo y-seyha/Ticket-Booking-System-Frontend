@@ -11,6 +11,9 @@ export const ticketsApi = {
   getTicketById: (id: string) =>
     apiRequest<Ticket>("get", `/tickets/${id}`),
 
+  getTicketsByBooking: (bookingId: string) =>
+    apiRequest<Ticket[]>("get", `/tickets/booking/${bookingId}`),
+
   lookupByQrCode: (qrCode: string) =>
     apiRequest<Ticket>("get", `/tickets/qr/${qrCode}`),
 

@@ -4,7 +4,6 @@ import { FC } from "react";
 import {
   Search,
   Ticket,
-  Bell,
   ChevronDown,
   MapPin,
   Home,
@@ -17,6 +16,7 @@ import { CiSquareMore } from "react-icons/ci";
 import { Cinema } from "@/features/cinemas/cinemas.types";
 import { LanguageCode } from "@/features/language/useLanuage";
 import { translations } from "@/features/language/translations";
+import { NotificationBell } from "@/features/notifications/components/NotificationBell";
 
 type NavKey = "home" | "cinemas" | "promotions" | "fb" | "tickets" | "more";
 
@@ -98,12 +98,12 @@ export const MobileNavbar: FC<MobileNavbarProps> = ({
             )}
 
             {showNotification && (
-              <button
-                onClick={() => setOpenNotif(!openNotif)}
-                className="w-10 h-10 flex items-center justify-center rounded-full z-[100] bg-white/5 border border-white/10 hover:bg-white/10 transition"
-              >
-                <Bell className="w-5 h-5" />
-              </button>
+              <div className="z-[100]">
+                <NotificationBell
+                  open={openNotif}
+                  onToggle={() => setOpenNotif(!openNotif)}
+                />
+              </div>
             )}
           </div>
 

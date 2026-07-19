@@ -2,7 +2,7 @@
 
 import type { Showtime } from "@/features/showitmes/showtimes.types";
 import type { PosSeat, PosFoodItem } from "../pos.types";
-import type { MockFoodItem } from "../data/mockFoods";
+import type { FoodItem } from "@/features/foods-and-beverage/foods-and-beverage.types";
 import { Ticket, Minus, ShoppingCart } from "lucide-react";
 
 interface StepReviewOrderProps {
@@ -13,8 +13,8 @@ interface StepReviewOrderProps {
   totalSeatPrice: number;
   totalFoodPrice: number;
   grandTotal: number;
-  mockFoods: MockFoodItem[];
-  onAddFood: (item: MockFoodItem) => void;
+  foodItems: FoodItem[];
+  onAddFood: (item: FoodItem) => void;
   onRemoveFood: (itemId: string) => void;
   onBack: () => void;
   onProceed: () => void;
@@ -28,7 +28,7 @@ export default function StepReviewOrder({
   totalSeatPrice,
   totalFoodPrice,
   grandTotal,
-  mockFoods,
+  foodItems,
   onAddFood,
   onRemoveFood,
   onBack,
@@ -111,7 +111,7 @@ export default function StepReviewOrder({
           )}
 
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-            {mockFoods.map((item) => {
+            {foodItems.map((item) => {
               const inCart = foods.find((f) => f.item.id === item.id);
               return (
                 <button
@@ -123,7 +123,7 @@ export default function StepReviewOrder({
                     {item.name}
                   </span>
                   <span className="text-xs text-zinc-500 mt-0.5">
-                    ${item.price.toFixed(2)}
+                    ${Number(item.price).toFixed(2)}
                   </span>
                   {inCart && (
                     <span className="text-[10px] text-red-400 font-bold mt-1">

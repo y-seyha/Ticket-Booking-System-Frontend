@@ -1,12 +1,14 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { QRCodeSVG } from "qrcode.react";
 import Navbar from "@/components/common/Navbar";
 import Footer from "@/components/common/Footer";
 import { ticketsApi } from "@/features/tickets/tickets.api";
 import { Ticket, TicketStatus } from "@/features/tickets/tickets.types";
+import { ShoppingCart, Ticket as TicketIcon, ChevronRight } from "lucide-react";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -21,6 +23,19 @@ const statusStyles: Record<TicketStatus, string> = {
   REFUNDED: "bg-yellow-500/10 text-yellow-400 border-yellow-500/20",
   EXPIRED: "bg-red-500/10 text-red-400 border-red-500/20",
 };
+
+interface TicketGroup {
+  bookingCode: string;
+  bookingId: string;
+  movie: { title: string };
+  theater: { name: string; location: string };
+  screen: { name: string; type: string };
+  startTime: string;
+  totalPrice: number;
+  status: TicketStatus;
+  tickets: Ticket[];
+  foodItems: Ticket["booking"]["foodItems"];
+}
 
 export default function MyTicketsPage() {
   const router = useRouter();
@@ -44,15 +59,38 @@ export default function MyTicketsPage() {
     fetchTickets();
   }, [filter]);
 
-  const upcoming = tickets.filter(
-    (t) =>
-      t.status === "ACTIVE" &&
-      new Date(t.booking.showtime.startTime) > new Date(),
+  const groups = useMemo(() => {
+    const map = new Map<string, TicketGroup>();
+    for (const ticket of tickets) {
+      const key = ticket.booking.bookingCode;
+      if (!map.has(key)) {
+        map.set(key, {
+          bookingCode: ticket.booking.bookingCode,
+          bookingId: ticket.bookingId,
+          movie: ticket.booking.showtime.movie,
+          theater: ticket.booking.showtime.screen.theater,
+          screen: ticket.booking.showtime.screen,
+          startTime: ticket.booking.showtime.startTime,
+          totalPrice: Number(ticket.booking.totalPrice),
+          status: ticket.status,
+          tickets: [],
+          foodItems: ticket.booking.foodItems || [],
+        });
+      }
+      map.get(key)!.tickets.push(ticket);
+    }
+    return Array.from(map.values());
+  }, [tickets]);
+
+  const upcoming = groups.filter(
+    (g) =>
+      g.status === "ACTIVE" &&
+      new Date(g.startTime) > new Date(),
   );
-  const past = tickets.filter(
-    (t) =>
-      t.status !== "ACTIVE" ||
-      new Date(t.booking.showtime.startTime) <= new Date(),
+  const past = groups.filter(
+    (g) =>
+      g.status !== "ACTIVE" ||
+      new Date(g.startTime) <= new Date(),
   );
 
   return (
@@ -106,8 +144,9 @@ export default function MyTicketsPage() {
           <div className="flex justify-center py-20">
             <div className="w-8 h-8 border-2 border-red-500/20 border-t-red-500 rounded-full animate-spin" />
           </div>
-        ) : tickets.length === 0 ? (
+        ) : groups.length === 0 ? (
           <div className="text-center py-20 text-zinc-600">
+            <TicketIcon className="w-12 h-12 mx-auto mb-4 opacity-30" />
             <p className="text-lg font-bold">No tickets found</p>
             <p className="text-sm mt-2">Tickets will appear here after you complete a purchase.</p>
           </div>
@@ -119,8 +158,8 @@ export default function MyTicketsPage() {
                   Upcoming
                 </h2>
                 <div className="grid gap-4">
-                  {upcoming.map((ticket) => (
-                    <TicketCard key={ticket.id} ticket={ticket} />
+                  {upcoming.map((group) => (
+                    <BookingGroupCard key={group.bookingCode} group={group} />
                   ))}
                 </div>
               </div>
@@ -132,8 +171,8 @@ export default function MyTicketsPage() {
                   Past
                 </h2>
                 <div className="grid gap-4">
-                  {past.map((ticket) => (
-                    <TicketCard key={ticket.id} ticket={ticket} />
+                  {past.map((group) => (
+                    <BookingGroupCard key={group.bookingCode} group={group} />
                   ))}
                 </div>
               </div>
@@ -146,27 +185,26 @@ export default function MyTicketsPage() {
   );
 }
 
-function TicketCard({ ticket }: { ticket: Ticket }) {
-  const movie = ticket.booking.showtime.movie;
-  const theater = ticket.booking.showtime.screen.theater;
-  const seat = ticket.bookingSeat.seat;
-  const startTime = new Date(ticket.booking.showtime.startTime);
+function BookingGroupCard({ group }: { group: TicketGroup }) {
+  const startTime = new Date(group.startTime);
+
+  const ticketStatus = group.tickets[0]?.status || "ACTIVE";
 
   return (
     <Link
-      href={`/my-tickets/${ticket.id}`}
+      href={`/my-tickets/${group.tickets[0]?.id}`}
       className="block bg-zinc-900/60 border border-zinc-800 rounded-2xl p-5 hover:border-zinc-700 transition-colors"
     >
       <div className="flex items-start justify-between gap-4">
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-3 mb-2">
             <h3 className="text-lg font-bold text-white truncate">
-              {movie.title}
+              {group.movie.title}
             </h3>
             <span
-              className={`shrink-0 px-2 py-0.5 rounded-md text-[10px] font-bold uppercase border ${statusStyles[ticket.status]}`}
+              className={`shrink-0 px-2 py-0.5 rounded-md text-[10px] font-bold uppercase border ${statusStyles[ticketStatus]}`}
             >
-              {ticket.status}
+              {ticketStatus}
             </span>
           </div>
 
@@ -183,21 +221,58 @@ function TicketCard({ ticket }: { ticket: Ticket }) {
               })}
             </span>
             <span>
-              {theater.name} — {ticket.booking.showtime.screen.name}
-            </span>
-            <span>
-              Row {seat.seatRow} Seat {seat.seatNumber}
+              {group.theater.name} — {group.screen.name}
             </span>
           </div>
 
-          <div className="mt-2 text-xs text-zinc-500 font-mono">
-            {ticket.qrCode}
+          {/* All seats in this booking */}
+          <div className="flex flex-wrap gap-1.5 mt-2">
+            {group.tickets.map((t) => (
+              <span
+                key={t.id}
+                className="text-[11px] font-mono font-semibold text-zinc-300 bg-zinc-800/80 px-2 py-0.5 rounded"
+              >
+                Row {t.bookingSeat.seat.seatRow} Seat {t.bookingSeat.seat.seatNumber}
+              </span>
+            ))}
+          </div>
+
+          {/* Food items grouped */}
+          {group.foodItems && group.foodItems.length > 0 && (
+            <div className="flex flex-wrap items-center gap-1.5 mt-2">
+              <ShoppingCart className="w-3 h-3 text-emerald-500" />
+              {group.foodItems.map((fi) => (
+                <span
+                  key={fi.id}
+                  className="text-[10px] font-bold text-emerald-400 bg-emerald-500/10 px-1.5 py-0.5 rounded"
+                >
+                  {fi.foodItem.name} x{fi.quantity}
+                </span>
+              ))}
+            </div>
+          )}
+
+          {/* QR codes for each seat */}
+          <div className="flex flex-wrap gap-2 mt-3">
+            {group.tickets.map((t) => (
+              <div key={t.id} className="bg-white rounded-lg p-1">
+                <QRCodeSVG
+                  value={t.qrCode}
+                  size={48}
+                  level="M"
+                />
+              </div>
+            ))}
           </div>
         </div>
 
-        <div className="shrink-0 text-right">
+        <div className="shrink-0 text-right flex flex-col items-end gap-2">
           <div className="text-sm font-bold text-zinc-300">
-            ${Number(ticket.booking.totalPrice).toFixed(2)}
+            ${Number(group.totalPrice).toFixed(2)}
+          </div>
+          <div className="text-[10px] text-zinc-600 flex items-center gap-1">
+            {group.tickets.length} seat{group.tickets.length !== 1 ? "s" : ""}
+            <ChevronRight className="w-3 h-3" />
           </div>
         </div>
       </div>

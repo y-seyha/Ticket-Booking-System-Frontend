@@ -22,7 +22,7 @@ No test runner configured. No typecheck script — rely on `tsc --noEmit` manual
 | API client | `src/lib/config/api-client.ts` (axios singleton, 401 auto-refresh via `/auth/refresh`, queues concurrent requests) |
 | API request helper | `src/lib/config/axios.ts` (`apiRequest<T>(method, url, body?)`) |
 | State | Zustand stores per feature (e.g. `auth.store.ts`, `language.store.ts`) |
-| Proxy (was middleware) | `src/proxy.ts` — JWT decode (jose, no verify), guards `/admin`/`/cashier`/`/profile` by role cookie `access_token` |
+| Middleware | `src/middleware.ts` — JWT decode (jose, no verify), guards `/admin`/`/cashier`/`/profile` by role cookie `access_token` |
 | Auth provider | `src/features/auth/providers/authInit.provider.tsx` — wraps root layout |
 | Path alias | `@/*` → `./src/*` |
 | Env | `NEXT_PUBLIC_API_BASE_URL=http://localhost:3000/api/v1` (committed `.env`) |

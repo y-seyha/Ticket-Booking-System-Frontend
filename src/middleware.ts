@@ -7,7 +7,7 @@ interface CustomJwtPayload {
   sub?: string;
 }
 
-export function proxy(request: NextRequest) {
+export function middleware(request: NextRequest) {
   const tokenCookie = request.cookies.get("access_token");
   const { pathname } = request.nextUrl;
 
@@ -41,15 +41,11 @@ export function proxy(request: NextRequest) {
 
   if (pathname.startsWith("/admin")) {
     if (role === "ADMIN") return NextResponse.next();
-    if (role === "USER")
-      return NextResponse.rewrite(new URL("/404", request.url));
     return NextResponse.rewrite(new URL("/unauthorized", request.url));
   }
 
   if (pathname.startsWith("/cashier")) {
     if (role === "CASHIER") return NextResponse.next();
-    if (role === "USER")
-      return NextResponse.rewrite(new URL("/404", request.url));
     return NextResponse.rewrite(new URL("/unauthorized", request.url));
   }
 
@@ -57,5 +53,11 @@ export function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/profile/:path*", "/admin/:path*", "/cashier/:path*"],
+  matcher: [
+    "/profile/:path*",
+    "/admin",
+    "/admin/:path*",
+    "/cashier",
+    "/cashier/:path*",
+  ],
 };

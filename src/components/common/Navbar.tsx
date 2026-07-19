@@ -77,12 +77,6 @@ const Navbar = ({
 
   const activeNav = getActiveKey();
 
-  const notifications = [
-    "🎬 New movie released",
-    "🍿 Popcorn discount today",
-    "🎟️ Booking confirmed",
-  ];
-
   const navText = (key: NavKey) =>
     `transition-colors duration-200 ${
       activeNav === key
@@ -118,7 +112,6 @@ const Navbar = ({
         setOpenLang={setOpenLang}
         openNotif={openNotif}
         setOpenNotif={setOpenNotif}
-        notifications={notifications}
         openCinema={openCinema}
         setOpenCinema={setOpenCinema}
         cinemas={cinemas}

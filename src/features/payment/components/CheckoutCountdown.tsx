@@ -98,10 +98,10 @@ export default function CheckoutCountdown({
         </span>
 
         <div className="flex flex-col">
-          <span className="text-[11px] font-bold text-black tracking-wider = uppercase">
+          <span className="text-[11px] font-bold text-white tracking-wider = uppercase">
             Holding Your Seats
           </span>
-          <span className="text-[10px] text-zinc-800 font-medium">
+          <span className="text-[10px] text-zinc-300 font-medium">
             Complete checkout before expiration
           </span>
         </div>

@@ -26,6 +26,7 @@ export function useAuth() {
   const router = useRouter();
 
   const setUser = useAuthStore((s) => s.setUser);
+  const setAccessToken = useAuthStore((s) => s.setAccessToken);
   const clearAuth = useAuthStore((s) => s.clearAuth);
 
   const getErrorMessage = (err: unknown): string => {
@@ -46,6 +47,7 @@ export function useAuth() {
       }
 
       setUser(res.user);
+      if (res.accessToken) setAccessToken(res.accessToken);
       router.push("/auth/login/success");
 
       return res;

@@ -1,6 +1,6 @@
 import type { Movie } from "@/features/movies/movie.type";
 import type { Showtime } from "@/features/showitmes/showtimes.types";
-import type { MockFoodItem } from "./data/mockFoods";
+import type { FoodItem } from "@/features/foods-and-beverage/foods-and-beverage.types";
 
 export type PosStepId =
   | "movie"
@@ -39,7 +39,7 @@ export interface PosSeat {
 }
 
 export interface PosFoodItem {
-  item: MockFoodItem;
+  item: FoodItem;
   quantity: number;
 }
 

@@ -4,7 +4,6 @@ import { FC } from "react";
 import {
   Ticket,
   User as UserIcon,
-  Bell,
   ChevronDown,
   MapPin,
   Home,
@@ -16,6 +15,7 @@ import { LuPopcorn } from "react-icons/lu";
 import { Cinema } from "@/features/cinemas/cinemas.types";
 import { useLanguage } from "@/features/language/useLanuage";
 import DesktopSearch from "@/features/search/components/DesktopSearch";
+import { NotificationBell } from "@/features/notifications/components/NotificationBell";
 
 type NavKey = "home" | "cinemas" | "promotions" | "fb" | "tickets" | "more";
 
@@ -38,7 +38,6 @@ interface DesktopNavbarProps {
   setOpenLang: (open: boolean) => void;
   openNotif: boolean;
   setOpenNotif: (open: boolean) => void;
-  notifications: string[];
   openCinema: boolean;
   setOpenCinema: (open: boolean) => void;
   cinemas: Cinema[];
@@ -67,7 +66,6 @@ export const DesktopNavbar: FC<DesktopNavbarProps> = ({
   setOpenLang,
   openNotif,
   setOpenNotif,
-  notifications,
   openCinema,
   setOpenCinema,
   cinemas,
@@ -152,30 +150,10 @@ export const DesktopNavbar: FC<DesktopNavbarProps> = ({
 
           {/* NOTIFICATION */}
           {showNotification && (
-            <div className="relative">
-              <button
-                onClick={() => setOpenNotif(!openNotif)}
-                className="p-2.5 rounded-full bg-white/5 border border-white/10 hover:border-white/30 transition cursor-pointer"
-              >
-                <Bell className="w-4 h-4" />
-              </button>
-
-              {openNotif && (
-                <div className="absolute right-0 mt-2 w-72 bg-black/95 border border-white/10 rounded-xl overflow-hidden shadow-xl z-120">
-                  <div className="px-4 py-1.5 text-xs text-zinc-400 border-b border-white/10">
-                    {t("notifications")}
-                  </div>
-                  {notifications.map((n, i) => (
-                    <div
-                      key={i}
-                      className="px-4 py-2.5 text-sm hover:bg-white/10"
-                    >
-                      {n}
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
+            <NotificationBell
+              open={openNotif}
+              onToggle={() => setOpenNotif(!openNotif)}
+            />
           )}
 
           {/* LANGUAGE */}

@@ -38,3 +38,21 @@ export interface FoodOrderResponse {
   totalAmount: number;
   status: string;
 }
+
+export interface FoodOrderItem {
+  id: string;
+  name: string;
+  quantity: number;
+  unitPrice: number;
+  image: { id: string; url: string } | null;
+}
+
+export interface UserFoodOrder {
+  bookingId: string;
+  bookingCode: string;
+  totalAmount: number;
+  status: string;
+  createdAt: string;
+  paymentStatus: string | null;
+  items: FoodOrderItem[];
+}

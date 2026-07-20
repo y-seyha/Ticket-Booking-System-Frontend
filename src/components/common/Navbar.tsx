@@ -71,6 +71,7 @@ const Navbar = ({
     if (pathname.startsWith("/cinemas")) return "cinemas";
     if (pathname.startsWith("/promotions")) return "promotions";
     if (pathname.startsWith("/food-and-drinks")) return "fb";
+    if (pathname.startsWith("/ticket")) return "tickets";
     if (pathname.startsWith("/more")) return "more";
     return null;
   };

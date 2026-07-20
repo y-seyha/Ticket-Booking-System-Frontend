@@ -87,6 +87,7 @@ export default function CheckoutPage() {
           setFoodItems(parsedFood);
         }
 
+        let hasSeatsLocally = false;
         let cartData: CartResponseData | null = null;
         try {
           cartData =
@@ -96,43 +97,74 @@ export default function CheckoutPage() {
         }
 
         if (cartData && cartData.items && cartData.items.length > 0) {
+          hasSeatsLocally = true;
           setHasSeats(true);
           const firstItem = cartData.items[0];
           setCartExpiresAt(firstItem.expiresAt);
           const expiresTime = new Date(firstItem.expiresAt);
 
-          setSummary({
+          const summaryData = {
             movieTitle: firstItem.movie.title,
             showtimeDetails: `Reservation expires at ${expiresTime.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}`,
             seats: cartData.items.map((item) => ({
               label: `Row ${item.seat.row} - Seat ${item.seat.number}`,
               type: item.seat.type,
             })),
-          });
+          };
+          setSummary(summaryData);
 
           const data = await paymentApi.createCheckout({
             paymentProvider: "KHQR",
+            foodItems:
+              parsedFood.length > 0
+                ? parsedFood.map((f) => ({
+                    foodItemId: f.foodItemId,
+                    quantity: f.quantity,
+                  }))
+                : undefined,
           });
           setCheckout(data);
           setProvider(data.paymentProvider);
 
-          if (parsedFood.length > 0) {
-            try {
-              await foodAndBeverageApi.addFoodItems(
-                data.bookingId,
-                parsedFood.map((f) => ({
-                  foodItemId: f.foodItemId,
-                  quantity: f.quantity,
-                })),
-              );
-            } catch {
-              toast.error("Failed to add food items to your booking");
-            }
-          }
+          sessionStorage.setItem(
+            "checkoutData",
+            JSON.stringify({
+              bookingId: data.bookingId,
+              bookingCode: data.bookingCode,
+              totalAmount: data.totalAmount,
+              paymentId: data.paymentId,
+              paymentProvider: data.paymentProvider,
+              paymentExpiresAt: data.paymentExpiresAt,
+              paymentStatus: data.paymentStatus,
+            }),
+          );
+          sessionStorage.setItem(
+            "checkoutSummary",
+            JSON.stringify({
+              ...summaryData,
+              cartExpiresAt: firstItem.expiresAt,
+            }),
+          );
+        }
 
-          sessionStorage.removeItem("bookingFoodItems");
-        } else if (parsedFood.length === 0) {
-          throw new Error("No items to checkout.");
+        if (!hasSeatsLocally) {
+          const storedCheckout = sessionStorage.getItem("checkoutData");
+          const storedSummary = sessionStorage.getItem("checkoutSummary");
+          if (storedCheckout && storedSummary) {
+            const parsedCheckout = JSON.parse(storedCheckout);
+            const parsedSummary = JSON.parse(storedSummary);
+            setHasSeats(true);
+            setCartExpiresAt(parsedSummary.cartExpiresAt);
+            setSummary({
+              movieTitle: parsedSummary.movieTitle,
+              showtimeDetails: parsedSummary.showtimeDetails,
+              seats: parsedSummary.seats,
+            });
+            setCheckout(parsedCheckout);
+            setProvider(parsedCheckout.paymentProvider);
+          } else if (parsedFood.length === 0) {
+            throw new Error("No items to checkout.");
+          }
         }
       } catch (err) {
         const axiosError = err as AxiosError<BackendErrorResponse>;
@@ -180,6 +212,7 @@ export default function CheckoutPage() {
           const response = await paymentApi.payCash({
             paymentId: checkout.paymentId,
           });
+          clearCheckoutStorage();
           toast.success("Checkout Complete via Cash Counter");
           router.push(`/bookings/confirmation/${response.bookingId}`);
         } else if (provider === "KHQR") {
@@ -208,7 +241,10 @@ export default function CheckoutPage() {
           }),
         );
         sessionStorage.removeItem("bookingFoodItems");
-        toast.success(`Order placed! Code: ${order.bookingCode}`);
+        sessionStorage.removeItem("foodCart");
+        toast.success(
+          `Order placed! Code: ${order.bookingCode.slice(0, 8).toUpperCase()}`,
+        );
         router.push(`/bookings/confirmation/${order.bookingId}`);
       }
     } catch (err) {
@@ -224,9 +260,17 @@ export default function CheckoutPage() {
     }
   };
 
+  const clearCheckoutStorage = (): void => {
+    sessionStorage.removeItem("checkoutData");
+    sessionStorage.removeItem("checkoutSummary");
+    sessionStorage.removeItem("bookingFoodItems");
+    sessionStorage.removeItem("foodCart");
+  };
+
   const handleSessionTimeout = (): void => {
     setErrorMessage("Your secure reservation window has expired.");
     setIsSubmitting(true);
+    clearCheckoutStorage();
     setTimeout(() => {
       router.push(`/showtimes`);
     }, 2500);

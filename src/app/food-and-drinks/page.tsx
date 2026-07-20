@@ -1,9 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-import { ShoppingCart, Plus, Minus, Loader2, ChevronDown, ChevronUp } from "lucide-react";
+import { ShoppingCart, Plus, Minus, X, Loader2, ChevronDown, ChevronUp, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import Navbar from "@/components/common/Navbar";
 import Footer from "@/components/common/Footer";
@@ -18,6 +18,7 @@ interface CartItem {
   quantity: number;
 }
 
+const CART_STORAGE_KEY = "foodCart";
 const INITIAL_VISIBLE = 6;
 
 const foodDrinksBanner: CarouselItem[] = [
@@ -38,7 +39,10 @@ export default function FoodAndDrinksPage() {
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [visibleCount, setVisibleCount] = useState(INITIAL_VISIBLE);
+  const [showCartDrawer, setShowCartDrawer] = useState(false);
   const { user } = useAuthStore();
+  const restored = useRef(false);
+  const syncReady = useRef(false);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -46,10 +50,32 @@ export default function FoodAndDrinksPage() {
         const cats = await foodAndBeverageApi.getCategories();
         setCategories(cats);
         if (cats.length > 0) setActiveCategory(cats[0].id);
+
+        const stored = sessionStorage.getItem(CART_STORAGE_KEY);
+        if (stored && !restored.current) {
+          try {
+            const parsed: { id: string; quantity: number }[] = JSON.parse(stored);
+            const allItems = cats.flatMap((c) => c.items);
+            const restoredCart: CartItem[] = [];
+            for (const entry of parsed) {
+              const match = allItems.find((i) => i.id === entry.id);
+              if (match) {
+                restoredCart.push({ item: match, quantity: entry.quantity });
+              }
+            }
+            if (restoredCart.length > 0) {
+              setCart(restoredCart);
+              restored.current = true;
+            }
+          } catch {
+            sessionStorage.removeItem(CART_STORAGE_KEY);
+          }
+        }
       } catch {
         toast.error("Failed to load menu");
       } finally {
         setLoading(false);
+        syncReady.current = true;
       }
     };
     fetchData();
@@ -58,6 +84,16 @@ export default function FoodAndDrinksPage() {
   useEffect(() => {
     setVisibleCount(INITIAL_VISIBLE);
   }, [activeCategory]);
+
+  useEffect(() => {
+    if (!syncReady.current) return;
+    const data = cart.map((c) => ({ id: c.item.id, quantity: c.quantity }));
+    if (data.length > 0) {
+      sessionStorage.setItem(CART_STORAGE_KEY, JSON.stringify(data));
+    } else {
+      sessionStorage.removeItem(CART_STORAGE_KEY);
+    }
+  }, [cart]);
 
   const addToCart = (item: FoodItem) => {
     setCart((prev) => {
@@ -82,6 +118,17 @@ export default function FoodAndDrinksPage() {
       }
       return prev.filter((c) => c.item.id !== itemId);
     });
+  };
+
+  const removeItemCompletely = (itemId: string) => {
+    setCart((prev) => prev.filter((c) => c.item.id !== itemId));
+    toast.success("Item removed from cart");
+  };
+
+  const clearCart = () => {
+    setCart([]);
+    sessionStorage.removeItem(CART_STORAGE_KEY);
+    toast.success("Cart cleared");
   };
 
   const cartTotal = cart.reduce(
@@ -284,30 +331,109 @@ export default function FoodAndDrinksPage() {
       </main>
 
       {cartCount > 0 && (
-        <div className="fixed bottom-0 left-0 right-0 z-50 bg-zinc-900/95 border-t border-zinc-800 backdrop-blur-xl">
-          <div className="max-w-5xl mx-auto px-4 md:px-8 py-3 flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="relative">
-                <ShoppingCart className="w-5 h-5 text-zinc-300" />
-                <span className="absolute -top-2 -right-2 w-4 h-4 bg-red-600 rounded-full text-[10px] font-bold flex items-center justify-center">
-                  {cartCount}
-                </span>
+        <>
+          {/* Cart Drawer */}
+          {showCartDrawer && (
+            <div className="fixed inset-0 z-40" onClick={() => setShowCartDrawer(false)}>
+              <div className="absolute inset-0 bg-black/50" />
+            </div>
+          )}
+
+          <div
+            className={`fixed bottom-16 md:bottom-0 left-0 right-0 z-50 bg-zinc-900 border-t border-zinc-800 backdrop-blur-xl transition-all duration-300 max-h-[60vh] overflow-y-auto ${
+              showCartDrawer ? "translate-y-0" : "translate-y-full"
+            }`}
+          >
+            <div className="max-w-5xl mx-auto px-4 md:px-8 py-4">
+              <div className="flex items-center justify-between mb-3">
+                <h3 className="text-sm font-bold uppercase tracking-wider">Cart Items</h3>
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={clearCart}
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-zinc-800 text-xs text-zinc-400 hover:text-red-400 transition cursor-pointer"
+                  >
+                    <Trash2 className="w-3.5 h-3.5" />
+                    Clear All
+                  </button>
+                  <button
+                    onClick={() => setShowCartDrawer(false)}
+                    className="w-8 h-8 rounded-lg bg-zinc-800 flex items-center justify-center hover:bg-zinc-700 transition cursor-pointer"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
               </div>
-              <div>
-                <p className="text-xs text-zinc-500">{cartCount} item{cartCount !== 1 ? "s" : ""}</p>
-                <p className="text-sm font-bold">${cartTotal.toFixed(2)}</p>
+              <div className="space-y-2 max-h-60 overflow-y-auto">
+                {cart.map((c) => (
+                  <div
+                    key={c.item.id}
+                    className="flex items-center justify-between bg-zinc-800/50 rounded-xl px-4 py-3 border border-zinc-800"
+                  >
+                    <div className="flex items-center gap-3 min-w-0">
+                      <div className="flex items-center gap-2">
+                        <button
+                          onClick={() => removeFromCart(c.item.id)}
+                          className="w-7 h-7 rounded-lg bg-zinc-700 flex items-center justify-center hover:bg-zinc-600 transition cursor-pointer"
+                        >
+                          <Minus className="w-3.5 h-3.5" />
+                        </button>
+                        <span className="text-sm font-bold w-6 text-center">{c.quantity}</span>
+                        <button
+                          onClick={() => addToCart(c.item)}
+                          className="w-7 h-7 rounded-lg bg-red-600 flex items-center justify-center hover:bg-red-500 transition cursor-pointer"
+                        >
+                          <Plus className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+                      <span className="text-sm font-medium truncate">{c.item.name}</span>
+                    </div>
+                    <div className="flex items-center gap-3 shrink-0">
+                      <span className="text-sm font-bold text-emerald-400">
+                        ${(Number(c.item.price) * c.quantity).toFixed(2)}
+                      </span>
+                      <button
+                        onClick={() => removeItemCompletely(c.item.id)}
+                        className="w-7 h-7 rounded-lg bg-zinc-800 flex items-center justify-center hover:bg-red-600/20 hover:text-red-400 transition cursor-pointer"
+                        title="Remove item"
+                      >
+                        <X className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                  </div>
+                ))}
               </div>
             </div>
-            <button
-              onClick={handleCheckout}
-              disabled={submitting}
-              className="px-6 py-2 rounded-lg bg-red-600 text-sm font-bold hover:bg-red-500 transition cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
-            >
-              {submitting ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
-              {submitting ? "Processing..." : "Checkout"}
-            </button>
           </div>
-        </div>
+
+          {/* Bottom Checkout Bar */}
+          <div className="fixed bottom-0 left-0 right-0 z-50 bg-zinc-900/95 border-t border-zinc-800 backdrop-blur-xl">
+            <div className="max-w-5xl mx-auto px-3 md:px-8 py-3 flex items-center justify-between gap-2">
+              <button
+                onClick={() => setShowCartDrawer(!showCartDrawer)}
+                className="flex items-center gap-2 md:gap-3 cursor-pointer min-w-0"
+              >
+                <div className="relative shrink-0">
+                  <ShoppingCart className="w-5 h-5 text-zinc-300" />
+                  <span className="absolute -top-2 -right-2 w-4 h-4 bg-red-600 rounded-full text-[10px] font-bold flex items-center justify-center">
+                    {cartCount}
+                  </span>
+                </div>
+                <div className="min-w-0">
+                  <p className="text-[11px] md:text-xs text-zinc-500 truncate">{cartCount} item{cartCount !== 1 ? "s" : ""}</p>
+                  <p className="text-xs md:text-sm font-bold">${cartTotal.toFixed(2)}</p>
+                </div>
+              </button>
+              <button
+                onClick={handleCheckout}
+                disabled={submitting}
+                className="shrink-0 px-4 md:px-6 py-2 rounded-lg bg-red-600 text-xs md:text-sm font-bold hover:bg-red-500 transition cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+              >
+                {submitting ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
+                {submitting ? "Processing..." : "Checkout"}
+              </button>
+            </div>
+          </div>
+        </>
       )}
 
       <Footer />

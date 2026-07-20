@@ -21,6 +21,10 @@ export const localTranslations: Record<string, Record<LanguageCode, string>> = {
     en: "My Tickets & History",
     kh: "សំបុត្រ និងប្រវត្តិទិញរបស់ខ្ញុំ",
   },
+  myOrders: {
+    en: "Food & Beverage Orders",
+    kh: "ការបញ្ជាទិញម្ហូប និងភេសជ្ជៈ",
+  },
   cinemaLocations: {
     en: "Cinema Locations",
     kh: "ទីតាំងរោងភាពយន្ត",

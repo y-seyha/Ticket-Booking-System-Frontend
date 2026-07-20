@@ -18,9 +18,11 @@ import {
 import Navbar from "@/components/common/Navbar";
 import Footer from "@/components/common/Footer";
 import { ticketsApi } from "@/features/tickets/tickets.api";
+import { foodAndBeverageApi } from "@/features/foods-and-beverage/foods-and-beverage.api";
 import { useAuthStore } from "@/features/auth/auth.store";
 import type { Ticket } from "@/features/tickets/tickets.types";
 import type { PaymentProvider } from "@/features/payment/payment.types";
+
 
 interface FoodConfirmationItem {
   name: string;
@@ -69,17 +71,33 @@ export default function BookingConfirmationPage() {
       sessionStorage.removeItem("foodOrderConfirmation");
     }
 
-    const fetchTickets = async () => {
+    const fetchDetails = async () => {
       try {
         const data = await ticketsApi.getTicketsByBooking(id);
         setTickets(Array.isArray(data) ? data : [data]);
       } catch {
-        setError("Unable to load booking details");
+        try {
+          const foodData = await foodAndBeverageApi.getOrderById(id);
+          setFoodOrder({
+            bookingId: foodData.bookingId,
+            bookingCode: foodData.bookingCode,
+            totalAmount: foodData.totalAmount,
+            status: foodData.status,
+            provider: "CASH" as PaymentProvider,
+            items: foodData.items.map((i) => ({
+              name: i.name,
+              price: i.unitPrice,
+              quantity: i.quantity,
+            })),
+          });
+        } catch {
+          setError("Unable to load booking details");
+        }
       } finally {
         setLoading(false);
       }
     };
-    fetchTickets();
+    fetchDetails();
   }, [hydrated, user, id, router]);
 
   if (loading) {
@@ -109,7 +127,7 @@ export default function BookingConfirmationPage() {
             <h2 className="text-lg font-bold mb-2">Booking not found</h2>
             <p className="text-sm text-zinc-500 mb-6">{error || "We couldn't find this booking."}</p>
             <Link
-              href="/my-tickets"
+              href="/ticket"
               className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-zinc-900 border border-zinc-800 text-sm hover:border-zinc-700 transition"
             >
               <ChevronLeft className="w-4 h-4" />
@@ -129,7 +147,7 @@ export default function BookingConfirmationPage() {
 
         <main className="max-w-lg mx-auto px-4 pt-32 pb-24">
           <Link
-            href="/my-tickets"
+            href="/ticket"
             className="inline-flex items-center gap-1.5 text-sm text-zinc-500 hover:text-zinc-300 transition mb-6"
           >
             <ChevronLeft className="w-4 h-4" />
@@ -229,7 +247,7 @@ export default function BookingConfirmationPage() {
 
           <div className="flex items-center justify-center gap-4 mt-6">
             <Link
-              href="/my-tickets"
+              href="/ticket"
               className="flex items-center gap-2 px-4 py-2 rounded-lg bg-zinc-900 border border-zinc-800 text-sm hover:border-zinc-700 transition"
             >
               <TicketIcon className="w-4 h-4" />
@@ -261,7 +279,7 @@ export default function BookingConfirmationPage() {
 
       <main className="max-w-lg mx-auto px-4 pt-32 pb-24">
         <Link
-          href="/my-tickets"
+          href="/ticket"
           className="inline-flex items-center gap-1.5 text-sm text-zinc-500 hover:text-zinc-300 transition mb-6"
         >
           <ChevronLeft className="w-4 h-4" />
@@ -400,7 +418,7 @@ export default function BookingConfirmationPage() {
 
         <div className="flex items-center justify-center gap-4 mt-6">
           <Link
-            href="/my-tickets"
+            href="/ticket"
             className="flex items-center gap-2 px-4 py-2 rounded-lg bg-zinc-900 border border-zinc-800 text-sm hover:border-zinc-700 transition"
           >
             <TicketIcon className="w-4 h-4" />

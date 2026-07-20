@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { QRCodeSVG } from "qrcode.react";
 import Navbar from "@/components/common/Navbar";
@@ -10,7 +10,7 @@ import { ticketsApi } from "@/features/tickets/tickets.api";
 import { foodAndBeverageApi } from "@/features/foods-and-beverage/foods-and-beverage.api";
 import { Ticket, TicketStatus } from "@/features/tickets/tickets.types";
 import type { UserFoodOrder } from "@/features/foods-and-beverage/foods-and-beverage.types";
-import { ShoppingCart, Ticket as TicketIcon, ChevronRight, Clock } from "lucide-react";
+import { ShoppingCart, Ticket as TicketIcon, ChevronRight, Clock, Loader2 } from "lucide-react";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -18,6 +18,8 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
+
+type Tab = "tickets" | "food";
 
 const statusStyles: Record<TicketStatus, string> = {
   ACTIVE: "bg-green-500/10 text-green-400 border-green-500/20",
@@ -39,8 +41,11 @@ interface TicketGroup {
   foodItems: Ticket["booking"]["foodItems"];
 }
 
-export default function MyTicketsPage() {
+export default function TicketPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const tab = (searchParams.get("tab") as Tab) || "tickets";
+
   const [tickets, setTickets] = useState<Ticket[]>([]);
   const [foodOrders, setFoodOrders] = useState<UserFoodOrder[]>([]);
   const [loading, setLoading] = useState(true);
@@ -48,11 +53,10 @@ export default function MyTicketsPage() {
 
   useEffect(() => {
     const fetchAll = async () => {
+      setLoading(true);
       try {
         const [ticketData, foodData] = await Promise.all([
-          ticketsApi.getMyTickets(
-            filter === "ALL" ? undefined : filter,
-          ),
+          ticketsApi.getMyTickets(filter === "ALL" ? undefined : filter),
           foodAndBeverageApi.getMyOrders(),
         ]);
         setTickets(Array.isArray(ticketData) ? ticketData : []);
@@ -101,6 +105,15 @@ export default function MyTicketsPage() {
       new Date(g.startTime) <= new Date(),
   );
 
+  const setTab = (t: Tab) => {
+    router.push(`/ticket?tab=${t}`, { scroll: false });
+  };
+
+  const tabs: { key: Tab; label: string; shortLabel: string; icon: typeof TicketIcon }[] = [
+    { key: "tickets", label: "Tickets", shortLabel: "Tickets", icon: TicketIcon },
+    { key: "food", label: "Food & Beverage", shortLabel: "Food", icon: ShoppingCart },
+  ];
+
   return (
     <div className="min-h-screen bg-zinc-950 text-zinc-100 font-sans antialiased">
       <Navbar />
@@ -124,82 +137,116 @@ export default function MyTicketsPage() {
           </Breadcrumb>
         </div>
 
-        <div className="flex items-center justify-between mb-8">
-          <h1 className="text-2xl font-black tracking-tight uppercase">
-            My Tickets
-          </h1>
-
-          <div className="flex gap-2">
-            {(["ALL", "ACTIVE", "USED", "REFUNDED", "EXPIRED"] as const).map(
-              (f) => (
-                <button
-                  key={f}
-                  onClick={() => setFilter(f)}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-bold uppercase tracking-wider transition-colors ${
-                    filter === f
-                      ? "bg-red-500 text-white"
-                      : "bg-zinc-900 text-zinc-400 hover:text-white border border-zinc-800"
-                  }`}
-                >
-                  {f}
-                </button>
-              ),
-            )}
-          </div>
+        {/* Tab Selector */}
+        <div className="flex gap-1 mb-8 p-1 bg-zinc-900 rounded-xl border border-zinc-800 w-fit">
+          {tabs.map((t) => {
+            const Icon = t.icon;
+            return (
+              <button
+                key={t.key}
+                onClick={() => setTab(t.key)}
+                className={`flex items-center gap-2 px-4 sm:px-5 py-2.5 rounded-lg text-sm font-bold transition-all ${
+                  tab === t.key
+                    ? "bg-red-500 text-white shadow-lg"
+                    : "text-zinc-400 hover:text-white"
+                }`}
+              >
+                <Icon className="w-4 h-4" />
+                <span className="hidden sm:inline">{t.label}</span>
+                <span className="sm:hidden">{t.shortLabel}</span>
+              </button>
+            );
+          })}
         </div>
 
         {loading ? (
           <div className="flex justify-center py-20">
-            <div className="w-8 h-8 border-2 border-red-500/20 border-t-red-500 rounded-full animate-spin" />
+            <Loader2 className="w-8 h-8 animate-spin text-zinc-500" />
           </div>
-        ) : groups.length === 0 && foodOrders.length === 0 ? (
-          <div className="text-center py-20 text-zinc-600">
-            <TicketIcon className="w-12 h-12 mx-auto mb-4 opacity-30" />
-            <p className="text-lg font-bold">No bookings found</p>
-            <p className="text-sm mt-2">Your tickets and orders will appear here after you make a purchase.</p>
-          </div>
+        ) : tab === "tickets" ? (
+          <>
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
+              <h2 className="text-lg font-bold text-zinc-300">
+                Movie Tickets
+              </h2>
+              <div className="flex gap-2 flex-wrap">
+                {(["ALL", "ACTIVE", "USED", "REFUNDED", "EXPIRED"] as const).map(
+                  (f) => (
+                    <button
+                      key={f}
+                      onClick={() => setFilter(f)}
+                      className={`px-3 py-1.5 rounded-lg text-xs font-bold uppercase tracking-wider transition-colors ${
+                        filter === f
+                          ? "bg-red-500 text-white"
+                          : "bg-zinc-900 text-zinc-400 hover:text-white border border-zinc-800"
+                      }`}
+                    >
+                      {f}
+                    </button>
+                  ),
+                )}
+              </div>
+            </div>
+
+            {groups.length === 0 ? (
+              <div className="text-center py-20 text-zinc-600">
+                <TicketIcon className="w-12 h-12 mx-auto mb-4 opacity-30" />
+                <p className="text-lg font-bold">No tickets found</p>
+                <p className="text-sm mt-2">Your movie tickets will appear here after you make a purchase.</p>
+              </div>
+            ) : (
+              <div className="space-y-10">
+                {upcoming.length > 0 && (
+                  <div>
+                    <h2 className="text-sm font-bold text-zinc-500 uppercase tracking-wider mb-3">Upcoming</h2>
+                    <div className="grid gap-4">
+                      {upcoming.map((group) => (
+                        <BookingGroupCard key={group.bookingCode} group={group} />
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {past.length > 0 && (
+                  <div>
+                    <h2 className="text-sm font-bold text-zinc-500 uppercase tracking-wider mb-3">Past</h2>
+                    <div className="grid gap-4">
+                      {past.map((group) => (
+                        <BookingGroupCard key={group.bookingCode} group={group} />
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+          </>
         ) : (
-          <div className="space-y-10">
-            {upcoming.length > 0 && (
-              <div>
-                <h2 className="text-sm font-bold text-zinc-500 uppercase tracking-wider mb-3">
-                  Upcoming
-                </h2>
-                <div className="grid gap-4">
-                  {upcoming.map((group) => (
-                    <BookingGroupCard key={group.bookingCode} group={group} />
-                  ))}
-                </div>
-              </div>
-            )}
+          <>
+            <h2 className="text-lg font-bold text-zinc-300 mb-6">
+              Food & Beverage Orders
+            </h2>
 
-            {past.length > 0 && (
-              <div>
-                <h2 className="text-sm font-bold text-zinc-500 uppercase tracking-wider mb-3">
-                  Past
-                </h2>
-                <div className="grid gap-4">
-                  {past.map((group) => (
-                    <BookingGroupCard key={group.bookingCode} group={group} />
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {foodOrders.length > 0 && (
-              <div>
-                <h2 className="text-sm font-bold text-zinc-500 uppercase tracking-wider mb-3 flex items-center gap-2">
+            {foodOrders.length === 0 ? (
+              <div className="text-center py-20 text-zinc-600">
+                <ShoppingCart className="w-12 h-12 mx-auto mb-4 opacity-30" />
+                <p className="text-lg font-bold">No orders yet</p>
+                <p className="text-sm mt-2">Your food orders will appear here after you make a purchase.</p>
+                <Link
+                  href="/food-and-drinks"
+                  className="inline-flex items-center gap-2 mt-6 px-5 py-2.5 rounded-xl bg-red-600 text-white text-sm font-bold hover:bg-red-500 transition"
+                >
                   <ShoppingCart className="w-4 h-4" />
-                  Food & Beverage Orders
-                </h2>
-                <div className="grid gap-4">
-                  {foodOrders.map((order) => (
-                    <FoodOrderCard key={order.bookingId} order={order} />
-                  ))}
-                </div>
+                  Browse Menu
+                </Link>
+              </div>
+            ) : (
+              <div className="grid gap-4">
+                {foodOrders.map((order) => (
+                  <FoodOrderCard key={order.bookingId} order={order} />
+                ))}
               </div>
             )}
-          </div>
+          </>
         )}
       </main>
       <Footer />
@@ -209,7 +256,6 @@ export default function MyTicketsPage() {
 
 function BookingGroupCard({ group }: { group: TicketGroup }) {
   const startTime = new Date(group.startTime);
-
   const ticketStatus = group.tickets[0]?.status || "ACTIVE";
 
   return (
@@ -247,7 +293,6 @@ function BookingGroupCard({ group }: { group: TicketGroup }) {
             </span>
           </div>
 
-          {/* All seats in this booking */}
           <div className="flex flex-wrap gap-1.5 mt-2">
             {group.tickets.map((t) => (
               <span
@@ -259,7 +304,6 @@ function BookingGroupCard({ group }: { group: TicketGroup }) {
             ))}
           </div>
 
-          {/* Food items grouped */}
           {group.foodItems && group.foodItems.length > 0 && (
             <div className="flex flex-wrap items-center gap-1.5 mt-2">
               <ShoppingCart className="w-3 h-3 text-emerald-500" />
@@ -274,15 +318,10 @@ function BookingGroupCard({ group }: { group: TicketGroup }) {
             </div>
           )}
 
-          {/* QR codes for each seat */}
           <div className="flex flex-wrap gap-2 mt-3">
             {group.tickets.map((t) => (
               <div key={t.id} className="bg-white rounded-lg p-1">
-                <QRCodeSVG
-                  value={t.qrCode}
-                  size={48}
-                  level="M"
-                />
+                <QRCodeSVG value={t.qrCode} size={48} level="M" />
               </div>
             ))}
           </div>
@@ -349,6 +388,14 @@ function FoodOrderCard({ order }: { order: UserFoodOrder }) {
               </span>
             ))}
           </div>
+
+          {order.paymentStatus && (
+            <div className="flex items-center gap-1.5 mt-2">
+              <span className="text-[10px] font-medium text-zinc-500 uppercase">
+                Payment: {order.paymentStatus}
+              </span>
+            </div>
+          )}
         </div>
 
         <div className="shrink-0 text-right flex flex-col items-end gap-2">

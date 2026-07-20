@@ -1,9 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Image from "next/image";
-import { Plus, Minus, ShoppingCart, Ticket, Loader2 } from "lucide-react";
+import { Plus, Minus, X, ShoppingCart, Ticket, Loader2, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import Navbar from "@/components/common/Navbar";
 import Footer from "@/components/common/Footer";
@@ -25,6 +25,8 @@ interface CartItem {
   quantity: number;
 }
 
+const CART_STORAGE_KEY = "foodCart";
+
 export default function ShowtimeFoodPage() {
   const router = useRouter();
   const { id } = useParams() as { id: string };
@@ -35,6 +37,8 @@ export default function ShowtimeFoodPage() {
   const [cart, setCart] = useState<CartItem[]>([]);
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
   const [cartData, setCartData] = useState<BackendCartResponse | null>(null);
+  const restored = useRef(false);
+  const syncReady = useRef(false);
 
   useEffect(() => {
     if (!user) {
@@ -51,14 +55,46 @@ export default function ShowtimeFoodPage() {
         setCategories(cats);
         if (cats.length > 0) setActiveCategory(cats[0].id);
         setCartData(cartRes as unknown as BackendCartResponse);
+
+        const stored = sessionStorage.getItem(CART_STORAGE_KEY);
+        if (stored && !restored.current) {
+          try {
+            const parsed: { id: string; quantity: number }[] = JSON.parse(stored);
+            const allItems = cats.flatMap((c) => c.items);
+            const restoredCart: CartItem[] = [];
+            for (const entry of parsed) {
+              const match = allItems.find((i) => i.id === entry.id);
+              if (match) {
+                restoredCart.push({ item: match, quantity: entry.quantity });
+              }
+            }
+            if (restoredCart.length > 0) {
+              setCart(restoredCart);
+              restored.current = true;
+            }
+          } catch {
+            sessionStorage.removeItem(CART_STORAGE_KEY);
+          }
+        }
       } catch {
         toast.error("Failed to load menu");
       } finally {
         setLoading(false);
+        syncReady.current = true;
       }
     };
     init();
   }, [user, router]);
+
+  useEffect(() => {
+    if (!syncReady.current) return;
+    const data = cart.map((c) => ({ id: c.item.id, quantity: c.quantity }));
+    if (data.length > 0) {
+      sessionStorage.setItem(CART_STORAGE_KEY, JSON.stringify(data));
+    } else {
+      sessionStorage.removeItem(CART_STORAGE_KEY);
+    }
+  }, [cart]);
 
   const addToCart = (item: FoodItem) => {
     setCart((prev) => {
@@ -83,6 +119,17 @@ export default function ShowtimeFoodPage() {
       }
       return prev.filter((c) => c.item.id !== itemId);
     });
+  };
+
+  const removeItemCompletely = (itemId: string) => {
+    setCart((prev) => prev.filter((c) => c.item.id !== itemId));
+    toast.success("Item removed");
+  };
+
+  const clearCart = () => {
+    setCart([]);
+    sessionStorage.removeItem(CART_STORAGE_KEY);
+    toast.success("Cart cleared");
   };
 
   const cartTotal = cart.reduce((sum, c) => sum + Number(c.item.price) * c.quantity, 0);
@@ -270,22 +317,42 @@ export default function ShowtimeFoodPage() {
                 </div>
 
                 <div className="bg-zinc-900/60 border border-zinc-800 rounded-2xl p-5 space-y-4">
-                  <h3 className="text-xs font-bold text-zinc-500 uppercase tracking-wider">
-                    Food Cart ({cartCount})
-                  </h3>
+                  <div className="flex items-center justify-between">
+                    <h3 className="text-xs font-bold text-zinc-500 uppercase tracking-wider">
+                      Food Cart ({cartCount})
+                    </h3>
+                    {cart.length > 0 && (
+                      <button
+                        onClick={clearCart}
+                        className="flex items-center gap-1 text-[10px] text-zinc-500 hover:text-red-400 transition cursor-pointer"
+                      >
+                        <Trash2 className="w-3 h-3" />
+                        Clear
+                      </button>
+                    )}
+                  </div>
                   {cart.length === 0 ? (
                     <p className="text-xs text-zinc-600">No items added yet</p>
                   ) : (
                     <div className="space-y-2 max-h-48 overflow-y-auto">
                       {cart.map((c) => (
-                        <div key={c.item.id} className="flex items-center justify-between text-sm">
+                        <div key={c.item.id} className="flex items-center justify-between text-sm group">
                           <div className="flex items-center gap-2 min-w-0">
                             <span className="text-zinc-300 truncate text-xs">{c.item.name}</span>
                             <span className="text-zinc-600 text-xs">x{c.quantity}</span>
                           </div>
-                          <span className="text-zinc-300 font-mono text-xs shrink-0">
-                            ${(Number(c.item.price) * c.quantity).toFixed(2)}
-                          </span>
+                          <div className="flex items-center gap-2 shrink-0">
+                            <span className="text-zinc-300 font-mono text-xs">
+                              ${(Number(c.item.price) * c.quantity).toFixed(2)}
+                            </span>
+                            <button
+                              onClick={() => removeItemCompletely(c.item.id)}
+                              className="opacity-0 group-hover:opacity-100 w-5 h-5 rounded bg-zinc-800 flex items-center justify-center hover:bg-red-600/20 hover:text-red-400 transition-all cursor-pointer"
+                              title="Remove item"
+                            >
+                              <X className="w-3 h-3" />
+                            </button>
+                          </div>
                         </div>
                       ))}
                     </div>

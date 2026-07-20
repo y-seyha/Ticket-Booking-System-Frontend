@@ -90,7 +90,7 @@ export const MobileNavbar: FC<MobileNavbarProps> = ({
           <div className="flex items-center gap-2">
             {showTicket && (
               <Link
-                href="/my-tickets"
+                href="/ticket"
                 className="w-10 h-10 flex items-center justify-center rounded-full bg-white/5 border border-white/10 hover:bg-white/10 transition"
               >
                 <Ticket className="w-5 h-5" />

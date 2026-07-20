@@ -1,5 +1,5 @@
 import { apiRequest } from "@/lib/config/axios";
-import { FoodCategory, FoodItem, BookingFoodItem, FoodOrderResponse } from "./foods-and-beverage.types";
+import { FoodCategory, FoodItem, BookingFoodItem, FoodOrderResponse, UserFoodOrder } from "./foods-and-beverage.types";
 
 export const foodAndBeverageApi = {
   /* ─── Public ────────────────────────────── */
@@ -46,6 +46,14 @@ export const foodAndBeverageApi = {
 
   createFoodOrder(data: { items: { foodItemId: string; quantity: number }[] }) {
     return apiRequest<FoodOrderResponse>("post", "/food-and-beverage/order", data);
+  },
+
+  getMyOrders() {
+    return apiRequest<UserFoodOrder[]>("get", "/food-and-beverage/my-orders");
+  },
+
+  getOrderById(bookingId: string) {
+    return apiRequest<UserFoodOrder>("get", `/food-and-beverage/orders/${bookingId}`);
   },
 
   /* ─── Admin Categories ─────────────────── */

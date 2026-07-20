@@ -13,6 +13,7 @@ import {
   MapPin,
   Gift,
   Languages,
+  ShoppingCart,
 } from "lucide-react";
 import Navbar from "@/components/common/Navbar";
 import { useAuth } from "@/features/auth/auth.hook";
@@ -78,6 +79,11 @@ export default function MorePage() {
           icon: <Ticket className="w-4 h-4 text-zinc-500" />,
           label: t("myTickets"),
           path: "/my-tickets",
+        },
+        {
+          icon: <ShoppingCart className="w-4 h-4 text-zinc-500" />,
+          label: t("myOrders"),
+          path: "/my-orders",
         },
         {
           icon: <MapPin className="w-4 h-4 text-zinc-500" />,

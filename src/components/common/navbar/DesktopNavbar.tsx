@@ -114,7 +114,7 @@ export const DesktopNavbar: FC<DesktopNavbarProps> = ({
             <div className="flex items-center gap-3">
               {showTicket && (
                 <Link
-                  href="/my-tickets"
+                  href="/ticket"
                   className="hidden lg:flex items-center gap-2 px-3 md:px-4 py-1.5 rounded-full bg-white/5 border border-white/10 text-sm hover:border-white/30 transition cursor-pointer"
                 >
                   <Ticket className="w-4 h-4" />

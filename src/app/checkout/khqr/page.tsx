@@ -76,6 +76,10 @@ export default function KhqrPaymentPage() {
           if (pollingRef.current) clearInterval(pollingRef.current);
           setIsVerifying(true);
           toast.success("Payment detected successfully!");
+          sessionStorage.removeItem("checkoutData");
+          sessionStorage.removeItem("checkoutSummary");
+          sessionStorage.removeItem("bookingFoodItems");
+          sessionStorage.removeItem("foodCart");
 
           setTimeout(() => {
             router.push(`/bookings/confirmation/${paymentId}`);

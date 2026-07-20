@@ -365,7 +365,7 @@ export default function ShowtimePage() {
       return;
     }
 
-    router.push("/checkout");
+    router.push(`/showtime/${id}/food`);
   };
 
   const formatTime = (seconds: number) => {

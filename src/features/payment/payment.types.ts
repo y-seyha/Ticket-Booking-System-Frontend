@@ -6,6 +6,7 @@ export type PaymentStatus = "PENDING" | "SUCCESS" | "EXPIRED" | "FAILED";
 
 export interface CreateCheckoutDto {
   paymentProvider?: PaymentProvider;
+  foodItems?: { foodItemId: string; quantity: number }[];
 }
 
 export interface PayDto {

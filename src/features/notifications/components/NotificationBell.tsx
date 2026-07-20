@@ -97,8 +97,8 @@ export const NotificationBell: FC<NotificationBellProps> = ({
         onToggle();
       }
     };
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
+    document.addEventListener("click", handleClickOutside);
+    return () => document.removeEventListener("click", handleClickOutside);
   }, [open, onToggle]);
 
   const handleMarkAsRead = async (id: string) => {
@@ -182,7 +182,7 @@ export const NotificationBell: FC<NotificationBellProps> = ({
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: -8 }}
             transition={{ duration: 0.15, ease: "easeOut" }}
-            className="absolute right-0 mt-2 w-80 bg-zinc-900 border border-white/10 rounded-xl overflow-hidden shadow-2xl z-120"
+            className="absolute right-0 mt-2 w-80 bg-zinc-900 border border-white/10 rounded-xl overflow-hidden shadow-2xl z-[9999] max-[500px]:fixed max-[500px]:top-20 max-[500px]:left-4 max-[500px]:right-4 max-[500px]:w-auto max-[500px]:mt-0"
           >
             <div className="flex items-center justify-between px-4 py-3 border-b border-white/10">
               <div className="flex items-center gap-2">

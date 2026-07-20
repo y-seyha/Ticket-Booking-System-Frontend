@@ -35,6 +35,7 @@ interface UserAvatar {
 interface UserProfile {
   id: string;
   accountId: string;
+  email: string;
   firstName: string;
   lastName: string;
   phone: string | null;
@@ -166,6 +167,7 @@ export default function ProfilePage() {
         const fetchedProfile: UserProfile = {
           id: user.profile?.id ?? "",
           accountId: user.id,
+          email: user.email,
           firstName: user.profile?.firstName ?? "",
           lastName: user.profile?.lastName ?? "",
           phone: user.profile?.phone ?? null,
@@ -287,6 +289,10 @@ export default function ProfilePage() {
                     {profile.status}
                   </span>
                 </div>
+
+                <p className="text-sm text-zinc-500 font-medium">
+                  {profile.email}
+                </p>
 
                 <div className="flex items-center justify-center sm:justify-start space-x-2">
                   <p className="text-xs font-mono text-zinc-400 bg-white/5 border border-white/5 rounded-md px-2.5 py-1 inline-flex items-center gap-2 max-w-full overflow-hidden">

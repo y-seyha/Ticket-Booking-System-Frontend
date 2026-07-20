@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useRef } from "react";
+import { Suspense, useEffect, useState, useRef } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { paymentApi } from "@/features/payment/payment.api";
 import { CheckoutResponse } from "@/features/payment/payment.types";
@@ -27,6 +27,14 @@ import { QRCodeSVG } from "qrcode.react";
 import CheckoutCountdown from "@/features/payment/components/CheckoutCountdown";
 
 export default function KhqrPaymentPage() {
+  return (
+    <Suspense fallback={null}>
+      <KhqrPaymentContent />
+    </Suspense>
+  );
+}
+
+function KhqrPaymentContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const paymentId = searchParams.get("paymentId");

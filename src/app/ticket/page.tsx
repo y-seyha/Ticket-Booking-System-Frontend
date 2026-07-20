@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { Suspense, useEffect, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { QRCodeSVG } from "qrcode.react";
@@ -42,6 +42,14 @@ interface TicketGroup {
 }
 
 export default function TicketPage() {
+  return (
+    <Suspense fallback={null}>
+      <TicketPageContent />
+    </Suspense>
+  );
+}
+
+function TicketPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const tab = (searchParams.get("tab") as Tab) || "tickets";

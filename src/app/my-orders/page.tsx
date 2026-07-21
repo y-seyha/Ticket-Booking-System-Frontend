@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { ShoppingCart, ChevronRight, Clock, CheckCircle, XCircle, Loader2 } from "lucide-react";
+import { usePageTitle } from "@/hooks/usePageTitle";
 import Navbar from "@/components/common/Navbar";
 import Footer from "@/components/common/Footer";
 import { foodAndBeverageApi } from "@/features/foods-and-beverage/foods-and-beverage.api";
@@ -37,6 +38,7 @@ const statusConfig: Record<string, { label: string; className: string }> = {
 };
 
 export default function MyOrdersPage() {
+  usePageTitle("My Orders");
   const router = useRouter();
   const user = useAuthStore((s) => s.user);
   const hydrated = useAuthStore((s) => s.hydrated);

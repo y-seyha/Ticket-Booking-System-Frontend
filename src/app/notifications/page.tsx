@@ -18,6 +18,7 @@ import {
   Inbox,
 } from "lucide-react";
 import { toast } from "sonner";
+import { usePageTitle } from "@/hooks/usePageTitle";
 import Navbar from "@/components/common/Navbar";
 import Footer from "@/components/common/Footer";
 import {
@@ -68,6 +69,7 @@ const FILTER_TABS = [
 ] as const;
 
 export default function NotificationsPage() {
+  usePageTitle("Notifications");
   const router = useRouter();
   const user = useAuthStore((s) => s.user);
   const hydrated = useAuthStore((s) => s.hydrated);

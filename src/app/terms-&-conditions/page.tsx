@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { motion, Variants } from "framer-motion";
+import { usePageTitle } from "@/hooks/usePageTitle";
 import Navbar from "@/components/common/Navbar";
 import Footer from "@/components/common/Footer";
 import { useLanguage } from "@/features/language/useLanuage";
@@ -26,6 +27,7 @@ const itemVariants: Variants = {
 };
 
 export default function TermsAndConditionsPage() {
+  usePageTitle("Terms & Conditions");
   const { currentLanguage } = useLanguage();
   const langCode = currentLanguage?.code || "en";
   const [activeSection, setActiveSection] = useState<string>("tickets-rules");

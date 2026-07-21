@@ -1,9 +1,11 @@
 "use client";
 
 import Link from "next/link";
+import { usePageTitle } from "@/hooks/usePageTitle";
 import { motion } from "framer-motion";
 
 export default function Unauthorized() {
+  usePageTitle("Unauthorized");
   return (
     <div className="min-h-screen bg-black flex flex-col items-center justify-center text-white select-none relative overflow-hidden antialiased px-4">
       {/* Background Cinematic Aura glow */}

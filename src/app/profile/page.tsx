@@ -20,6 +20,7 @@ import {
   QrCode,
 } from "lucide-react";
 import { toast } from "sonner"; // Imported sonner toast helper
+import { usePageTitle } from "@/hooks/usePageTitle";
 import Navbar from "@/components/common/Navbar";
 import Footer from "@/components/common/Footer";
 import { useAuth } from "@/features/auth/auth.hook";
@@ -46,6 +47,7 @@ interface UserProfile {
 }
 
 export default function ProfilePage() {
+  usePageTitle("Profile");
   const { logout } = useAuth();
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);

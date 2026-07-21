@@ -15,6 +15,7 @@ import {
   Languages,
   ShoppingCart,
 } from "lucide-react";
+import { usePageTitle } from "@/hooks/usePageTitle";
 import Navbar from "@/components/common/Navbar";
 import { useAuth } from "@/features/auth/auth.hook";
 import { useLanguageStore } from "@/features/language/language.store";
@@ -33,6 +34,7 @@ interface RowSection {
 }
 
 export default function MorePage() {
+  usePageTitle("More");
   const router = useRouter();
   const { logout } = useAuth();
   const currentLanguage = useLanguageStore((s) => s.language);

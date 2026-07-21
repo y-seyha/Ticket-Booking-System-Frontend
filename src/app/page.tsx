@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { usePageTitle } from "@/hooks/usePageTitle";
 import Footer from "@/components/common/Footer";
 import Navbar from "@/components/common/Navbar";
 import NoticeModal from "@/components/common/NoticeModal";
@@ -34,6 +35,7 @@ interface MonthTabItem {
 }
 
 export default function Home() {
+  usePageTitle("Now Showing");
   const [currentMode, setCurrentMode] = useState<Mode>("showing");
   const [movies, setMovies] = useState<Movie[]>([]);
   const [isLoading, setIsLoading] = useState(true);

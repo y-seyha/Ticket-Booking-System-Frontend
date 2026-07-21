@@ -14,6 +14,7 @@ import { Loader2 } from "lucide-react";
 import CheckoutCountdown from "@/features/payment/components/CheckoutCountdown";
 import PaymentMethods from "@/features/payment/components/PaymentMethods";
 import OrderSummary from "@/features/payment/components/OrderSummary";
+import { usePageTitle } from "@/hooks/usePageTitle";
 import Navbar from "@/components/common/Navbar";
 import Footer from "@/components/common/Footer";
 import {
@@ -49,6 +50,7 @@ interface BackendErrorResponse {
 }
 
 export default function CheckoutPage() {
+  usePageTitle("Checkout");
   const router = useRouter();
   const bootstrapCalled = useRef(false);
 

@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { usePageTitle } from "@/hooks/usePageTitle";
 import {
   Film,
   Building2,
@@ -78,6 +79,7 @@ const adminSections = [
 ];
 
 export default function AdminDashboard() {
+  usePageTitle("Admin");
   return (
     <div className="space-y-6 p-4 sm:p-6 max-w-7xl mx-auto min-h-screen transition-colors duration-200">
       <div className="border-b border-zinc-100 dark:border-zinc-800 pb-5">

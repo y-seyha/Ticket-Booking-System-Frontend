@@ -2,12 +2,14 @@
 
 import Link from "next/link";
 import Image from "next/image";
+import { usePageTitle } from "@/hooks/usePageTitle";
 import Navbar from "@/components/common/Navbar";
 import Footer from "@/components/common/Footer";
 import { useLanguage } from "@/features/language/useLanuage";
 import { translations } from "@/features/language/translations";
 
 export default function AboutUsPage() {
+  usePageTitle("About Us");
   const cinemaHeroImage = "/courousel/legend-cinema-hall.jpeg";
 
   const { currentLanguage } = useLanguage();

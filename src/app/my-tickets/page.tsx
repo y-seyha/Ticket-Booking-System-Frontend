@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { QRCodeSVG } from "qrcode.react";
+import { usePageTitle } from "@/hooks/usePageTitle";
 import Navbar from "@/components/common/Navbar";
 import Footer from "@/components/common/Footer";
 import { ticketsApi } from "@/features/tickets/tickets.api";
@@ -40,6 +41,7 @@ interface TicketGroup {
 }
 
 export default function MyTicketsPage() {
+  usePageTitle("My Tickets");
   const router = useRouter();
   const [tickets, setTickets] = useState<Ticket[]>([]);
   const [foodOrders, setFoodOrders] = useState<UserFoodOrder[]>([]);

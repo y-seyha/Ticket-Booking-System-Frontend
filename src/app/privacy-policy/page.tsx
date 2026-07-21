@@ -3,6 +3,7 @@
 import { useState, useEffect, ReactNode } from "react";
 import Link from "next/link";
 import { motion, Variants } from "framer-motion";
+import { usePageTitle } from "@/hooks/usePageTitle";
 import Navbar from "@/components/common/Navbar";
 import Footer from "@/components/common/Footer";
 import { useLanguage } from "@/features/language/useLanuage";
@@ -43,6 +44,7 @@ function ScrollAnimateSection({
 }
 
 export default function PrivacyPolicyPage() {
+  usePageTitle("Privacy Policy");
   const { currentLanguage } = useLanguage();
   const langCode = currentLanguage?.code || "en";
   const [activeSection, setActiveSection] = useState<string>("data-collection");

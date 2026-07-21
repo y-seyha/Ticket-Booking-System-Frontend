@@ -33,7 +33,7 @@ interface SafeMoviePosterProps {
 }
 
 function SafeMoviePoster({ src, alt }: SafeMoviePosterProps) {
-  const defaultFallback = "/fallback-poster.jpg";
+  const defaultFallback = "/images/avatars/no-poster-available.jpg";
 
   const getInitialUrl = (): string => {
     if (!src) return defaultFallback;

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, Suspense } from "react";
+import { usePageTitle } from "@/hooks/usePageTitle";
 import Navbar from "@/components/common/Navbar";
 import Footer from "@/components/common/Footer";
 import HeroCarousel from "@/features/movies/components/HeroCarousel";
@@ -24,6 +25,7 @@ const staticCinemaBanner: CarouselItem[] = [
 ];
 
 export default function CinemasPage() {
+  usePageTitle("Cinemas");
   const [initialCinemas, setInitialCinemas] = useState<CinemaLocation[]>([]);
   const [isPageLoading, setIsPageLoading] = useState(true);
   const [hasError, setHasError] = useState(false);

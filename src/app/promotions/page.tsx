@@ -2,6 +2,7 @@
 
 import { useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { usePageTitle } from "@/hooks/usePageTitle";
 import Navbar from "@/components/common/Navbar";
 import Footer from "@/components/common/Footer";
 import HeroCarousel from "@/features/movies/components/HeroCarousel";
@@ -68,6 +69,7 @@ const staticOfferBanner: CarouselItem[] = [
 ];
 
 export default function OffersPage() {
+  usePageTitle("Promotions");
   const [visibleCount, setVisibleCount] = useState(6);
   const gridTopRef = useRef<HTMLDivElement>(null);
 

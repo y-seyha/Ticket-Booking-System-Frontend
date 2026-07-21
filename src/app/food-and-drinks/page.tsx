@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { ShoppingCart, Plus, Minus, X, Loader2, ChevronDown, ChevronUp, Trash2 } from "lucide-react";
 import { toast } from "sonner";
+import { usePageTitle } from "@/hooks/usePageTitle";
 import Navbar from "@/components/common/Navbar";
 import Footer from "@/components/common/Footer";
 import HeroCarousel from "@/features/movies/components/HeroCarousel";
@@ -32,6 +33,7 @@ const foodDrinksBanner: CarouselItem[] = [
 ];
 
 export default function FoodAndDrinksPage() {
+  usePageTitle("Food & Drinks");
   const router = useRouter();
   const [categories, setCategories] = useState<FoodCategory[]>([]);
   const [loading, setLoading] = useState(true);

@@ -4,6 +4,7 @@ import { Suspense, useEffect, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { QRCodeSVG } from "qrcode.react";
+import { usePageTitle } from "@/hooks/usePageTitle";
 import Navbar from "@/components/common/Navbar";
 import Footer from "@/components/common/Footer";
 import { ticketsApi } from "@/features/tickets/tickets.api";
@@ -50,6 +51,7 @@ export default function TicketPage() {
 }
 
 function TicketPageContent() {
+  usePageTitle("Ticket");
   const router = useRouter();
   const searchParams = useSearchParams();
   const tab = (searchParams.get("tab") as Tab) || "tickets";

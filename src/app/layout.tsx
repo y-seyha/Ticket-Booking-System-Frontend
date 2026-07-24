@@ -5,6 +5,8 @@ import { cn } from "@/lib/utils";
 import { ThemeProvider } from "@/components/themes/theme-provider";
 import { Toaster } from "sonner";
 import { AuthInitProvider } from "@/features/auth/providers/authInit.provider";
+import { GoogleAnalytics } from "@/components/analytics/GoogleAnalytics";
+import { Suspense } from "react";
 
 const roboto = Roboto({
   subsets: ["latin"],
@@ -78,6 +80,9 @@ export default function RootLayout({
           disableTransitionOnChange
         > */}
         {/* </ThemeProvider> */}
+        <Suspense fallback={null}>
+          <GoogleAnalytics />
+        </Suspense>
         <AuthInitProvider>{children}</AuthInitProvider>
         <Toaster position="bottom-right" richColors />
       </body>

@@ -62,6 +62,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
+      suppressHydrationWarning
       className={cn(
         "h-full",
         "antialiased",
@@ -73,18 +74,18 @@ export default function RootLayout({
       )}
     >
       <body className="min-h-full flex flex-col bg-gray-500">
-        {/* <ThemeProvider
-          attribute="class"
-          defaultTheme="system"
-          enableSystem
-          disableTransitionOnChange
-        > */}
-        {/* </ThemeProvider> */}
         <Suspense fallback={null}>
           <GoogleAnalytics />
         </Suspense>
-        <AuthInitProvider>{children}</AuthInitProvider>
-        <Toaster position="bottom-right" richColors />
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="light"
+          enableSystem={false}
+          disableTransitionOnChange
+        >
+          <AuthInitProvider>{children}</AuthInitProvider>
+          <Toaster position="bottom-right" richColors />
+        </ThemeProvider>
       </body>
     </html>
   );

@@ -165,8 +165,8 @@ export default function SeatTemplateDashboard() {
   };
 
   return (
-    <div className="min-h-screen bg-zinc-50/60 p-4 md:p-8 dark:bg-zinc-950 text-zinc-800 dark:text-zinc-100 antialiased">
-      <div className="mx-auto max-w-6xl space-y-6">
+    <div>
+      <div className="space-y-6">
         {/* HEADER */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-zinc-200/80 dark:border-zinc-900 pb-6">
           <div className="space-y-1">

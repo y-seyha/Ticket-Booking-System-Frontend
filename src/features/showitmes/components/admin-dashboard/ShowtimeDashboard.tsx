@@ -217,8 +217,8 @@ export default function ShowtimeDashboard() {
     loadingShowtimes || loadingMovies || loadingScreens;
 
   return (
-    <div className="min-h-screen bg-zinc-50/60 p-4 md:p-8 dark:bg-zinc-950 text-zinc-800 dark:text-zinc-100 antialiased">
-      <div className="mx-auto max-w-5xl space-y-6">
+    <div>
+      <div className="space-y-6">
         {/* Header Block Element */}
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 border-b border-zinc-100 dark:border-zinc-900 pb-5">
           <div className="space-y-1">

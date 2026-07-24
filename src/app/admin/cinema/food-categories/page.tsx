@@ -143,7 +143,7 @@ export default function FoodCategoriesPage() {
   };
 
   return (
-    <div className="w-full max-w-7xl mx-auto space-y-6 px-4 sm:px-6 lg:px-8 pt-6 sm:pt-8 lg:pt-10 box-border">
+    <div className="space-y-6 p-4 sm:p-6 max-w-7xl mx-auto min-h-screen">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between w-full border-b border-zinc-100 dark:border-zinc-800 pb-5">
         <div className="space-y-1 min-w-0">
           <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold tracking-tight text-zinc-900 dark:text-zinc-50 truncate flex items-center gap-2.5">

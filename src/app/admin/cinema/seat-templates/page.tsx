@@ -4,8 +4,8 @@ import SeatTemplateDashboard from "@/features/seat-templates/components/SeatTemp
 
 export default function SeatTemplatesPage() {
   return (
-    <main className="w-full min-h-screen bg-zinc-50/50 dark:bg-zinc-950">
+    <div className="space-y-6 p-4 sm:p-6 max-w-7xl mx-auto min-h-screen">
       <SeatTemplateDashboard />
-    </main>
+    </div>
   );
 }

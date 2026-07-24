@@ -54,15 +54,23 @@ export const userApi = {
     return apiRequest<UserResponse>("patch", `/users/${id}/unban`);
   },
 
-  changeUserRole(id: string, role: "USER" | "ADMIN" | "CASHIER") {
-    return apiRequest<UserResponse, { role: string }>(
+  changeUserRole(id: string, roleId: string) {
+    return apiRequest<UserResponse, { roleId: string }>(
       "patch",
       `/users/${id}/role`,
-      { role },
+      { roleId },
     );
   },
 
   deleteUser(id: string) {
     return apiRequest<UserMessageResponse>("delete", `/users/${id}`);
+  },
+
+  changePassword(currentPassword: string, newPassword: string) {
+    return apiRequest<{ message: string }, { currentPassword: string; newPassword: string }>(
+      "post",
+      "/auth/change-password",
+      { currentPassword, newPassword },
+    );
   },
 };

@@ -6,6 +6,7 @@ import SidebarHeader from "./SidebarHeader";
 import SidebarGroup from "./SidebarGroup";
 import SidebarUser from "./SidebarUser";
 import SidebarFooter from "./SidebarFooter";
+import { ThemeToggle } from "@/components/themes/theme-toggle";
 
 export default function Sidebar() {
   const [isOpen, setIsOpen] = useState(false);
@@ -58,6 +59,7 @@ export default function Sidebar() {
         {/* Locked Footer Structure Segment */}
         <div className="mt-auto border-t border-zinc-200 p-4 space-y-4 dark:border-zinc-800 bg-white dark:bg-zinc-950">
           <SidebarUser />
+          <ThemeToggle />
           <SidebarFooter />
         </div>
       </aside>

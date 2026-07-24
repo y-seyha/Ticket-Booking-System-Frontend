@@ -109,9 +109,9 @@ export const DesktopNavbar: FC<DesktopNavbarProps> = ({
         )}
 
         {/* RIGHT */}
-        <div className="flex justify-end items-center gap-3 lg:gap-5 min-w-0">
+        <div className="flex justify-end items-center gap-2 md:gap-3 lg:gap-5 min-w-0">
           {(showTicket || showJoinNow) && (
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2 md:gap-3">
               {showTicket && (
                 <Link
                   href="/ticket"
@@ -148,24 +148,26 @@ export const DesktopNavbar: FC<DesktopNavbarProps> = ({
             </div>
           )}
 
-          {/* NOTIFICATION */}
+          {/* NOTIFICATION WRAPPER */}
           {showNotification && (
-            <NotificationBell
-              open={openNotif}
-              onToggle={() => setOpenNotif(!openNotif)}
-            />
+            <div className="relative flex items-center justify-center">
+              <NotificationBell
+                open={openNotif}
+                onToggle={() => setOpenNotif(!openNotif)}
+              />
+            </div>
           )}
 
           {/* LANGUAGE */}
           {showLanguage && (
-            <div className="relative w-[75px] flex justify-end">
+            <div className="relative flex justify-end">
               {!isStoreReady ? (
                 <div className="w-16 h-6 rounded bg-white/10 animate-pulse" />
               ) : (
                 <>
                   <button
                     onClick={() => setOpenLang(!openLang)}
-                    className="flex items-center gap-2 cursor-pointer bg-transparent border-none text-white outline-none"
+                    className="flex items-center gap-1 md:gap-2 cursor-pointer bg-transparent border-none text-white outline-none"
                   >
                     <span className="w-5 h-5 flex items-center justify-center shadow-sm">
                       <currentLanguage.Flag />
@@ -181,7 +183,7 @@ export const DesktopNavbar: FC<DesktopNavbarProps> = ({
                   </button>
 
                   {openLang && (
-                    <div className="absolute right-0 mt-2 w-44 bg-zinc-950/95 backdrop-blur-md border border-white/10 rounded-xl overflow-hidden shadow-2xl z-50">
+                    <div className="absolute right-0 top-full mt-2 w-44 bg-zinc-950/95 backdrop-blur-md border border-white/10 rounded-xl overflow-hidden shadow-2xl z-50">
                       {languagesList.map((lang) => {
                         const FlagIcon = lang.Flag;
                         return (

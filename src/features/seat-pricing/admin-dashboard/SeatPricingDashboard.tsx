@@ -158,8 +158,8 @@ export default function SeatPricingDashboard() {
   };
 
   return (
-    <div className="min-h-screen bg-zinc-50/60 p-4 md:p-8 dark:bg-zinc-950 text-zinc-800 dark:text-zinc-100 antialiased">
-      <div className="mx-auto max-w-5xl space-y-6">
+    <div>
+      <div className="space-y-6">
         <DashboardHeader onAddClick={handleOpenCreate} />
 
         <DashboardControls

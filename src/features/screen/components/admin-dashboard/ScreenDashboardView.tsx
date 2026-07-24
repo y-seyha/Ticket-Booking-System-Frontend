@@ -160,8 +160,8 @@ export default function ScreenDashboardView() {
   }
 
   return (
-    <div className="min-h-screen bg-zinc-50/60 dark:bg-zinc-950 text-zinc-800 dark:text-zinc-100 antialiased">
-      <div className="mx-auto max-w-7xl space-y-6 p-4 sm:p-6 md:p-8">
+    <div>
+      <div className="space-y-6">
         {/* HEADER */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-zinc-100 dark:border-zinc-800 pb-5">
           <div className="space-y-1">

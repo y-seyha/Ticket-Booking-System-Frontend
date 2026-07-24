@@ -4,8 +4,8 @@ import ScreenTemplateDashboard from "@/features/screen-template/components/admin
 
 export default function ScreenTemplatesPage() {
   return (
-    <main className="min-h-screen w-full bg-zinc-50/40 dark:bg-zinc-950">
+    <div className="space-y-6 p-4 sm:p-6 max-w-7xl mx-auto min-h-screen">
       <ScreenTemplateDashboard />
-    </main>
+    </div>
   );
 }

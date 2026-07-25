@@ -7,7 +7,7 @@ export const metadata = {
 
 export default function ScreensPage() {
   return (
-    <div className="space-y-6 p-4 sm:p-6 max-w-7xl mx-auto min-h-screen">
+    <div className="space-y-6 px-6 py-8 sm:px-8 sm:py-10 max-w-7xl mx-auto min-h-screen">
       <ScreenDashboardView />
     </div>
   );

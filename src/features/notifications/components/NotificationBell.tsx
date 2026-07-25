@@ -182,7 +182,7 @@ export const NotificationBell: FC<NotificationBellProps> = ({
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: -8 }}
             transition={{ duration: 0.15, ease: "easeOut" }}
-            className="absolute right-0 mt-2 w-80 bg-zinc-900 border border-white/10 rounded-xl overflow-hidden shadow-2xl z-[9999] max-[500px]:fixed max-[500px]:top-20 max-[500px]:left-4 max-[500px]:right-4 max-[500px]:w-auto max-[500px]:mt-0"
+            className="absolute left-0 mt-2 w-80 bg-zinc-900 border border-white/10 rounded-xl overflow-hidden shadow-2xl z-[9999] max-[500px]:fixed max-[500px]:top-20 max-[500px]:left-4 max-[500px]:right-4 max-[500px]:w-auto max-[500px]:mt-0 md:left-auto md:right-0 lg:fixed lg:top-20 lg:left-1/2 lg:-translate-x-1/2 lg:w-[90vw] lg:max-w-md lg:mt-0 xl:absolute xl:right-0 xl:left-auto xl:translate-x-0 xl:mt-2 xl:w-80"
           >
             <div className="flex items-center justify-between px-4 py-3 border-b border-white/10">
               <div className="flex items-center gap-2">

@@ -83,7 +83,7 @@ export default function DashboardPage() {
   ], [summary.data, bookings.data]);
 
   return (
-    <div className="space-y-6 p-4 sm:p-6 max-w-7xl mx-auto min-h-screen">
+    <div className="space-y-6 px-6 py-8 sm:px-8 sm:py-10 max-w-7xl mx-auto min-h-screen">
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-zinc-100 dark:border-zinc-800 pb-5">
         <div>
           <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-zinc-900 dark:text-zinc-50">

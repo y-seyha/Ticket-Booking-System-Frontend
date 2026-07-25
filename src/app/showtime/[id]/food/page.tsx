@@ -3,14 +3,28 @@
 import { useEffect, useRef, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Image from "next/image";
-import { Plus, Minus, X, ShoppingCart, Ticket, Loader2, Trash2 } from "lucide-react";
+import {
+  Plus,
+  Minus,
+  X,
+  ShoppingCart,
+  Ticket,
+  Loader2,
+  Trash2,
+} from "lucide-react";
 import { toast } from "sonner";
 import Navbar from "@/components/common/Navbar";
 import Footer from "@/components/common/Footer";
-import { showtimesApi, BackendCartResponse } from "@/features/showitmes/showtimes.api";
+import {
+  showtimesApi,
+  BackendCartResponse,
+} from "@/features/showitmes/showtimes.api";
 import { foodAndBeverageApi } from "@/features/foods-and-beverage/foods-and-beverage.api";
 import { useAuthStore } from "@/features/auth/auth.store";
-import type { FoodCategory, FoodItem } from "@/features/foods-and-beverage/foods-and-beverage.types";
+import type {
+  FoodCategory,
+  FoodItem,
+} from "@/features/foods-and-beverage/foods-and-beverage.types";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -59,7 +73,8 @@ export default function ShowtimeFoodPage() {
         const stored = sessionStorage.getItem(CART_STORAGE_KEY);
         if (stored && !restored.current) {
           try {
-            const parsed: { id: string; quantity: number }[] = JSON.parse(stored);
+            const parsed: { id: string; quantity: number }[] =
+              JSON.parse(stored);
             const allItems = cats.flatMap((c) => c.items);
             const restoredCart: CartItem[] = [];
             for (const entry of parsed) {
@@ -132,17 +147,25 @@ export default function ShowtimeFoodPage() {
     toast.success("Cart cleared");
   };
 
-  const cartTotal = cart.reduce((sum, c) => sum + Number(c.item.price) * c.quantity, 0);
+  const cartTotal = cart.reduce(
+    (sum, c) => sum + Number(c.item.price) * c.quantity,
+    0,
+  );
   const cartCount = cart.reduce((sum, c) => sum + c.quantity, 0);
 
   const handleProceed = () => {
     if (cart.length > 0) {
-      sessionStorage.setItem("bookingFoodItems", JSON.stringify(cart.map((c) => ({
-        foodItemId: c.item.id,
-        name: c.item.name,
-        price: c.item.price,
-        quantity: c.quantity,
-      }))));
+      sessionStorage.setItem(
+        "bookingFoodItems",
+        JSON.stringify(
+          cart.map((c) => ({
+            foodItemId: c.item.id,
+            name: c.item.name,
+            price: c.item.price,
+            quantity: c.quantity,
+          })),
+        ),
+      );
     } else {
       sessionStorage.removeItem("bookingFoodItems");
     }
@@ -150,7 +173,10 @@ export default function ShowtimeFoodPage() {
   };
 
   const activeCategories = categories.filter((c) => c.isActive);
-  const activeItems = activeCategories.find((c) => c.id === activeCategory)?.items.filter((i) => i.isActive) || [];
+  const activeItems =
+    activeCategories
+      .find((c) => c.id === activeCategory)
+      ?.items.filter((i) => i.isActive) || [];
 
   if (loading) {
     return (
@@ -216,7 +242,7 @@ export default function ShowtimeFoodPage() {
                   <button
                     key={cat.id}
                     onClick={() => setActiveCategory(cat.id)}
-                    className={`shrink-0 px-4 py-1.5 rounded-lg text-xs font-bold uppercase tracking-wider transition-colors cursor-pointer ${
+                    className={`shrink-0 px-4 py-3 rounded-lg text-xs font-bold uppercase tracking-wider transition-colors cursor-pointer ${
                       activeCategory === cat.id
                         ? "bg-red-500 text-white"
                         : "bg-zinc-900 text-zinc-400 hover:text-white border border-zinc-800"
@@ -233,9 +259,10 @@ export default function ShowtimeFoodPage() {
                   return (
                     <div
                       key={item.id}
-                      className="bg-zinc-900/60 border border-zinc-800 rounded-2xl overflow-hidden hover:border-zinc-700 transition-colors"
+                      className="flex flex-col bg-zinc-900/60 border border-zinc-800 rounded-2xl overflow-hidden hover:border-zinc-700 transition-colors h-full"
                     >
-                      <div className="relative h-36 bg-zinc-800">
+                      {/* Increased height from h-36 to h-52 sm:h-56 */}
+                      <div className="relative h-52 sm:h-56 bg-zinc-800 shrink-0">
                         {item.image ? (
                           <Image
                             src={item.image.url}
@@ -246,35 +273,44 @@ export default function ShowtimeFoodPage() {
                           />
                         ) : (
                           <div className="flex items-center justify-center h-full text-zinc-700">
-                            <ShoppingCart className="w-8 h-8" />
+                            <ShoppingCart className="w-10 h-10" />
                           </div>
                         )}
                       </div>
-                      <div className="p-4">
-                        <div className="flex items-start justify-between gap-2">
-                          <div className="min-w-0">
-                            <h3 className="text-sm font-bold truncate">{item.name}</h3>
-                            {item.description && (
-                              <p className="text-xs text-zinc-500 mt-0.5 line-clamp-2">{item.description}</p>
-                            )}
+
+                      {/* Flex layout ensures details and controls fill the vertical space */}
+                      <div className="p-5 flex-1 flex flex-col justify-between space-y-4">
+                        <div className="space-y-1.5">
+                          <div className="flex items-start justify-between gap-2">
+                            <h3 className="text-base font-bold truncate">
+                              {item.name}
+                            </h3>
+                            <span className="shrink-0 text-sm font-bold text-emerald-400">
+                              ${Number(item.price).toFixed(2)}
+                            </span>
                           </div>
-                          <span className="shrink-0 text-sm font-bold text-emerald-400">
-                            ${Number(item.price).toFixed(2)}
-                          </span>
+                          {item.description && (
+                            <p className="text-xs text-zinc-400 line-clamp-3 leading-relaxed">
+                              {item.description}
+                            </p>
+                          )}
                         </div>
-                        <div className="flex items-center justify-between mt-3">
+
+                        <div className="pt-2">
                           {inCart ? (
-                            <div className="flex items-center gap-2">
+                            <div className="flex items-center justify-between bg-zinc-800/80 p-1.5 rounded-xl border border-zinc-700/50">
                               <button
                                 onClick={() => removeFromCart(item.id)}
-                                className="w-8 h-8 rounded-lg bg-zinc-800 flex items-center justify-center hover:bg-zinc-700 transition cursor-pointer"
+                                className="w-9 h-9 rounded-lg bg-zinc-700/60 flex items-center justify-center hover:bg-zinc-600 transition cursor-pointer"
                               >
                                 <Minus className="w-4 h-4" />
                               </button>
-                              <span className="text-sm font-bold w-6 text-center">{inCart.quantity}</span>
+                              <span className="text-sm font-bold w-8 text-center">
+                                {inCart.quantity}
+                              </span>
                               <button
                                 onClick={() => addToCart(item)}
-                                className="w-8 h-8 rounded-lg bg-red-600 flex items-center justify-center hover:bg-red-500 transition cursor-pointer"
+                                className="w-9 h-9 rounded-lg bg-red-600 flex items-center justify-center hover:bg-red-500 transition cursor-pointer"
                               >
                                 <Plus className="w-4 h-4" />
                               </button>
@@ -282,10 +318,10 @@ export default function ShowtimeFoodPage() {
                           ) : (
                             <button
                               onClick={() => addToCart(item)}
-                              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-red-600 text-xs font-bold hover:bg-red-500 transition cursor-pointer"
+                              className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl bg-red-600 text-xs font-bold hover:bg-red-500 transition cursor-pointer"
                             >
-                              <Plus className="w-3.5 h-3.5" />
-                              Add
+                              <Plus className="w-4 h-4" />
+                              Add to Order
                             </button>
                           )}
                         </div>
@@ -299,13 +335,18 @@ export default function ShowtimeFoodPage() {
             <div className="lg:col-span-1">
               <div className="sticky top-28 space-y-4">
                 <div className="bg-zinc-900/60 border border-zinc-800 rounded-2xl p-5 space-y-4">
-                  <h3 className="text-xs font-bold text-zinc-500 uppercase tracking-wider">Your Seats</h3>
+                  <h3 className="text-xs font-bold text-zinc-500 uppercase tracking-wider">
+                    Your Seats
+                  </h3>
                   {seats.length === 0 ? (
                     <p className="text-xs text-zinc-600">No seats selected</p>
                   ) : (
                     <div className="space-y-2">
                       {seats.map((item) => (
-                        <div key={item.seat.id} className="flex items-center gap-2 text-sm">
+                        <div
+                          key={item.seat.id}
+                          className="flex items-center gap-2 text-sm"
+                        >
                           <Ticket className="w-3.5 h-3.5 text-zinc-500 shrink-0" />
                           <span className="text-zinc-300 font-mono text-xs">
                             Row {item.seat.row} - Seat {item.seat.number}
@@ -336,10 +377,17 @@ export default function ShowtimeFoodPage() {
                   ) : (
                     <div className="space-y-2 max-h-48 overflow-y-auto">
                       {cart.map((c) => (
-                        <div key={c.item.id} className="flex items-center justify-between text-sm group">
+                        <div
+                          key={c.item.id}
+                          className="flex items-center justify-between text-sm group"
+                        >
                           <div className="flex items-center gap-2 min-w-0">
-                            <span className="text-zinc-300 truncate text-xs">{c.item.name}</span>
-                            <span className="text-zinc-600 text-xs">x{c.quantity}</span>
+                            <span className="text-zinc-300 truncate text-xs">
+                              {c.item.name}
+                            </span>
+                            <span className="text-zinc-600 text-xs">
+                              x{c.quantity}
+                            </span>
                           </div>
                           <div className="flex items-center gap-2 shrink-0">
                             <span className="text-zinc-300 font-mono text-xs">
@@ -360,7 +408,9 @@ export default function ShowtimeFoodPage() {
                   {cartCount > 0 && (
                     <div className="border-t border-zinc-800 pt-3 flex justify-between items-center">
                       <span className="text-xs text-zinc-500">Total</span>
-                      <span className="text-lg font-bold">${cartTotal.toFixed(2)}</span>
+                      <span className="text-lg font-bold">
+                        ${cartTotal.toFixed(2)}
+                      </span>
                     </div>
                   )}
                 </div>
@@ -369,7 +419,9 @@ export default function ShowtimeFoodPage() {
                   onClick={handleProceed}
                   className="w-full py-3.5 rounded-xl bg-gradient-to-r from-red-500 to-red-600 text-white text-sm font-bold uppercase tracking-wider hover:from-red-400 hover:to-red-500 transition-all active:scale-[0.98] cursor-pointer"
                 >
-                  {cartCount > 0 ? `Proceed to Checkout (${cartCount})` : "Skip — Proceed to Checkout"}
+                  {cartCount > 0
+                    ? `Proceed to Checkout (${cartCount})`
+                    : "Skip — Proceed to Checkout"}
                 </button>
               </div>
             </div>

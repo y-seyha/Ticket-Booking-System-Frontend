@@ -23,9 +23,8 @@ export default function CashierValidatePage() {
     try {
       const data = await ticketsApi.lookupByQrCode(qrCode.trim());
       setTicket(data);
-    } catch (err: any) {
-      const msg =
-        err?.response?.data?.message || "Ticket not found";
+    } catch (err: unknown) {
+      const msg = (err as { response?: { data?: { message?: string } } })?.response?.data?.message || "Ticket not found";
       setResult({ type: "error", message: msg });
     } finally {
       setLookupLoading(false);
@@ -43,9 +42,8 @@ export default function CashierValidatePage() {
         type: "success",
         message: "Entry granted — ticket validated successfully",
       });
-    } catch (err: any) {
-      const msg =
-        err?.response?.data?.message || "Validation failed";
+    } catch (err: unknown) {
+      const msg = (err as { response?: { data?: { message?: string } } })?.response?.data?.message || "Validation failed";
       setResult({ type: "error", message: msg });
     } finally {
       setLoading(false);

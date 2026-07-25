@@ -52,7 +52,7 @@ export default function MovieDashboard() {
   };
 
   return (
-    <div className="space-y-6 p-4 sm:p-6 max-w-7xl mx-auto min-h-screen">
+    <div className="space-y-6 px-6 py-8 sm:px-8 sm:py-10 max-w-7xl mx-auto min-h-screen">
       {/* Header section */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between w-full border-b border-zinc-100 dark:border-zinc-800 pb-5">
         <div className="space-y-1 min-w-0">

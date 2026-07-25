@@ -160,7 +160,7 @@ export default function AdminProfilePage() {
     : "";
 
   return (
-    <div className="space-y-6 p-4 sm:p-6 max-w-7xl mx-auto min-h-screen">
+    <div className="space-y-6 px-6 py-8 sm:px-8 sm:py-10 max-w-7xl mx-auto min-h-screen">
       {/* Page Header */}
       <div className="flex items-center justify-between">
         <div>

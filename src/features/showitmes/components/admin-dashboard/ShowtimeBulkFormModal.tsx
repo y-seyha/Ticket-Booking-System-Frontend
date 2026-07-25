@@ -40,6 +40,7 @@ export function ShowtimeBulkFormModal({
   const [dailySlots, setDailySlots] = useState<string[]>([]);
 
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+  const [validationError, setValidationError] = useState<string>('');
 
   const addDateToken = (): void => {
     if (dateInput && !targetDates.includes(dateInput)) {
@@ -75,13 +76,14 @@ export function ShowtimeBulkFormModal({
     e: React.FormEvent<HTMLFormElement>,
   ): Promise<void> => {
     e.preventDefault();
+    setValidationError('');
     if (
       !movieId ||
       selectedScreens.length === 0 ||
       targetDates.length === 0 ||
       dailySlots.length === 0
     ) {
-      alert("Please configure all mandatory array matrix nodes completely.");
+      setValidationError('Please configure all mandatory fields completely.');
       return;
     }
 
@@ -259,6 +261,11 @@ export function ShowtimeBulkFormModal({
         </div>
 
         {/* Action Button Controls Footer */}
+        {validationError && (
+          <div className="text-sm text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20 rounded-xl px-4 py-2.5 border border-red-200 dark:border-red-800">
+            {validationError}
+          </div>
+        )}
         <div className="flex justify-end gap-2 pt-4 border-t border-zinc-100 dark:border-zinc-900 mt-6 relative z-0">
           <button
             type="button"

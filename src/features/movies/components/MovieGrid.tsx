@@ -61,7 +61,7 @@ function SafeMoviePoster({ src, alt }: SafeMoviePosterProps) {
       src={imgSrc}
       alt={alt}
       fill
-      sizes="(max-w-768px) 50vw, (max-w-1024px) 33vw, 25vw"
+      sizes="(max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
       className="object-cover scale-100 group-hover:scale-105 transition-transform duration-500 ease-out will-change-transform"
       onError={() => {
         if (imgSrc !== defaultFallback) {

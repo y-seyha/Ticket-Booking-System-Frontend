@@ -1,12 +1,14 @@
 'use client';
 
+import dynamic from 'next/dynamic';
 import { usePageTitle } from '@/hooks/usePageTitle';
 import { StatCard } from '@/features/analytics/components/StatCard';
-import { RevenueChart } from '@/features/analytics/components/RevenueChart';
-import { BookingPieChart } from '@/features/analytics/components/BookingPieChart';
 import { MoviePerformanceTable } from '@/features/analytics/components/MoviePerformanceTable';
 import { DateRangePicker } from '@/features/analytics/components/DateRangePicker';
 import { useState, useMemo } from 'react';
+
+const RevenueChart = dynamic(() => import('@/features/analytics/components/RevenueChart').then(m => ({ default: m.RevenueChart })), { ssr: false });
+const BookingPieChart = dynamic(() => import('@/features/analytics/components/BookingPieChart').then(m => ({ default: m.BookingPieChart })), { ssr: false });
 import {
   DollarSign, Ticket, Users, Film, TrendingUp, Percent, UtensilsCrossed, BarChart3,
 } from 'lucide-react';

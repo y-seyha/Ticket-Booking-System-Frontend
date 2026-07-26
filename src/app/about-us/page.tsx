@@ -34,7 +34,6 @@ export default function AboutUsPage() {
             src={cinemaHeroImage}
             alt=""
             fill
-            priority
             className="object-cover scale-110 blur-[40px] sm:blur-[80px]"
           />
         </div>

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef, useMemo } from "react";
+import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
 import { AxiosError } from "axios";
 import {
@@ -12,11 +13,12 @@ import { showtimesApi } from "@/features/showitmes/showtimes.api";
 import { foodAndBeverageApi } from "@/features/foods-and-beverage/foods-and-beverage.api";
 import { Loader2 } from "lucide-react";
 import CheckoutCountdown from "@/features/payment/components/CheckoutCountdown";
-import PaymentMethods from "@/features/payment/components/PaymentMethods";
-import OrderSummary from "@/features/payment/components/OrderSummary";
 import { usePageTitle } from "@/hooks/usePageTitle";
 import Navbar from "@/components/common/Navbar";
-import Footer from "@/components/common/Footer";
+
+const Footer = dynamic(() => import("@/components/common/Footer"));
+const PaymentMethods = dynamic(() => import("@/features/payment/components/PaymentMethods"), { ssr: false });
+const OrderSummary = dynamic(() => import("@/features/payment/components/OrderSummary"), { ssr: false });
 import {
   Breadcrumb,
   BreadcrumbItem,

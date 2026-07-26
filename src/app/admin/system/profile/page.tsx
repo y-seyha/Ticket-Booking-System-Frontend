@@ -192,7 +192,7 @@ export default function AdminProfilePage() {
         <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6 p-6 border-b border-zinc-200 dark:border-zinc-800">
           <div className="relative w-24 h-24 rounded-full border-2 border-zinc-200 dark:border-zinc-700 p-1 flex-shrink-0">
             <div className="relative w-full h-full rounded-full overflow-hidden bg-zinc-100 dark:bg-zinc-800">
-              <Image src={avatarUrl} alt="Avatar" fill className="object-cover" unoptimized />
+              <Image src={avatarUrl} alt="Avatar" fill className="object-cover" />
             </div>
           </div>
           <div className="flex-1 min-w-0 text-center sm:text-left">
@@ -387,7 +387,7 @@ export default function AdminProfilePage() {
                     }`}
                   >
                     <div className="relative w-20 h-20 rounded-full border-2 border-zinc-200 dark:border-zinc-700 overflow-hidden bg-zinc-100 dark:bg-zinc-800 mb-3">
-                      <Image src={avatarUrl} alt="Avatar" fill className="object-cover" unoptimized />
+                      <Image src={avatarUrl} alt="Avatar" fill className="object-cover" />
                     </div>
                     <UploadCloud className={`w-6 h-6 mb-1.5 ${isDragging ? "text-zinc-900 dark:text-zinc-100" : "text-zinc-400"}`} />
                     <p className="text-sm font-medium text-zinc-600 dark:text-zinc-300">Click to browse or drag & drop photo</p>

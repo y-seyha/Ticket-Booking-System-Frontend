@@ -270,7 +270,6 @@ export default function ProfilePage() {
                     alt={profile.avatar.description}
                     fill
                     className="object-cover transition-transform duration-700 ease-out group-hover/avatar:scale-110"
-                    unoptimized
                   />
                   <div className="absolute inset-0 bg-black/60 backdrop-blur-[2px] flex flex-col items-center justify-center opacity-0 group-hover/avatar:opacity-100 transition-opacity duration-300">
                     <Settings className="w-4 h-4 text-white animate-spin-slow mb-0.5" />
@@ -485,7 +484,6 @@ export default function ProfilePage() {
                         alt="Avatar upload preview"
                         fill
                         className="object-cover"
-                        unoptimized
                       />
                     </div>
                     <UploadCloud

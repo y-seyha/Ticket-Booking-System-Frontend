@@ -124,6 +124,7 @@ const Navbar = ({
 
       <MobileNavbar
         showTicket={showTicket}
+        user={user}
         showNotification={showNotification}
         showLanguage={showLanguage}
         showSearch={showSearch}

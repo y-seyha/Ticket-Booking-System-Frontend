@@ -30,7 +30,6 @@ export default function ContactPage() {
             src={cinemaHeroImage}
             alt=""
             fill
-            priority
             className="object-cover scale-110 blur-[50px] sm:blur-[60px]"
           />
         </div>

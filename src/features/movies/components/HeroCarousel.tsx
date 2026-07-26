@@ -91,7 +91,6 @@ export default function HeroCarousel({
                 fill
                 priority={activeIndex === 0}
                 loading={activeIndex === 0 ? "eager" : undefined}
-                unoptimized={true} // Prevents image optimization processing on the heavy layout blur effect
                 className="object-cover scale-110 blur-[20px] sm:blur-[80px]"
               />
             </motion.div>
@@ -207,14 +206,8 @@ export default function HeroCarousel({
                     aria-label={`Go to slide ${index + 1}`}
                     className="p-1 group"
                   >
-                    <motion.div
-                      animate={{ width: activeIndex === index ? 24 : 8 }}
-                      transition={{
-                        type: "spring",
-                        stiffness: 400,
-                        damping: 28,
-                      }}
-                      className={`h-2 rounded-full transition-colors duration-300 ${activeIndex === index ? "bg-red-600" : "bg-white/40 group-hover:bg-white/70"}`}
+                    <div
+                      className={`h-2 rounded-full transition-all duration-300 ease-out ${activeIndex === index ? "w-6 bg-red-600" : "w-2 bg-white/40 group-hover:bg-white/70"}`}
                     />
                   </button>
                 ))}

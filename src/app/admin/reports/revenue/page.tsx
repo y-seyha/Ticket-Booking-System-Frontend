@@ -1,11 +1,13 @@
 'use client';
 
+import dynamic from 'next/dynamic';
 import { useState } from 'react';
 import { usePageTitle } from '@/hooks/usePageTitle';
-import { RevenueChart } from '@/features/analytics/components/RevenueChart';
 import { DateRangePicker } from '@/features/analytics/components/DateRangePicker';
 import { ExportButton } from '@/features/analytics/components/ExportButton';
 import { useRevenue } from '@/features/analytics/hooks/useDashboard';
+
+const RevenueChart = dynamic(() => import('@/features/analytics/components/RevenueChart').then(m => ({ default: m.RevenueChart })), { ssr: false });
 
 const GROUP_OPTIONS: { label: string; value: 'day' | 'week' | 'month' | 'year' }[] = [
   { label: 'Daily', value: 'day' },

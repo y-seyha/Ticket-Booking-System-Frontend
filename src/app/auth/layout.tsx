@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import Image from "next/image";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -68,10 +69,13 @@ export default function AuthLayout({
 
       {/* Background */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <img
-          src="/login-background.jpeg"
+        <Image
+          src="/login-background.webp"
           alt="background"
-          className="absolute w-[120%] h-[120%] top-[-10%] left-[-10%] object-cover scale-110 blur-2xl opacity-60"
+          fill
+          className="object-cover scale-110 blur-2xl opacity-60"
+          sizes="100vw"
+          priority
         />
         <div className="absolute inset-0 bg-[#0d1117]/60" />
       </div>
@@ -116,10 +120,13 @@ export default function AuthLayout({
         <div className="w-full grid md:grid-cols-2 bg-[#161b22]/80 backdrop-blur-xl rounded-2xl border border-white/10 overflow-hidden shadow-2xl">
           {/* LEFT IMAGE */}
           <div className="relative hidden md:block min-h-[650px]">
-            <img
-              src="/login-background.jpeg"
-              className="object-cover w-full h-full"
+            <Image
+              src="/login-background.webp"
               alt="Cinema"
+              fill
+              className="object-cover"
+              sizes="50vw"
+              loading="lazy"
             />
           </div>
 

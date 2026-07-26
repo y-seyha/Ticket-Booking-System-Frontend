@@ -8,12 +8,15 @@ import {
   MapPin,
   Home,
   Tag,
+  Shield,
+  Receipt,
+  Popcorn,
 } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
-import { LuPopcorn } from "react-icons/lu";
 import { Cinema } from "@/features/cinemas/cinemas.types";
 import { useLanguage } from "@/features/language/useLanuage";
+import type { User } from "@/features/auth/auth.types";
 import DesktopSearch from "@/features/search/components/DesktopSearch";
 import { NotificationBell } from "@/features/notifications/components/NotificationBell";
 
@@ -32,7 +35,7 @@ interface DesktopNavbarProps {
   logoFailed: boolean;
   setLogoFailed: (failed: boolean) => void;
   hydrated: boolean;
-  user: unknown;
+  user: User | null;
   router: { push: (url: string) => void };
   openLang: boolean;
   setOpenLang: (open: boolean) => void;
@@ -148,6 +151,26 @@ export const DesktopNavbar: FC<DesktopNavbarProps> = ({
             </div>
           )}
 
+          {/* ADMIN / CASHIER LINK */}
+          {user?.role === 'ADMIN' && (
+            <Link
+              href="/admin"
+              className="hidden lg:flex items-center gap-2 px-3 md:px-4 py-1.5 rounded-full bg-white/5 border border-white/10 text-sm hover:border-white/30 transition cursor-pointer"
+            >
+              <Shield className="w-4 h-4 text-red-400" />
+              <span className="hidden md:inline">Admin</span>
+            </Link>
+          )}
+          {user?.role === 'CASHIER' && (
+            <Link
+              href="/cashier"
+              className="hidden lg:flex items-center gap-2 px-3 md:px-4 py-1.5 rounded-full bg-white/5 border border-white/10 text-sm hover:border-white/30 transition cursor-pointer"
+            >
+              <Receipt className="w-4 h-4 text-amber-400" />
+              <span className="hidden md:inline">Cashier</span>
+            </Link>
+          )}
+
           {/* NOTIFICATION WRAPPER */}
           {showNotification && (
             <div className="relative flex items-center justify-center">
@@ -242,7 +265,7 @@ export const DesktopNavbar: FC<DesktopNavbarProps> = ({
                 href="/food-and-drinks"
                 className="flex items-center gap-2 group"
               >
-                <LuPopcorn className={navIcon("fb")} />
+                <Popcorn className={navIcon("fb")} />
                 <span className={navText("fb")}>{t("fb")}</span>
               </Link>
             </div>

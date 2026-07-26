@@ -8,14 +8,17 @@ import {
   MapPin,
   Home,
   Tag,
+  Shield,
+  Receipt,
+  Popcorn,
+  MoreHorizontal,
 } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
-import { LuPopcorn } from "react-icons/lu";
-import { CiSquareMore } from "react-icons/ci";
 import { Cinema } from "@/features/cinemas/cinemas.types";
 import { LanguageCode } from "@/features/language/useLanuage";
 import { translations } from "@/features/language/translations";
+import type { User } from "@/features/auth/auth.types";
 import { NotificationBell } from "@/features/notifications/components/NotificationBell";
 
 type NavKey = "home" | "cinemas" | "promotions" | "fb" | "tickets" | "more";
@@ -28,6 +31,7 @@ type Language = {
 
 interface MobileNavbarProps {
   showTicket: boolean;
+  user?: User | null;
   showNotification: boolean;
   showLanguage: boolean;
   showSearch: boolean;
@@ -53,6 +57,7 @@ interface MobileNavbarProps {
 
 export const MobileNavbar: FC<MobileNavbarProps> = ({
   showTicket,
+  user,
   showNotification,
   showLanguage,
   showSearch,
@@ -94,6 +99,23 @@ export const MobileNavbar: FC<MobileNavbarProps> = ({
                 className="w-10 h-10 flex items-center justify-center rounded-full bg-white/5 border border-white/10 hover:bg-white/10 transition"
               >
                 <Ticket className="w-5 h-5" />
+              </Link>
+            )}
+
+            {user?.role === 'ADMIN' && (
+              <Link
+                href="/admin"
+                className="w-10 h-10 flex items-center justify-center rounded-full bg-white/5 border border-white/10 hover:bg-white/10 transition"
+              >
+                <Shield className="w-5 h-5 text-red-400" />
+              </Link>
+            )}
+            {user?.role === 'CASHIER' && (
+              <Link
+                href="/cashier"
+                className="w-10 h-10 flex items-center justify-center rounded-full bg-white/5 border border-white/10 hover:bg-white/10 transition"
+              >
+                <Receipt className="w-5 h-5 text-amber-400" />
               </Link>
             )}
 
@@ -345,7 +367,7 @@ export const MobileNavbar: FC<MobileNavbarProps> = ({
                   className={`absolute inset-0 rounded-2xl transition-all duration-500
                   ${activeNav === "fb" ? "bg-red-500 opacity-100" : "bg-white/5 opacity-0"}`}
                 />
-                <LuPopcorn className="w-5 h-5 relative z-10" />
+                <Popcorn className="w-5 h-5 relative z-10" />
               </div>
               <span
                 className={`text-[11px] transition-all duration-300 ${activeNav === "fb" ? "text-white" : "text-zinc-400"}`}
@@ -368,7 +390,7 @@ export const MobileNavbar: FC<MobileNavbarProps> = ({
                   className={`absolute inset-0 rounded-2xl transition-all duration-500
                   ${activeNav === "more" ? "bg-red-500 opacity-100" : "bg-white/5 opacity-0"}`}
                 />
-                <CiSquareMore className="w-5 h-5 relative z-10" />
+                <MoreHorizontal className="w-5 h-5 relative z-10" />
               </div>
               <span
                 className={`text-[11px] transition-all duration-300 ${activeNav === "more" ? "text-white" : "text-zinc-400"}`}

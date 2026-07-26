@@ -73,6 +73,7 @@ export default function MovieHero({ movie }: MovieHeroProps) {
               alt={movie.title}
               fill
               className="object-cover object-center"
+              sizes="100vw"
               priority
             />
           )}

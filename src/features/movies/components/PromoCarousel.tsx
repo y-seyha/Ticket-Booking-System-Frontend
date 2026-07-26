@@ -85,7 +85,6 @@ export default function PromoCarousel({
                 src={promos[activeIndex].src}
                 alt=""
                 fill
-                priority
                 className="object-cover scale-150 blur-[50px] md:blur-[90px] origin-right"
               />
             </motion.div>
@@ -99,7 +98,7 @@ export default function PromoCarousel({
           className="relative z-10 cursor-grab active:cursor-grabbing"
         >
           <div className="flex">
-            {promos.map((item) => (
+            {promos.map((item, index) => (
               <div
                 key={item.id}
                 className="flex-[0_0_100%] min-w-0 w-full relative"
@@ -137,7 +136,7 @@ export default function PromoCarousel({
                       alt={item.title}
                       fill
                       sizes="(max-width: 768px) 100vw, 66vw"
-                      priority
+                      priority={index === 0}
                       className="object-cover select-none"
                     />
                     {/* Subtle overlay for text readability on mobile */}
@@ -162,17 +161,11 @@ export default function PromoCarousel({
             aria-label={`Go to promotion slide ${index + 1}`}
             className="p-1 group flex items-center justify-center"
           >
-            <motion.div
-              animate={{ width: activeIndex === index ? 24 : 8 }}
-              transition={{
-                type: "spring",
-                stiffness: 400,
-                damping: 28,
-              }}
-              className={`h-2 rounded-full transition-colors duration-300 ${
+            <div
+              className={`h-2 rounded-full transition-all duration-300 ease-out ${
                 activeIndex === index
-                  ? "bg-red-600"
-                  : "bg-zinc-700 group-hover:bg-zinc-500"
+                  ? "w-6 bg-red-600"
+                  : "w-2 bg-zinc-700 group-hover:bg-zinc-500"
               }`}
             />
           </button>

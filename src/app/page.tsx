@@ -1,9 +1,9 @@
 "use client";
 
 import { useState, useEffect, useMemo } from "react";
+import dynamic from "next/dynamic";
 import { motion, AnimatePresence } from "framer-motion";
 import { usePageTitle } from "@/hooks/usePageTitle";
-import Footer from "@/components/common/Footer";
 import Navbar from "@/components/common/Navbar";
 import NoticeModal from "@/components/common/NoticeModal";
 import HeroCarousel from "@/features/movies/components/HeroCarousel";
@@ -11,8 +11,10 @@ import MovieFilterTabs from "@/features/movies/components/MovieFilterTabs";
 import MovieDateTabs from "@/features/movies/components/MovieDateTabs";
 import MovieGrid from "@/features/movies/components/MovieGrid";
 
-import PromoCarousel from "@/features/movies/components/PromoCarousel";
 import { promoCarouselData } from "@/features/movies/data/promoCarouselImages";
+
+const Footer = dynamic(() => import("@/components/common/Footer"));
+const PromoCarousel = dynamic(() => import("@/features/movies/components/PromoCarousel"));
 import carouselImages from "@/features/movies/data/carouselImages";
 import { apiRequest } from "@/lib/config/axios";
 import { Movie, MovieItem } from "@/features/movies/movie.type";

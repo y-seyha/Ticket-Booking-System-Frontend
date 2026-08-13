@@ -2,7 +2,7 @@
 
 import { useState, useMemo, useEffect } from "react";
 import Modal from "@/components/ui/Modal";
-import { Search, Plus, CalendarCheck2, Loader2 } from "lucide-react";
+import { Search, Plus, CalendarCheck2, CalendarDays, X, Loader2 } from "lucide-react";
 import SmoothSelect from "@/components/ui/SmoothSelect";
 import { useShowtimes } from "../../useShowtimes";
 
@@ -39,11 +39,15 @@ export default function ShowtimeDashboard() {
   const {
     showtimes,
     loading: loadingShowtimes,
+    pagination,
+    filters,
+    setFilters,
+    setPage,
     createShowtime,
     updateShowtime,
     toggleShowtimeStatus,
     deleteShowtime,
-  } = useShowtimes();
+  } = useShowtimes({ limit: 10 });
 
   const { movies, isLoading: loadingMovies } = useMovies({
     page: 1,
@@ -53,9 +57,7 @@ export default function ShowtimeDashboard() {
 
   const [dbScreens, setDbScreens] = useState<Screen[]>([]);
   const [loadingScreens, setLoadingScreens] = useState(false);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [statusFilter, setStatusFilter] = useState("ALL");
-  const [screenFilter, setScreenFilter] = useState("ALL");
+  const [searchInput, setSearchInput] = useState("");
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
   const [isToggleOpen, setIsToggleOpen] = useState(false);
@@ -107,18 +109,39 @@ export default function ShowtimeDashboard() {
 
   const filterStatusOptions = [
     { value: "ALL", label: "All Runtime States" },
-    ...Object.values(ShowtimeStatus).map((s) => ({ value: s, label: s })),
+    { value: ShowtimeStatus.SCHEDULED, label: "Scheduled" },
+    { value: ShowtimeStatus.CANCELLED, label: "Cancelled" },
+    { value: ShowtimeStatus.FINISHED, label: "Finished" },
   ];
 
-  const screensDropdownOptions = useMemo(() => {
-    const activeKeys = new Set(
-      showtimes.map((st) => st.screen?.name).filter(Boolean),
-    );
-    return [
+  const screenFilterOptions = useMemo(
+    () => [
       { value: "ALL", label: "All Screen Venues" },
-      ...Array.from(activeKeys).map((name) => ({ value: name, label: name })),
+      ...dbScreens.map((s) => ({
+        value: s.id,
+        label: s.name ?? "Unknown Screen",
+      })),
+    ],
+    [dbScreens],
+  );
+
+  const theaterFilterOptions = useMemo(() => {
+    const theaterMap = new Map<string, string>();
+    for (const screen of dbScreens) {
+      const theaterId = screen.theater?.id;
+      const theaterName = screen.theater?.name;
+      if (theaterId && theaterName) {
+        theaterMap.set(theaterId, theaterName);
+      }
+    }
+    return [
+      { value: "ALL", label: "All Theater Complexes" },
+      ...Array.from(theaterMap.entries()).map(([id, name]) => ({
+        value: id,
+        label: name,
+      })),
     ];
-  }, [showtimes]);
+  }, [dbScreens]);
 
   const activeMovieOptions = useMemo(() => {
     return movies
@@ -133,12 +156,25 @@ export default function ShowtimeDashboard() {
       }));
   }, [movies]);
 
+  const movieFilterOptions = useMemo(
+    () => [{ value: "ALL", label: "All Movies" }, ...activeMovieOptions],
+    [activeMovieOptions],
+  );
+
   const activeScreenOptions = useMemo(() => {
     return dbScreens.map((s) => ({
       value: s.id,
       label: s.name ?? "Unknown Screen",
     }));
   }, [dbScreens]);
+
+  useEffect(() => {
+    if (searchInput === (filters.search ?? "")) return;
+    const timer = setTimeout(() => {
+      setFilters({ search: searchInput.trim() || undefined });
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [searchInput, filters.search, setFilters]);
 
   useEffect(() => {
     if (!activeShowtimeId) return;
@@ -170,23 +206,6 @@ export default function ShowtimeDashboard() {
       isCurrentFetch = false;
     };
   }, [activeShowtimeId]);
-
-  // Comprehensive Filter Pipeline
-  const filteredDataset = useMemo(() => {
-    return showtimes.filter((st) => {
-      const matchesSearch =
-        st.movie?.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        st.screen?.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        st.basePrice.toString().includes(searchQuery);
-
-      const matchesStatus =
-        statusFilter === "ALL" || st.status === statusFilter;
-      const matchesScreen =
-        screenFilter === "ALL" || st.screen?.name === screenFilter;
-
-      return matchesSearch && matchesStatus && matchesScreen;
-    });
-  }, [showtimes, searchQuery, statusFilter, screenFilter]);
 
   const handleToggleStatusSubmit = async () => {
     if (!activeShowtimeCtx) return;
@@ -251,37 +270,92 @@ export default function ShowtimeDashboard() {
         </div>
 
         {/* Filters Controls Panel */}
-        <div className="w-full grid grid-cols-1 md:grid-cols-3 gap-3 p-4 rounded-2xl border border-zinc-200/60 dark:border-zinc-800/50 bg-white dark:bg-zinc-900/20 shadow-xs">
+        <div className="w-full grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3 p-4 rounded-2xl border border-zinc-200/60 dark:border-zinc-800/50 bg-white dark:bg-zinc-900/20 shadow-xs">
           <div className="relative">
             <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-400" />
             <input
               type="text"
-              placeholder="Search by title, screen, base cost..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search by title, screen, theater..."
+              value={searchInput}
+              onChange={(e) => setSearchInput(e.target.value)}
               className="w-full pl-10 pr-4 py-2 text-xs rounded-xl border border-zinc-200/80 dark:border-zinc-800/80 bg-zinc-50/30 dark:bg-zinc-950/40 text-zinc-900 dark:text-zinc-50 focus:outline-none focus:ring-1 focus:ring-zinc-400 dark:focus:ring-zinc-600 transition"
             />
           </div>
 
+          <div className="relative">
+            <CalendarDays className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-400 pointer-events-none" />
+            <input
+              type="date"
+              value={filters.date ?? ""}
+              onChange={(e) =>
+                setFilters({ date: e.target.value || undefined })
+              }
+              className="w-full pl-10 pr-9 py-2 text-xs rounded-xl border border-zinc-200/80 dark:border-zinc-800/80 bg-zinc-50/30 dark:bg-zinc-950/40 text-zinc-900 dark:text-zinc-50 focus:outline-none focus:ring-1 focus:ring-zinc-400 dark:focus:ring-zinc-600 transition"
+            />
+            {filters.date && (
+              <button
+                type="button"
+                onClick={() => setFilters({ date: undefined })}
+                title="Clear date filter"
+                className="absolute right-2.5 top-1/2 -translate-y-1/2 cursor-pointer inline-flex items-center justify-center h-5 w-5 rounded-md text-zinc-400 hover:text-zinc-700 hover:bg-zinc-100 dark:hover:text-zinc-200 dark:hover:bg-zinc-800 transition"
+              >
+                <X className="h-3.5 w-3.5" />
+              </button>
+            )}
+          </div>
+
           <SmoothSelect
-            options={filterStatusOptions}
-            selectedValue={statusFilter}
-            onChange={setStatusFilter}
-            placeholder="Filter by Status"
+            options={movieFilterOptions}
+            selectedValue={filters.movieId ?? "ALL"}
+            onChange={(value) =>
+              setFilters({
+                movieId: value === "ALL" ? undefined : value,
+              })
+            }
+            placeholder="Filter by Movie"
           />
 
           <SmoothSelect
-            options={screensDropdownOptions}
-            selectedValue={screenFilter}
-            onChange={setScreenFilter}
-            placeholder="Filter by Screen Hall"
+            options={screenFilterOptions}
+            selectedValue={filters.screenId ?? "ALL"}
+            onChange={(value) =>
+              setFilters({
+                screenId: value === "ALL" ? undefined : value,
+              })
+            }
+            placeholder="Filter by Screen Venue"
+          />
+
+          <SmoothSelect
+            options={theaterFilterOptions}
+            selectedValue={filters.theaterId ?? "ALL"}
+            onChange={(value) =>
+              setFilters({
+                theaterId: value === "ALL" ? undefined : value,
+              })
+            }
+            placeholder="Filter by Theater Complex"
+          />
+
+          <SmoothSelect
+            options={filterStatusOptions}
+            selectedValue={filters.status ?? "ALL"}
+            onChange={(value) =>
+              setFilters({
+                status:
+                  value === "ALL" ? undefined : (value as ShowtimeStatus),
+              })
+            }
+            placeholder="Filter by Status"
           />
         </div>
 
         {/* Showtime Table Component */}
         <ShowtimeTable
           loading={dashboardLoadingState}
-          showtimes={filteredDataset}
+          showtimes={showtimes}
+          pagination={pagination}
+          onPageChange={setPage}
           onOpenDetails={(st) => {
             setActiveShowtimeId(st.id);
           }}

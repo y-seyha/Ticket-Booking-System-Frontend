@@ -8,20 +8,49 @@ import {
   CreateShowtimeDto,
   UpdateShowtimeDto,
   ShowtimeStatus,
+  ShowtimeQuery,
+  PaginationMeta,
 } from "./showtimes.types";
 
-export function useShowtimes() {
+export interface ShowtimeFilters {
+  search?: string;
+  movieId?: string;
+  screenId?: string;
+  theaterId?: string;
+  status?: ShowtimeStatus;
+  date?: string;
+}
+
+export function useShowtimes(options?: { limit?: number }) {
   const [showtimes, setShowtimes] = useState<Showtime[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [pagination, setPagination] = useState<PaginationMeta>({
+    total: 0,
+    page: 1,
+    limit: options?.limit ?? 10,
+    totalPages: 1,
+  });
+  const [filters, setFilters] = useState<ShowtimeFilters>({});
+  const [page, setPageState] = useState(1);
 
   const fetchShowtimes = useCallback(async () => {
     setLoading(true);
     setError(null);
 
+    const query: ShowtimeQuery = {
+      page,
+      limit: options?.limit ?? 10,
+      ...filters,
+    };
+    const cleanQuery = Object.fromEntries(
+      Object.entries(query).filter(([, value]) => value !== undefined),
+    ) as ShowtimeQuery;
+
     try {
-      const data = await showtimesApi.getAll();
-      setShowtimes(data);
+      const response = await showtimesApi.getAll(cleanQuery);
+      setShowtimes(response.data);
+      setPagination(response.pagination);
     } catch (err: unknown) {
       const message =
         err instanceof Error ? err.message : "Failed to load showtimes.";
@@ -31,12 +60,24 @@ export function useShowtimes() {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [page, filters, options?.limit]);
 
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     void fetchShowtimes();
   }, [fetchShowtimes]);
+
+  const setPage = useCallback((nextPage: number) => {
+    setPageState(Math.max(1, nextPage));
+  }, []);
+
+  const setActiveFilters = useCallback(
+    (next: Partial<ShowtimeFilters>) => {
+      setFilters((prev) => ({ ...prev, ...next }));
+      setPageState(1);
+    },
+    [],
+  );
 
   const createShowtime = async (dto: CreateShowtimeDto) => {
     setError(null);
@@ -122,7 +163,12 @@ export function useShowtimes() {
     try {
       await showtimesApi.delete(id);
 
-      setShowtimes((prev) => prev.filter((showtime) => showtime.id !== id));
+      const remaining = showtimes.filter((showtime) => showtime.id !== id);
+      setShowtimes(remaining);
+
+      if (remaining.length === 0 && pagination.page > 1) {
+        setPage(pagination.page - 1);
+      }
 
       toast.success("Showtime deleted successfully.");
     } catch (err: unknown) {
@@ -140,6 +186,10 @@ export function useShowtimes() {
     showtimes,
     loading,
     error,
+    pagination,
+    filters,
+    setFilters: setActiveFilters,
+    setPage,
     refresh: fetchShowtimes,
     createShowtime,
     updateShowtime,

@@ -3,9 +3,8 @@
 import React, { useState } from "react";
 import { Movie } from "../../movie.type";
 import Modal from "@/components/ui/Modal";
-import { Film } from "lucide-react";
 import { extractYouTubeVideoId } from "@/lib/helpers";
-import Image from "next/image";
+import { ImageUploader } from "@/components/common/ImageUploader";
 
 export interface CreateMoviePayload {
   title: string;
@@ -39,13 +38,7 @@ export default function MovieFormModal({
 
   const [posterFile, setPosterFile] = useState<File | null>(null);
 
-  const [previewUrl, setPreviewUrl] = useState<string | null>(
-    movie?.poster &&
-      typeof movie.poster === "string" &&
-      movie.poster.trim() !== ""
-      ? movie.poster
-      : null,
-  );
+  const existingPosterUrl = movie?.poster || null;
 
   const getInitialDate = () => {
     if (!movie?.releaseDate) return "";
@@ -58,14 +51,6 @@ export default function MovieFormModal({
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const youtubeId = extractYouTubeVideoId(trailerYoutubeId);
-
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0] || null;
-    setPosterFile(file);
-    if (file) {
-      setPreviewUrl(URL.createObjectURL(file));
-    }
-  };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -103,38 +88,19 @@ export default function MovieFormModal({
         onSubmit={handleSubmit}
         className="space-y-4 max-h-[80vh] overflow-y-auto px-1 custom-scrollbar"
       >
-        {/* Poster Upload Section with Visual Preview Feedback */}
-        <div className="flex items-center gap-4 p-3 bg-zinc-50 dark:bg-zinc-900/50 rounded-xl border border-zinc-100 dark:border-zinc-800">
-          <div className="relative h-24 w-16 rounded-md bg-zinc-200 dark:bg-zinc-800 flex items-center justify-center overflow-hidden border border-zinc-200 dark:border-zinc-700 shrink-0">
-            {previewUrl ? (
-              <div className="relative h-24 w-16 overflow-hidden rounded-md">
-                <Image
-                  src={previewUrl}
-                  alt="Movie Poster Canvas Preview"
-                  fill
-                  sizes="64px"
-                  priority
-                  className="object-cover"
-                />
-              </div>
-            ) : (
-              <Film className="h-6 w-6 text-zinc-400" />
-            )}
-          </div>
-          <div className="flex-1 space-y-1">
-            <label className="block text-xs font-semibold text-zinc-600 dark:text-zinc-400 uppercase tracking-wider">
-              {movie ? "Replace Movie Poster" : "Upload Movie Poster"}
-            </label>
-            <input
-              type="file"
-              accept="image/*"
-              onChange={handleFileChange}
-              className="w-full text-xs text-zinc-500 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-zinc-900 file:text-white dark:file:bg-zinc-50 dark:file:text-zinc-950 hover:file:opacity-90 transition-opacity"
-            />
-            <p className="text-[10px] text-zinc-400">
-              Accepts PNG, JPG, JPEG formats.
-            </p>
-          </div>
+        {/* Poster Upload Section with Drag & Drop Support */}
+        <div className="p-3 bg-zinc-50 dark:bg-zinc-900/50 rounded-xl border border-zinc-100 dark:border-zinc-800">
+          <ImageUploader
+            variant="tile"
+            value={existingPosterUrl}
+            onChange={setPosterFile}
+            onRemove={() => setPosterFile(null)}
+            label={
+              movie ? "Replace Movie Poster" : "Upload Movie Poster"
+            }
+            hint="Accepts PNG, JPG, JPEG formats"
+            previewClassName="relative h-24 w-16 mx-auto overflow-hidden rounded-md"
+          />
         </div>
 
         <div>

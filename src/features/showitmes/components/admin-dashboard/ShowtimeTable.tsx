@@ -10,12 +10,20 @@ import {
   Clock,
   AlertTriangle,
   CheckSquare,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
-import { Showtime, ShowtimeStatus } from "../../showtimes.types";
+import {
+  PaginationMeta,
+  Showtime,
+  ShowtimeStatus,
+} from "../../showtimes.types";
 
 interface TableProps {
   loading: boolean;
   showtimes: Showtime[];
+  pagination: PaginationMeta;
+  onPageChange: (page: number) => void;
   onOpenDetails: (showtime: Showtime) => void;
   onOpenEdit: (showtime: Showtime) => void;
   onOpenDelete: (showtime: Showtime) => void;
@@ -25,6 +33,8 @@ interface TableProps {
 export function ShowtimeTable({
   loading,
   showtimes,
+  pagination,
+  onPageChange,
   onOpenDetails,
   onOpenEdit,
   onOpenDelete,
@@ -65,6 +75,12 @@ export function ShowtimeTable({
         text: "text-zinc-600 dark:text-zinc-400",
         icon: <CheckSquare className="h-3 w-3" />,
         label: "Completed",
+      },
+      [ShowtimeStatus.FINISHED]: {
+        bg: "bg-sky-50 dark:bg-sky-950/30 border-sky-200/60 dark:border-sky-900/40",
+        text: "text-sky-700 dark:text-sky-400",
+        icon: <CheckSquare className="h-3 w-3" />,
+        label: "Finished",
       },
     };
 
@@ -130,7 +146,7 @@ export function ShowtimeTable({
                 className="hover:bg-zinc-50/40 dark:hover:bg-zinc-900/20 transition-colors"
               >
                 <td className="py-4 px-6 text-center font-mono text-xs font-semibold text-zinc-400 dark:text-zinc-500">
-                  {String(index + 1).padStart(2, "0")}
+                  {(pagination.page - 1) * pagination.limit + index + 1}
                 </td>
                 <td className="py-4 px-6 font-bold text-zinc-900 dark:text-zinc-50 tracking-wide">
                   <div className="flex flex-col">
@@ -201,6 +217,37 @@ export function ShowtimeTable({
           )}
         </tbody>
       </table>
+
+      {/* Pagination Footer */}
+      <div className="flex flex-col sm:flex-row items-center justify-between gap-3 px-6 py-4 border-t border-zinc-200/80 dark:border-zinc-800/80">
+        <p className="text-xs font-medium text-zinc-400 dark:text-zinc-500">
+          {pagination.total > 0
+            ? `${(pagination.page - 1) * pagination.limit + 1}–${Math.min(
+                pagination.page * pagination.limit,
+                pagination.total,
+              )} of ${pagination.total} showtimes`
+            : "No showtimes found"}
+        </p>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => onPageChange(pagination.page - 1)}
+            disabled={loading || pagination.page <= 1}
+            className="cursor-pointer inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-zinc-600 dark:text-zinc-300 border border-zinc-200/80 dark:border-zinc-800 bg-white dark:bg-zinc-900 rounded-lg transition hover:bg-zinc-50 dark:hover:bg-zinc-800 disabled:opacity-40 disabled:cursor-not-allowed"
+          >
+            <ChevronLeft className="h-3.5 w-3.5" /> Prev
+          </button>
+          <span className="px-3 py-1.5 text-xs font-mono font-semibold text-zinc-700 dark:text-zinc-300 border border-zinc-200/80 dark:border-zinc-800 rounded-lg bg-zinc-50 dark:bg-zinc-950">
+            Page {pagination.page} of {Math.max(pagination.totalPages, 1)}
+          </span>
+          <button
+            onClick={() => onPageChange(pagination.page + 1)}
+            disabled={loading || pagination.page >= pagination.totalPages}
+            className="cursor-pointer inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-zinc-600 dark:text-zinc-300 border border-zinc-200/80 dark:border-zinc-800 bg-white dark:bg-zinc-900 rounded-lg transition hover:bg-zinc-50 dark:hover:bg-zinc-800 disabled:opacity-40 disabled:cursor-not-allowed"
+          >
+            Next <ChevronRight className="h-3.5 w-3.5" />
+          </button>
+        </div>
+      </div>
     </div>
   );
 }

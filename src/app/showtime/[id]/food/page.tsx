@@ -262,19 +262,20 @@ export default function ShowtimeFoodPage() {
                       className="flex flex-col bg-zinc-900/60 border border-zinc-800 rounded-2xl overflow-hidden hover:border-zinc-700 transition-colors h-full"
                     >
                       {/* Increased height from h-36 to h-52 sm:h-56 */}
-                      <div className="relative h-52 sm:h-56 bg-zinc-800 shrink-0">
+                      <div className="relative aspect-[4/3] sm:aspect-[16/9] w-full overflow-hidden bg-zinc-800 shrink-0">
                         {item.image ? (
-                          <Image
-                            src={item.image.url}
-                            alt={item.name}
-                            fill
-                            className="object-cover"
-                            sizes="(max-width: 640px) 100vw, 50vw"
-                          />
+                            <Image
+                                src={item.image.url}
+                                alt={item.name}
+                                fill
+                                priority={false}
+                                className="object-cover object-center transition-transform duration-300 hover:scale-105"
+                                sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                            />
                         ) : (
-                          <div className="flex items-center justify-center h-full text-zinc-700">
-                            <ShoppingCart className="w-10 h-10" />
-                          </div>
+                            <div className="flex h-full w-full items-center justify-center text-zinc-600">
+                              <ShoppingCart className="h-10 w-10 sm:h-12 sm:w-12" />
+                            </div>
                         )}
                       </div>
 

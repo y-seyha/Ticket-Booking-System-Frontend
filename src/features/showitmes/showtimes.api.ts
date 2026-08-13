@@ -2,7 +2,9 @@ import { apiRequest } from "@/lib/config/axios";
 import {
   CreateBulkScheduleDto,
   CreateShowtimeDto,
+  PaginatedShowtimes,
   Showtime,
+  ShowtimeQuery,
   ShowtimeStatus,
   UpdateShowtimeDto,
 } from "./showtimes.types";
@@ -57,8 +59,10 @@ export const showtimesApi = {
     apiRequest<{ message?: string }>("delete", `/seats/cart/clear`),
 
   //-- admin operation
-  getAll: async (): Promise<Showtime[]> => {
-    return await apiRequest<Showtime[]>("get", "/showtimes");
+  getAll: async (params?: ShowtimeQuery): Promise<PaginatedShowtimes> => {
+    return await apiRequest<PaginatedShowtimes>("get", "/showtimes", undefined, {
+      params,
+    });
   },
 
   getOne: async (id: string): Promise<Showtime> => {

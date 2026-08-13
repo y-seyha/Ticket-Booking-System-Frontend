@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import {
@@ -11,7 +11,6 @@ import {
   ChevronRight,
   Settings,
   X,
-  UploadCloud,
   EyeOff,
   Eye,
   LogOut,
@@ -23,6 +22,7 @@ import { toast } from "sonner"; // Imported sonner toast helper
 import { usePageTitle } from "@/hooks/usePageTitle";
 import Navbar from "@/components/common/Navbar";
 import Footer from "@/components/common/Footer";
+import { ImageUploader } from "@/components/common/ImageUploader";
 import { useAuth } from "@/features/auth/auth.hook";
 import { userApi } from "@/features/user/user.api";
 import { UpdateProfileDto } from "@/features/user/user.types";
@@ -61,42 +61,8 @@ export default function ProfilePage() {
   const [avatarUrl, setAvatarUrl] = useState(
     "/images/avatars/default-avatar.jpg",
   );
-  const [isDragging, setIsDragging] = useState(false);
   const [showId, setShowId] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
-
-  const fileInputRef = useRef<HTMLInputElement>(null);
-
-  const processFile = (file: File) => {
-    if (file && file.type.startsWith("image/")) {
-      setSelectedFile(file);
-      const temporaryPreviewUrl = URL.createObjectURL(file);
-      setAvatarUrl(temporaryPreviewUrl);
-    }
-  };
-
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      processFile(e.target.files[0]);
-    }
-  };
-
-  const handleDragOver = (e: React.DragEvent) => {
-    e.preventDefault();
-    setIsDragging(true);
-  };
-
-  const handleDragLeave = () => {
-    setIsDragging(false);
-  };
-
-  const handleDrop = (e: React.DragEvent) => {
-    e.preventDefault();
-    setIsDragging(false);
-    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
-      processFile(e.dataTransfer.files[0]);
-    }
-  };
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -453,49 +419,26 @@ export default function ProfilePage() {
             <form onSubmit={handleSave}>
               <div className="p-6 space-y-5">
                 <div className="space-y-2">
-                  <label className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider block">
-                    Profile Avatar
-                  </label>
-                  <input
-                    type="file"
-                    ref={fileInputRef}
-                    onChange={handleFileChange}
-                    accept="image/*"
-                    className="hidden"
+                  <ImageUploader
+                    variant="avatar"
+                    value={avatarUrl}
+                    onChange={(file) => {
+                      setSelectedFile(file);
+                      if (file) {
+                        setAvatarUrl(URL.createObjectURL(file));
+                      }
+                    }}
+                    onRemove={() => {
+                      setSelectedFile(null);
+                      setAvatarUrl(
+                        profile?.avatar?.url ??
+                          "/images/avatars/default-avatar.jpg",
+                      );
+                    }}
                     disabled={isUpdating}
+                    label="Profile Avatar"
+                    hint="PNG, JPG, or WEBP formats accepted"
                   />
-
-                  <div
-                    onClick={() => !isUpdating && fileInputRef.current?.click()}
-                    onDragOver={handleDragOver}
-                    onDragLeave={handleDragLeave}
-                    onDrop={handleDrop}
-                    className={`border border-dashed rounded-xl p-5 flex flex-col items-center justify-center text-center cursor-pointer transition-all duration-300 group/upload ${
-                      isUpdating ? "pointer-events-none opacity-50" : ""
-                    } ${
-                      isDragging
-                        ? "border-red-500 bg-red-500/5"
-                        : "border-white/10 bg-zinc-900/30 hover:border-white/25 hover:bg-zinc-900/50"
-                    }`}
-                  >
-                    <div className="relative w-20 h-20 rounded-full border-2 border-white/10 overflow-hidden bg-zinc-950 mb-3 shadow-md">
-                      <Image
-                        src={avatarUrl}
-                        alt="Avatar upload preview"
-                        fill
-                        className="object-cover"
-                      />
-                    </div>
-                    <UploadCloud
-                      className={`w-6 h-6 mb-1.5 transition-colors duration-200 ${isDragging ? "text-red-400" : "text-zinc-500 group-hover/upload:text-zinc-300"}`}
-                    />
-                    <p className="text-xs font-semibold text-zinc-200">
-                      Click to browse or drag & drop photo
-                    </p>
-                    <p className="text-[10px] text-zinc-500 font-medium mt-0.5">
-                      PNG, JPG, or WEBP formats accepted
-                    </p>
-                  </div>
                 </div>
 
                 <div className="space-y-1.5">

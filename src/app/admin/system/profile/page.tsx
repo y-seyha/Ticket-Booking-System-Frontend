@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useEffect } from "react";
 import Image from "next/image";
 import {
   User,
@@ -8,7 +8,6 @@ import {
   Shield,
   Calendar,
   X,
-  UploadCloud,
   EyeOff,
   Eye,
   Key,
@@ -23,6 +22,7 @@ import { toast } from "sonner";
 import { useAuth } from "@/features/auth/auth.hook";
 import { userApi } from "@/features/user/user.api";
 import type { UpdateProfileDto } from "@/features/user/user.types";
+import { ImageUploader } from "@/components/common/ImageUploader";
 
 export default function AdminProfilePage() {
   const { logout } = useAuth();
@@ -37,7 +37,6 @@ export default function AdminProfilePage() {
   const [lastName, setLastName] = useState("");
   const [phone, setPhone] = useState("");
   const [avatarUrl, setAvatarUrl] = useState("/images/avatars/default-avatar.jpg");
-  const [isDragging, setIsDragging] = useState(false);
   const [showId, setShowId] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
@@ -45,8 +44,6 @@ export default function AdminProfilePage() {
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [changingPassword, setChangingPassword] = useState(false);
-
-  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     const loadProfile = async () => {
@@ -66,11 +63,18 @@ export default function AdminProfilePage() {
     loadProfile();
   }, []);
 
-  const processFile = (file: File) => {
-    if (file?.type.startsWith("image/")) {
-      setSelectedFile(file);
+  const handleAvatarChange = (file: File | null) => {
+    setSelectedFile(file);
+    if (file) {
       setAvatarUrl(URL.createObjectURL(file));
     }
+  };
+
+  const handleAvatarRemove = () => {
+    setSelectedFile(null);
+    setAvatarUrl(
+      profile?.profile?.avatar?.url ?? "/images/avatars/default-avatar.jpg",
+    );
   };
 
   const handleSave = async (e: React.FormEvent) => {
@@ -362,37 +366,15 @@ export default function AdminProfilePage() {
               <div className="p-6 space-y-5">
                 {/* Avatar Upload */}
                 <div className="space-y-2">
-                  <label className="text-xs font-semibold text-zinc-500 uppercase tracking-wider block">
-                    Profile Avatar
-                  </label>
-                  <input
-                    type="file"
-                    ref={fileInputRef}
-                    onChange={(e) => e.target.files?.[0] && processFile(e.target.files[0])}
-                    accept="image/*"
-                    className="hidden"
+                  <ImageUploader
+                    variant="avatar"
+                    value={avatarUrl}
+                    onChange={handleAvatarChange}
+                    onRemove={handleAvatarRemove}
                     disabled={isUpdating}
+                    label="Profile Avatar"
+                    hint="PNG, JPG, or WEBP"
                   />
-                  <div
-                    onClick={() => !isUpdating && fileInputRef.current?.click()}
-                    onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
-                    onDragLeave={() => setIsDragging(false)}
-                    onDrop={(e) => { e.preventDefault(); setIsDragging(false); e.dataTransfer.files?.[0] && processFile(e.dataTransfer.files[0]); }}
-                    className={`border border-dashed rounded-xl p-5 flex flex-col items-center justify-center text-center cursor-pointer transition-all duration-200 ${
-                      isUpdating ? "pointer-events-none opacity-50" : ""
-                    } ${
-                      isDragging
-                        ? "border-zinc-900 dark:border-zinc-100 bg-zinc-50 dark:bg-zinc-900"
-                        : "border-zinc-200 dark:border-zinc-800 bg-zinc-50/50 dark:bg-zinc-900/50 hover:border-zinc-400 dark:hover:border-zinc-600"
-                    }`}
-                  >
-                    <div className="relative w-20 h-20 rounded-full border-2 border-zinc-200 dark:border-zinc-700 overflow-hidden bg-zinc-100 dark:bg-zinc-800 mb-3">
-                      <Image src={avatarUrl} alt="Avatar" fill className="object-cover" />
-                    </div>
-                    <UploadCloud className={`w-6 h-6 mb-1.5 ${isDragging ? "text-zinc-900 dark:text-zinc-100" : "text-zinc-400"}`} />
-                    <p className="text-sm font-medium text-zinc-600 dark:text-zinc-300">Click to browse or drag & drop photo</p>
-                    <p className="text-xs text-zinc-400 mt-0.5">PNG, JPG, or WEBP</p>
-                  </div>
                 </div>
 
                 <div className="space-y-1.5">

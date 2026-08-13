@@ -103,7 +103,7 @@ export default function MovieFilters({
 
         {/* Animated Popover */}
         <div
-          className={`absolute right-0 z-10 mt-2 w-full origin-top-right rounded-xl border border-zinc-100 bg-white p-1.5 shadow-lg shadow-zinc-200/50 outline-none transition-all duration-200 ease-in-out dark:border-zinc-800 dark:bg-zinc-950 dark:shadow-none ${
+          className={`absolute right-0 z-50 mt-2 w-full origin-top-right rounded-xl border border-zinc-100 bg-white p-1.5 shadow-lg shadow-zinc-200/50 outline-none transition-all duration-200 ease-in-out dark:border-zinc-800 dark:bg-zinc-950 dark:shadow-none ${
             isOpen
               ? "opacity-100 scale-100 translate-y-0 pointer-events-auto"
               : "opacity-0 scale-95 -translate-y-2 pointer-events-none"

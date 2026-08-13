@@ -96,7 +96,11 @@ export function ShowtimeFormModal({
     }
   };
 
-  const statusOptions = Object.values(ShowtimeStatus).map((val) => ({
+  const statusOptions = [
+    ShowtimeStatus.SCHEDULED,
+    ShowtimeStatus.CANCELLED,
+    ShowtimeStatus.FINISHED,
+  ].map((val) => ({
     value: val,
     label: val.charAt(0) + val.slice(1).toLowerCase(),
   }));

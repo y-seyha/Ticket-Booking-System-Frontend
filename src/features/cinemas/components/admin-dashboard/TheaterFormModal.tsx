@@ -3,7 +3,8 @@
 import { useState, useEffect } from "react";
 import { cinemasApi, CreateTheaterPayload } from "../../cinemas.api";
 import { Cinema } from "../../cinemas.types";
-import { X, Upload, Loader2, Mail } from "lucide-react";
+import { X, Loader2, Mail } from "lucide-react";
+import { ImageUploader } from "@/components/common/ImageUploader";
 
 interface Props {
   isOpen: boolean;
@@ -241,28 +242,15 @@ export default function TheaterFormModal({
           </div>
 
           <div>
-            <label className="block text-xs font-medium mb-1.5 text-zinc-600 dark:text-zinc-400">
-              Cover Display Image
-            </label>
-            <div className="flex items-center justify-center w-full">
-              <label
-                className={`flex flex-col items-center justify-center w-full h-24 border-2 border-dashed border-zinc-200 dark:border-zinc-800 rounded-xl transition-all ${isSubmitting ? "opacity-50 cursor-not-allowed" : "cursor-pointer hover:bg-zinc-50 dark:hover:bg-zinc-900/50"}`}
-              >
-                <div className="flex flex-col items-center justify-center pt-3 pb-3 px-4 text-center">
-                  <Upload className="h-5 w-5 text-zinc-400 mb-1" />
-                  <p className="w-full max-w-[220px] truncate text-xs text-zinc-500 dark:text-zinc-400">
-                    {file ? file.name : "Click to upload media file"}
-                  </p>
-                </div>
-                <input
-                  type="file"
-                  accept="image/*"
-                  className="hidden"
-                  onChange={(e) => setFile(e.target.files?.[0] || null)}
-                  disabled={isSubmitting}
-                />
-              </label>
-            </div>
+            <ImageUploader
+              variant="tile"
+              value={theater?.image?.url ?? null}
+              onChange={setFile}
+              onRemove={() => setFile(null)}
+              label="Cover Display Image"
+              hint="Click to browse or drag &amp; drop image"
+              disabled={isSubmitting}
+            />
           </div>
 
           <div className="mt-6 flex gap-3 pt-2">

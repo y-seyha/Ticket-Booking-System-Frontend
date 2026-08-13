@@ -1,11 +1,12 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { foodAndBeverageApi } from "../../foods-and-beverage.api";
 import { FoodItem } from "../../foods-and-beverage.types";
-import { X, Loader2, Upload } from "lucide-react";
+import { X, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { getApiClient } from "@/lib/config/api-client";
+import { ImageUploader } from "@/components/common/ImageUploader";
 
 interface ItemFormModalProps {
   isOpen: boolean;
@@ -33,9 +34,7 @@ export default function ItemFormModal({
   const [sortOrder, setSortOrder] = useState(0);
   const [isActive, setIsActive] = useState(true);
   const [imageFile, setImageFile] = useState<File | null>(null);
-  const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
-  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     let timer: NodeJS.Timeout;
@@ -62,7 +61,6 @@ export default function ItemFormModal({
         setPrice(String(item.price));
         setSortOrder(item.sortOrder);
         setIsActive(item.isActive);
-        setImagePreview(item.image?.url || null);
         setImageFile(null);
       } else {
         setName("");
@@ -70,20 +68,12 @@ export default function ItemFormModal({
         setPrice("");
         setSortOrder(0);
         setIsActive(true);
-        setImagePreview(null);
         setImageFile(null);
       }
     });
   }, [isOpen, item]);
 
   if (!render) return null;
-
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    setImageFile(file);
-    setImagePreview(URL.createObjectURL(file));
-  };
 
   const uploadImage = async (): Promise<string | null> => {
     if (!imageFile) return item?.imageId || null;
@@ -175,47 +165,15 @@ export default function ItemFormModal({
         <form onSubmit={handleSubmit} className="space-y-4">
           {/* Image Upload */}
           <div>
-            <label className="block text-xs font-medium mb-1.5 text-zinc-600 dark:text-zinc-400">
-              Image <span className="text-zinc-400 font-normal">(Optional)</span>
-            </label>
-            <div
-              onClick={() => fileInputRef.current?.click()}
-              className="relative border-2 border-dashed border-zinc-300 dark:border-zinc-700 rounded-xl p-4 cursor-pointer hover:border-zinc-400 dark:hover:border-zinc-500 transition-colors"
-            >
-              {imagePreview ? (
-                <div className="relative w-full h-32">
-                  <img
-                    src={imagePreview}
-                    alt="Preview"
-                    className="w-full h-full object-cover rounded-lg"
-                  />
-                  <button
-                    type="button"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setImageFile(null);
-                      setImagePreview(null);
-                    }}
-                    className="absolute top-1 right-1 bg-black/60 rounded-full p-1 hover:bg-black/80 transition"
-                  >
-                    <X className="w-3 h-3 text-white" />
-                  </button>
-                </div>
-              ) : (
-                <div className="flex flex-col items-center gap-2 text-zinc-400">
-                  <Upload className="w-6 h-6" />
-                  <span className="text-xs">Click to upload image</span>
-                </div>
-              )}
-              <input
-                ref={fileInputRef}
-                type="file"
-                accept="image/*"
-                onChange={handleImageChange}
-                className="hidden"
-                disabled={isSubmitting}
-              />
-            </div>
+            <ImageUploader
+              variant="tile"
+              value={item?.image?.url ?? null}
+              onChange={setImageFile}
+              onRemove={() => setImageFile(null)}
+              label="Image (Optional)"
+              hint="Click to browse or drag &amp; drop image"
+              disabled={isSubmitting}
+            />
           </div>
 
           <div>

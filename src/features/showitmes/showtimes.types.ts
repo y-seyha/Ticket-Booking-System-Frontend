@@ -3,6 +3,7 @@ export enum ShowtimeStatus {
   ACTIVE = "ACTIVE",
   CANCELLED = "CANCELLED",
   COMPLETED = "COMPLETED",
+  FINISHED = "FINISHED",
 }
 
 export interface Theater {
@@ -63,3 +64,26 @@ export interface CreateBulkScheduleDto {
 }
 
 export type UpdateShowtimeDto = Partial<CreateShowtimeDto>;
+
+export interface ShowtimeQuery {
+  page?: number;
+  limit?: number;
+  search?: string;
+  movieId?: string;
+  screenId?: string;
+  theaterId?: string;
+  status?: ShowtimeStatus;
+  date?: string;
+}
+
+export interface PaginationMeta {
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+}
+
+export interface PaginatedShowtimes {
+  data: Showtime[];
+  pagination: PaginationMeta;
+}

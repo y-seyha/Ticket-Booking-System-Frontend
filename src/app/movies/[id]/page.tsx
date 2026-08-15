@@ -223,6 +223,7 @@ export default function MovieDetailsPage() {
             alt=""
             fill
             priority
+            loading="eager"
             className="object-cover w-full h-full scale-125 blur-[110px] opacity-60"
           />
         )}
